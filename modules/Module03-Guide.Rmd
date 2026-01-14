@@ -1,0 +1,281 @@
+---
+title: "Module 3 Guide"
+author: "GEOG-3440"
+output: html_document
+---
+
+```{r setup, include=FALSE} 
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+This document describes the important concepts, workflows, functions, and other information useful for this week.
+
+### Readings
+
+* Read this book chapter on [file paths](https://www.r4epi.com/file-paths), there are great visualizations to break this concept down. Here is another [article](https://osdfir.blogspot.com/2023/07/whats-in-file-path.html) discussing file paths and common pitfalls.
+* Read **Algebra, Read and write files, and Data exploration** in the [R-Spatial book](https://rspatial.org/intr/5-algebra.html)
+* Read this [Scribbr article](https://www.scribbr.com/statistics/descriptive-statistics/) about descriptive statistics.
+* Peruse the [Graphics](https://rspatial.org/intr/12-plots.html) section in the R-Spatial book
+* Look over different types of [Plots in Base R](https://sustainabilitymethods.org/index.php/Barplots,_Histograms_and_Boxplots) to get an idea of how the syntax works which scenarios 
+
+### Main Goals
+
+1. Understand the basics of filepaths and working directories
+2. Perform data exploration and read/write files
+3. Create simple visualization in base R
+
+<br />
+
+## **1. Filepaths and Working Directories**
+
+Managing file paths and working directories is often essential when working with data. A **file path** specifies the location of a file or folder in the file system, while the **working directory** is the default location where R looks for files to read or where it saves files.
+
+Properly *setting* your working directory and understanding file paths can make your workflow more efficient, especially when working with multiple datasets or generating outputs that need to be saved.
+
+#### **Understanding File Paths**
+A file path is essentially a way to describe the location of a file within the directory structure of a computer. There are two main types of file paths:
+
+- **Absolute Path**: Specifies the full path from the root directory to the file. It provides the exact location of the file regardless of your current working directory.
+  - Example: `"C:/Users/YourName/Documents/data.csv"` (on Windows)
+  - Example: `"~/user/data.csv"` (on Linux/Mac)
+  
+- **Relative Path**: Specifies the path relative to the current working directory. It is useful when working with files within the same project or directory.
+  - Example: `"data/myfile.csv"` (referring to a file located in a subfolder called `data`).
+
+#### **The Working Directory in R**
+The working directory is the folder in which R reads files from and saves output files to by default. It's important to set the working directory correctly so that R can find the files you need to work with.
+
+- You can check your current working directory in R by using the function `getwd()`.
+- To change the working directory, you can use the `setwd()` function.
+
+Check and Change the Working Directory
+
+1. Open RStudio or an R console.
+2. Use `getwd()` to check your current working directory.
+3. Use `setwd("path/to/your/folder")` to set the working directory to a folder of your choice (e.g., `"C:/Users/YourName/Documents/myproject"`).
+4. Use `getwd()` again to confirm that the working directory has been changed successfully.
+
+```r
+# Check current working directory
+getwd()
+
+# Set working directory to your desired location
+setwd("C:/Users/YourName/Documents/myproject")
+
+# Confirm the change
+getwd()
+```
+
+#### **Common Functions for Working with Files in R**
+
+R can also be used to navigate directories and paths
+
+- `getwd()`: Returns the current working directory.
+- `setwd("path/to/directory")`: Sets the working directory to the specified path.
+- `list.files()`: Lists all files in the current working directory.
+- `file.path()`: Creates file paths by combining directory and file names in a platform-independent way.
+- `file.exists()`: Determine if a file (based on path) exists
+- `dir.create()`: Create a new directory (folder)
+- `dir.exists()`: Determine if a directory (based on path) exists
+
+> **Quick Challenge:** \
+> 1. Create a directory (folder) named `file_path_examples` inside your working directory. \
+> 2. Change your working to this new folder. \
+> 3. Download the `generate_files.sh` file from Canvas and place it in this folder (*this is a bash script that you are going to run to generate some data as an example*). \
+> 4. Use `list.files()` to list all files to see the bash file. \
+> 5. Run the following function in the R console: `system("bash generate_files.sh")` - **What this does:** This function executes the bash file. The bash file is going to generate another folder containing several text files and an additional folder, which you will use in the next example. **Note:** *Bash is another lower-level programming language used to navigate your operating system. You will learn a few bash commands, but don't be concerned about learning everything!* \
+> \
+> **Complete the following:** \
+> Create a folder called *random_files* has been generated containing several text files and another folder. \
+> List and count the files. \
+> Create a variable that contains all file names. \
+> Use the `readLines` function, along with the filepath to print the phrase in each file. \
+> Create a new folder called copy_folder and use the function `file.copy` to copy two files into this. \
+> **Advanced option:** *Combine all lines within the text files in the "secret_folder" to extract the message. (hint: use indexing)* \
+> *What else might you want to extract from these files?* \
+
+Knowing how to work with file paths can be incredibly useful. Consider how you might make your life easier by finding specific files, or several types of files within one or more directories of a computer. many of these functions also use pattern matching or regular expression, which we may discuss more in the future.
+
+For example, consider that we have a very unorganized folder but we know that there are one or more .csv files. When listing files, you can add a pattern argument to the function so that the results only lists the type of files you are looking for. You can also add other text to find files that match
+
+```r
+# find csv files, note: will return all csv files in directory
+filename <- list.files("data/unorganized_folder", pattern = ".csv") 
+df <- read.csv(filename)
+
+# specific text files that contain numbers 6-8
+list.files("file_path_examples/random_files", pattern = "[6-8].txt")
+## [1] "file_16.txt" "file_17.txt" "file_18.txt" "file_6.txt"  "file_7.txt"  "file_8.txt"
+```
+
+Don't worry too much about pattern matching or regular expression for now. We'll mainly use file paths to read and write data in R.
+
+<br />
+
+
+
+## **2. Data Exploration and Reading Files**
+
+This section will dig deeper into manipulating and working with data. Importantly you will learn how to read in data and write (save) tabular files to disk.
+
+#### **Descriptive Statistics**
+
+The [Algebra](https://rspatial.org/intr/5-algebra.html) chapter in your book covers several functions used for arithmetic and descriptive statistics, which are important to describe your dataset.
+
+First, let's start by using a function to generate some random data. Your book covers random samples from uniform and normal distributions; the `sample` function allow us to random sample from a set of numbers:
+
+```{r}
+# randomly sample 25 numbers between 1-100
+my_numbers <- sample(1:100, 25)
+
+# describe the dataset with statistics
+cat("Descriptive statistics for random numbers \n", 
+    my_numbers,  "\n",
+    " Mean: ", mean(my_numbers), "\n",
+    " Median: ", median(my_numbers), "\n",
+    " Standard Deviation: ", sd(my_numbers),"\n",
+    " Range: ", range(my_numbers) )
+```
+*The* `cat` *function is similar to the print function, but somewhat more flexible. We can also force text on a new line with* `\n`. *Note,* `sample` *has additional arguments to reuse numbers within the sample. Always check the `?` help doc about a function to learn more.*
+
+Descriptive statistics are usually the first step in knowing your data and can be important for analysis. 
+
+Vector operations can also be useful when exploring data. Rather than combining vectors or using scalars (e.g. `2 * c(1,3,5,7)`) you can perform arithmetic operations directly *between* neighboring values in a vector:
+
+```{r}
+# create vector
+new_vect <- seq(from = 12, to = 36, by = 3)
+
+# take difference between values
+diff_vals <- diff(new_vect)
+
+# take the product of values
+prod_vals <- prod(new_vect)
+
+# print
+cat("Our vector of length: ", length(new_vect), " has a difference of \n",
+    " ", diff_vals, " between numbers \n",
+    "  and is now a vector of length ", length(diff_vals), "\n",
+    "The product of these values is: ", prod_vals, "\n",
+    "We can also take the sum: ", sum(new_vect), "or \n",
+    " the cumulative sum: ", cumsum(new_vect), "of the vector.")
+```
+*Many other operations exist that you will discover throughout the course!*
+
+#### **Data Exploration**
+
+Data exploration and preliminary analysis start with simple questions (e.g.*what is the shape of my data, what is the average value of X, what occurrences meet Y criteria, and so on*).
+
+Data is often organized into tables for convenience. You already learned about data frames last week, this will be a dominant type of data that we will regularly use. Some geospatial data formats also use a data frame as well so this data format is very useful to explore.
+
+R contains some **built-in** data frames that we can work with, you can call in the `mtcars` data frame from any session:
+
+```{r}
+# check out mtcars dataset
+head(mtcars)
+```
+
+This data is from the 1974 Motor Trend US magazine, and comprises fuel consumption and 10 aspects of automobile design and performance for 32 automobiles (1973–74 models).
+
+Let's check out some summary statistics and explore this data a bit more. While you could run `mean`, `max`, and other functions on different columns, run the `summary` function instead to show several statistics across the entire data frame:
+
+```r
+summary(mtcars)
+```
+> **Quick Challenge:** Find the car with the best and worst fuel efficiency! 
+
+You can subset a dataset based on criteria, perform basic arithmetic on different columns, and provide general descriptive statistics.
+
+```{r}
+# create conditional statement (cars with hp above median)
+condition1 <- mtcars$hp > median(mtcars$hp)
+
+# use indexing to subset the data based on condition
+cars_subset <- mtcars[condition1,]
+
+# calculate new variable and add as new column
+power_to_weight_ratio <- cars_subset$hp / cars_subset$wt
+cars_subset$pow_wt <- power_to_weight_ratio # new column added 
+quantile(cars_subset$pow_wt)
+```
+
+> **Quick Challenge:** Which cars are in the upper quartile (also known as the 75th percentile) for power to weight ratio? 
+
+We can reassign values and entire column variables as well:
+
+```{r}
+# subset based on transmission type | am - Transmission (0 = automatic, 1 = manual)
+condition2 <- mtcars$am == 1 
+cars_subset2 <- mtcars[condition2, ]
+
+# add an extra gear
+cars_subset2$gear <- cars_subset2$gear + 1 # update existing column
+```
+
+The `table` function is a useful tool to obtain a frequency table (*or a count of categories*), and the `unique` function determines unique occurrences in a series:
+
+```{r}
+# frequency table of different cylinders 
+table(mtcars$cyl)
+
+# unique types of cylinders
+cat("Unique cyliner categories are: ", unique(mtcars$cyl) )
+```
+This sort of data manipulation is really the meat and bones of data analysis so we will spend more time on this in the future!
+
+#### **Read and Write Data**
+
+As you saw above, you can read in datasets with a *filepath* to import more data into R. We will mainly use external datasets for analysis. The most simple form of tabular data is a **csv file**, or a text file with *comma-separated values*. While you can use other packages to read in files like an Excel file (.xlsx), it is generally easier to stick to a csv file for less headache. 
+
+Functions like `read.csv()` and `read.table()` import tabular data files into R data frames. These files can then be manipulated and exported (saved) as a physical file on your computer. The basic workflow can be described as:
+
+```r
+df <- read.csv("data.csv") # load in an example csv (become a data frame in R)
+
+# < write code to clean and manipulate data frame >
+
+write.csv(df_new, "clean_data.csv") # export csv as a new data frame 
+```
+
+Data frames can be saved to disk using write.csv() and write.table(). This facilitates realistic data analysis pipelines entirely within R: read in data, wrangle, process, analyze, and export results.
+
+There are several other packages in R that facilitate reading some forms of data. Geospatial data, in particular, requires a specialized library to interpret other data formats, which you will learn more about in the coming weeks.
+
+> **Quick Challenge:** Create a new subset of the `mtcars` data frame, alter two existing rows and create a new column variable, and write this as a new csv file named `my_cars.csv`.
+
+The ability to read and write data in R allows you to work with external datasets, but also provides a way to save final results in an analysis and save work at variaous stages in an analysis or program.
+
+## **3. Simple Visualizations in Base R**
+
+**Important:** *Keep visualizations in* **base R,** *i.e. only using the functions below, we will learn about more advanced plotting packages in the future, such as* `ggplot`. 
+
+Visualizing data is a key aspect of data science and an important form of science communication. R has excellent built-in graphics capabilities. It is useful to observe values, potential trends, and relationships between variables. 
+
+Here are some key plotting functions from **base R**:
+
+- `plot()` - Scatterplot
+- `hist()` - Histogram
+- `barplot()` - Bar chart
+- `boxplot()` - Boxplot 
+- `pie()` - Pie chart
+
+You can build almost any type of plot using `plot()` by specifying additional arguments. Plot types like scatterplots, histograms and boxplots are useful for initial visual exploration of data. Bar and pie charts can visualize categorical data.
+
+Here is an example with the `mtcars` dataset (a built in R dataset):
+
+```{r, width = 50}
+# Scatterplot
+plot(x = mtcars$wt, y = mtcars$mpg)  
+# Histogram 
+hist(x = mtcars$mpg)
+```
+
+> **Challenge:** Visually show the relationship between two other variables in the `mtcars` dataset and add additional arguments for *color, symbol type, title, axis titles, and symbol size.* Use `?plot.default` and check under the *commonly used graphical parameters* to see how to structure these arguments.
+
+**Complete the assigned readings** to learn more about base plotting in R and to explore additional arguments to improve these graphics. We will introduce additional packages for visualization soon!
+
+Remember, the first step of any analysis is to understand the data type, data structure, consider summary statistics, and create basic visualizations. You are on your way to performing exploratory analysis in R! \
+
+**Complete the Module Task**
+
+<br />

@@ -1,0 +1,358 @@
+---
+title: "Module 6 Guide"
+author: "GEOG-3440"
+output: html_document
+---
+
+```{r setup, include=FALSE} 
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+This document describes the important concepts, workflows, functions, and other information useful for this week.
+
+### Readings
+
+* Skim through this short article on useful [R Packages](https://support.posit.co/hc/en-us/articles/201057987-Quick-list-of-useful-R-packages)
+* Read this article about on the Rise of [tidyverse](https://lrdegeest.github.io/blog/totalverse)
+* Instead of using *reshape* functions outlined in the [R-Spatial book](https://rspatial.org/intr/11-dataprep.html), explore the [pivoting](https://cran.r-project.org/web/packages/tidyr/vignettes/pivot.html) functions in the `tidyr` package
+* Read this article on What is [Spatial Data Science](http://gisgeography.com/spatial-data-science/)
+* Read the **Introduction, Spatial data, and Vector data** sections under Spatial data with *terra* in the [R-Spatial book](https://rspatial.org/spatial/1-introduction.html)
+* (optional) Use the [R for Data Science](https://r4ds.had.co.nz/introduction.html) book to learn more about tidyverse workflows in R
+
+
+### Main Goals
+
+1. Introduction to R packages
+2. Pivot tables and advanced joins
+3. The basics of geospatial data
+
+<br />
+
+
+## **1. Introduction to Packages**
+
+One of the biggest benefits that open-source programming languages, like R, have is an extensive collection of custom packages developed by community members like you, and widely used throughout the globe! Although you likely already have a little exposure to different R packages, let's discuss this a bit more formally.
+
+In R, a **package** is a collection of pre-written functions, data sets, and documentation that extend the capabilities of R. Think of it as a toolkit that someone else has created to make specific tasks easier. For example, one package might help you visualize data, another might help you manipulate it, and yet another might provide tools for advanced statistical analysis. Instead of writing complex code from scratch, you can load a package and use its functions to accomplish tasks more efficiently. Packages can help you perform anything from basic calculations to building complex machine learning models, all while saving you time and effort.
+
+The **tidyverse** is a collection of R packages that are designed to work together and provide a streamlined workflow for data science. It includes some popular and powerful packages, like `ggplot2` for visualization, `dplyr` for data manipulation, and `tidyr` for reshaping data. These packages share a common design philosophy, making it easier to learn and use them together. The tidyverse emphasizes readability and simplicity, so even non-programmers can quickly pick up these tools to clean, analyze, and visualize data. By using the tidyverse, you can follow a consistent workflow where tasks like cleaning data, exploring relationships, and presenting results become intuitive and less error-prone.
+
+Installing a new package is easy, and you can do so in a couple of ways. The first method is using the **Packages** tab in RStudio. In the tab, you'll find an "Install" button that allows you to search for and install packages directly from CRAN (the Comprehensive R Archive Network), which is the main repository for R packages. Alternatively, you can install packages manually using the function `install.packages()` (e.g., `install.packages("dplyr")`) in the console, and R will download and install it for you. Once the package is installed, you need to load it into your session with `library()` before you can start using it.
+
+**Keep in mind, it is perfectly ok and sometimes better to find solutions in base R**, however, you will inevitable run into a situation that requires a more complicated analysis. You could build your own functions and tools using base R, but it is a better use of your time to find an existing package that will do exactly what you are looking for. Read section below on **geospatial packages** as these packages are a little different than some other standard packages in R.
+
+<br />
+
+#### **Piping and dplyr workflows**
+
+The `dplyr` package simplifies data manipulation by providing functions that are intuitive and easy to use. We'll go over some of the most commonly used functions: `select()`, `filter()`, `summarize()`, and piping (`%>%`).
+
+First, similar to any package, you will need to load the `dplyr` libraries. Loading a packages brings the necessary functions into for your current R session, you will need to do this every time you start a new session. If you don't have `dplyr` installed, you can install it by running `install.packages("dplyr")`.
+
+```{r}
+# Load the dplyr package
+library(dplyr)
+```
+
+The `%>%` operator, known as the "pipe", allows you to chain functions together in a clean and readable way. This operator passes the output of one function as the input to the next function (as the first argument). That means that sometimes you will only have an empty function in your chain.
+
+```{r}
+# create dataframe and show the first twp rows
+cbind("col1"=c("a","b","c", "d"), "col2"=1:4) %>% 
+  as.data.frame() %>% head(2)
+```
+
+We'll use piping to chain together multiple steps below. The shortcut to add a pipe is *ctrl + shift + M*. It can also keep your code need to start new lines after a pipe.
+
+The `select()` function is used to select specific columns from a data frame. This is similar to indexing by column (e.g., `df[, "col1"]`). Let's use the built-in `mtcars` dataset for this example.
+
+```{r}
+# Select only the 'mpg' (miles per gallon) and 'hp' (horsepower) columns from mtcars
+selected_data <- mtcars %>% 
+  select(mpg, hp)
+
+# View the selected data
+head(selected_data)
+```
+
+The `filter()` function allows you to subset rows based on conditions. Here, we will filter the `mtcars` dataset to only include cars with more than 150 horsepower. This is similar to indexing by row to subset your data (e.g., `df[ df$col2 > 10 ,]`).
+
+```{r}
+# Filter rows where horsepower is greater than 150
+mtcars %>% 
+  filter(hp > 150) %>% 
+  head()
+# NOTE: this time we did not save the variable
+```
+
+The `summarize()` (or `summarise()`) function is used to aggregate data, such as calculating the mean or sum of a variable. We will compute the average miles per gallon (mpg) by the number of cylinders (using the `group_by()` function).
+
+```{r}
+# Summarize the average mpg by the number of cylinders
+summary_data <- mtcars %>%
+  group_by(cyl) %>% 
+  summarize(avg_mpg = mean(mpg))
+
+# View the summary data
+summary_data
+```
+
+The `mutate()` function is the last `dplyr` function we will discuss. This function allows you to add new columns, or update existing columns, in your dataset within a piping framework:
+
+```{r}
+# create new column for kilometers per liter from mpg
+mtcars %>% 
+  mutate(km_l = round(mpg / 2.352, 1) ) %>% # conversion factor
+  select(mpg, km_l) %>% head(4)
+```
+
+Note, these functions also work outside of piping, but are typically most effective when used in a chain.
+
+*Several other functions exist in the dplyr package that will be useful! Continue to explore other possibilities.*
+
+<br />
+
+
+#### **Visualization with ggplot**
+
+`ggplot2` is a powerful package for creating visualizations in R. It uses a grammar of graphics, which allows you to build plots layer by layer.
+
+Just like with `dplyr`, you'll need to install and load `ggplot2`. You can install it with `install.packages("ggplot2")`.
+
+```{r}
+# Load the ggplot2 package
+library(ggplot2)
+```
+
+Let's start with a simple scatter plot using the `mtcars` dataset. We'll plot `mpg` (miles per gallon) on the y-axis and `hp` (horsepower) on the x-axis. `ggplot` uses the `aes()` or aesthetic function to map values of x and y. Aesthetic mapping is a key part of this package. Another great thing with ggplot is that the functions recognize column names as standalone variables:
+
+```{r}
+# Scatter plot of mpg vs. hp
+ggplot(mtcars, aes(x = hp, y = mpg)) + 
+  geom_point()
+```
+
+**Note**, `ggplot` has it's own way of chaining together plot functions. This is similar to the pipe `%>%` but keep in mind that one is for `ggplot` and other for `dplyr`.
+
+You can enhance your plots by adding titles, axis labels, and customizing the appearance.
+
+```{r}
+# plot with titles and customized appearance
+mtcars %>% # dplyr chaining
+  ggplot(aes(x = hp, y = mpg)) + # ggplot chaining 
+  geom_point(color = "blue") + 
+  labs(title = "MPG vs Horsepower",
+       x = "Horsepower (hp)",
+       y = "Miles per Gallon (mpg)") +
+  theme_minimal()
+```
+
+To visualize data by groups, you can color the points by another variable. Let's color the points based on the number of cylinders (`cyl`).
+
+```{r}
+# Scatter plot with points colored by 'cyl'
+ggplot(mtcars, aes(x = hp, y = mpg, color = factor(cyl))) + 
+  geom_point() +
+  labs(title = "MPG vs Horsepower by Cylinders",
+       color = "Number of Cylinders")
+```
+
+A boxplot is another type of plot you can create with `ggplot2` to visualize the distribution of a variable. Let's create a boxplot of `mpg` by the number of cylinders.
+
+```{r}
+# Boxplot of mpg by cyl
+ggplot(mtcars, aes(x = factor(cyl), y = mpg)) + 
+  geom_boxplot() + 
+  labs(title = "MPG by Number of Cylinders",
+       x = "Number of Cylinders",
+       y = "Miles per Gallon (mpg)")
+```
+
+You can save your plot using the export function in R or with the `ggsave()` function.
+
+```R
+# Save the last plot as a PNG file
+ggsave("mpg_vs_hp_plot.png")
+```
+
+This section shows you that there is more than one way to metaphorically *skin a cat*. You see how `dplyr` can be used for data manipulation and `ggplot2` for creating better visualizations. These two packages are are widely used for exploring and understanding data in R. Once you're comfortable with the basics, you can start exploring more advanced techniques and additional packages that make R an even more powerful tool for data science!
+
+There are many other R packages that can complement the packages described above. Here are a few popular ones you can explore:
+
+- **`tidyr`**: A package for reshaping data, helping with tidying up datasets (e.g., `gather()`, `spread()` functions), *which we will discuss in the next sections*.
+- **`lubridate`**: Helps with working with dates and times in R.
+- **`readr`**: A package for fast reading of CSV and other data formats.
+- **`plotly`**: For interactive plots and visualizations.
+
+As stated above, **you can choose to work primarily in base R** but I would **strongly encourage you to become familiar with other packages** in R to improve your data science capabilities!
+
+<br />
+
+
+## **2. Pivot Tables and Advanced Joins**
+
+You previously read in the R Spatial book about preparing data by reshaping and merging, however, there are a better ways to perform these tasks using other R packages.
+
+#### **Pivoting**
+
+Pivoting is used to restructure data—converting columns into rows (wide to long format) or vice versa (long to wide format). The `reshape()` function in base R is versatile and can help achieve this transformation. Let's look at an example where we have environmental data on temperatures measured across different months.
+
+```{r}
+# xreate a sample data frame of average temperatures for each month
+temp_data <- data.frame(
+  Location = c("Location1", "Location2"),
+  Jan = c(30, 25),
+  Feb = c(32, 28),
+  Mar = c(40, 35)
+)
+
+print(temp_data)
+
+# reshape from wide to long format
+long_temp_data <- reshape(temp_data, 
+                          varying = c("Jan", "Feb", "Mar"),
+                          v.names = "Temperature",
+                          timevar = "Month",
+                          times = c("Jan", "Feb", "Mar"),
+                          direction = "long")
+print(long_temp_data)
+```
+
+This will convert the data frame from a wide format to a long format, where each row represents a month's temperature for each location. While this *base R* function is useful, there are libraries that contain better pivoting functions. 
+
+To reshape and merge data in a better way, you can use the `tidyr` alongside the `dplyr` library in R. Specifically, we'll explore the `pivot_longer()` and `pivot_wider()` functions from `tidyr` to reshape the data.
+
+```{r}
+# Load libraries
+# library(dplyr) # load if needed
+# install.packages("tidyr") # if not already installed
+library(tidyr)
+```
+
+Let's create some example data frames to use for pivoting and merging. `dplyr` and `tidyr` can work with dataframes but typically prefers a `tibble()`. Both **tibbles** and **data frames** are used to store tabular data, but tibbles are a modern version of data frames from the **tidyverse** that address some of their limitations. Tibbles are more user-friendly for displaying large datasets, and allow for more intuitive column access.
+
+```{r}
+# Wide format data
+data_wide <- tibble(
+  id = 1:3,
+  name = c("John", "Alice", "Bob"),
+  score_math = c(95, 88, 92),
+  score_english = c(85, 90, 89)
+)
+# View data
+print(data_wide)
+```
+
+In data science, **long format** refers to a structure where each observation is represented by a single row, and multiple measurements or variables are stored in separate columns, often with one column specifying the variable type (e.g., "score" or "subject"). **Wide format**, on the other hand, arranges data such that each unique variable gets its own column, with each row typically representing an individual observation. Long format is often preferred for analysis and modeling because it is more flexible and compatible with many statistical functions and tools, while wide format is easier to read and interpret for smaller datasets or when comparing a few variables. The `pivot_longer()` function reshapes the data from wide to long format. It collapses multiple columns into two columns: one for the variable name (e.g., `score_math`) and one for the values (e.g., `95`).
+
+```{r}
+# Pivot the wide data to long format
+data_long <- data_wide %>%
+  pivot_longer(cols = starts_with("score"),
+               names_to = "subject",
+               values_to = "score")
+
+# View the long data
+print(data_long)
+```
+
+The `pivot_wider()` function reshapes the data back from long to wide format, spreading the values of a column into multiple columns based on a key.
+
+```{r}
+# Pivot the long data back to wide format
+data_wide_again <- data_long %>%
+  pivot_wider(names_from = "subject", values_from = "score")
+
+# View the wide data
+print(data_wide_again)
+```
+
+ *Another popular library for data manipulation, which we will not cover is the* `reshape2` *package, which has the* `melt` *function.*
+
+#### **Merging and Joins**
+
+Joining datasets relies on key on similar key variables between data. You've already explored some ways in base R to match values between datasets:
+
+Recall the `match` function returns the location of the match of x, which can be numeric or character:
+```{r, class.source = 'fold-show', eval=FALSE}
+match(5, 1:9) # 5
+match(5, c(1,2,3,6,7,8,9,5)) # 8
+match("B", c("A","B","C")) # 2
+```
+
+You can also use the `%in%` (wrapper for match) to return a logical expression to check if a value exists at all in the vector:
+```{r, class.source = 'fold-show', eval=FALSE}
+capletters <-  c("B","Z","F","D","A","G","C")
+"A" %in% capletters # TRUE
+"J" %in% capletters # FALSE
+5 %in% 1:9 # TRUE
+```
+
+These methods are useful, but what about for more complicated tasks? You previously worked with the `merge` function in base R, which combines datasets using matched key columns. The *dplyr* package contains a several ways to join data that can be more intuitive. Let's read in a secondary dataset with additional information.
+
+```{r}
+# secondary dataset
+data_info <- tibble(
+  id = c(1, 2, 3, 4),
+  age = c(20, 25, 22, 26),
+  grade = c("A", "B", "A", "C")
+)
+
+# View data
+print(data_info)
+```
+
+Now, let’s merge the `data_wide` and `data_info` datasets using the `left_join()` and `full_join()` functions from `dplyr`.
+
+The `left_join()` function combines two datasets by matching rows based on a common column. It keeps all rows from the left dataset (`data_wide`) and adds matching rows from the right dataset (`data_info`).
+
+```{r}
+# Left join data_wide with data_info based on 'id'
+data_left_joined <- data_wide %>%
+  left_join(data_info, by = "id")
+
+# View the result of the left join
+print(data_left_joined)
+```
+
+The `full_join()` function returns all rows from both datasets, filling in missing values with `NA` where necessary.
+
+```{r}
+# Full join data_wide with data_info based on 'id'
+data_full_joined <- data_wide %>%
+  full_join(data_info, by = "id")
+
+# View the result of the full join
+print(data_full_joined)
+```
+
+Note that merge and join functions operate on matching (see `match` function) variables between datasets. While some data can be combined with `cbind` and `rbind`, a true merge requies a specialized function that ensures fidelity in the matching of the two datasets.
+
+**Recap of Functions Used:**
+
+- `pivot_longer()`: Converts wide format data to long format by collapsing multiple columns into two (key-value pairs).
+- `pivot_wider()`: Converts long format data back into wide format by spreading key-value pairs into columns.
+- `left_join()`: Merges two datasets based on a common column, keeping all rows from the left dataset.
+- `full_join()`: Merges two datasets based on a common column, keeping all rows from both datasets.
+
+Data manipulation is a key part of data science. You will continue to use these libraries and methods, along with base R, throughout the semester.
+
+<br />
+
+
+## **3. The Basics of Geospatial Data**
+
+Welcome to the world of geospatial data! You already know quite a bit about geospatial data from previous classes, you just haven't worked with this kind of data yet in R. As you know, geospatial data is *special* because it requires unique information about the geographic coordinate system and spatial proejction information. Location is also an important variable that can be incorporated into analysis. Unsuprisingly, we need to use specialized packages to work with geospatial data in R. The `terra` package is our first one-stop shop for all geospatial needs. We will focus on this library, and eventually add in additional data useful geospatial libraries.
+
+
+
+
+
+
+
+<br />
+
+**Complete the Module Task**
+
+<br />
+<br />

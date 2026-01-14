@@ -1,0 +1,103 @@
+---
+title: "Module 8"
+author: "Your Name"
+output: html_document
+---
+
+```{r setup, include=FALSE} 
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Provide complete code and written responses for each question below. **Use assignment questions for full details and tips.**
+
+<br />
+
+```{r}
+# read in packages
+library(terra)
+```
+
+<br />
+
+
+#### **Zonal relationships**
+
+1. Use the `zonal` function to calculate average SWE (*values*) listed for the 2022 water year in each HUC6 in the state and plot this as interval (default) with 5 classes, using a color scale that varies in shade of blue (*e.g. blues9*). Add HUC6 geometries over the top and run the `zonal` function again (or another tool) to calculate the total number of stations in each HUC6 and add this value with the `text` function in a complementary color (*e.g. red*). Provide a statement about average SWE and the distribution of SNOTEL stations throughout the state.
+
+```{r}
+
+```
+
+
+
+2. Use the `expanse` function to calculate the area of each HUC6 unit in 10,000s of square kilometers (`unit="km"` and multiply area by `10e3` after). Use this value, along with your zonal statistics output of station counts by HUC6, to create a map that shows the density of stations over the area of each HUC6. How does this change your interpretation of SNOTEL representation within each HUC6?
+
+```{r}
+
+```
+
+  
+  
+3. Convert your UT dem from meters of elevation to feet with simple arithmetic (*1 meter = 3.281 feet*) and use the elevation range for all SNOTEL sites to create a new dem (*dem_snotel*) that only shows cell values that are within the same range as SNOTEL sites state-wide. This can be accomplished with indexing and boolean logic, or the `clamp` function. Plot your subset elevation raster with the HUC6 borders overlapping. 
+
+```{r}
+
+```
+
+
+
+4. Use both the UT DEM and your masked `dem_snotel` rasters to calculate the percentage (rounded to the nearest whole number) of pixels within the range of SNOTEL elevations by HUC6. To do this, use the `!is.na` function on the raster to create a binary raster. Then, use the `zonal` function to sum the number of pixels by HUC6 in each raster. Plot the percentages for each HUC6 with the default 5 interval classification (use a sequential color palette like `heat.colors` or similar to emphasize higher values), then add `text` values over the top that show the percentage followed by the "%" for each HUC6.
+
+```{r}
+
+```
+
+
+
+5. Use the `extract` function to extract the raster UT dem elevation values (`x`) at each snotel site (`y`) in your vector point data (*note, the dimensions should match your snotel data, which can be added as a new column*). Use these values to create a scatterplot that shows predicted values (x-axis) with observed values. Add a 1:1 line using the `abline` function (*a perfect match would show the all points on the 1:1 line*). Add the RMSE (rounded to whole number) as text in the topright corner of the plot.
+
+```{r}
+
+```
+
+
+
+<br />
+
+#### **Relationships between snow and elevation**
+
+6. Using either base R or ggplot, create a scatter plot with the SNOTEL data that shows the max SWE (snow water equivalent) during the 2022 winter season as a function of elevation (x-axis). Add a linear model using `geom_smooth` *(ggplot)* or `lm` and `abline` *(base)* alongside the point data to visualize any linear relationship that might exist.
+
+```{r}
+
+```
+
+
+
+7. Statistically assess the strength of the linear relationship between max SWE as a function of elevation with `lm`. Consider the direction, strength, significance, and wellness of fit of this relationship, and discuss whether elevation is a good predictor of SWE.
+
+```{r}
+
+```
+
+
+
+8. Perform multiple linear regression using elevation, latitude, and longitude all as independent variables that relate to SWE. How does this model compare with your model in the previous question? Be specific and describe why one of these might be a better way to model SWE over the other.
+
+```{r}
+
+```
+
+
+
+9. (*2 pts*) Investigate the affect of elevation on max seasonal SWE (*inches*) by HUC6 code. Provide a scatterplot and linear model showing the relationship and report, the significance (*p-value*) and either the wellness of fit (\R^2\) or the RMSE for each. Finally, use the Estimate (for *elevation_ft*) to describe how SWE changes relative to an increase of 1,000 feet within each of the six HUC6 regions.
+
+
+```{r}
+
+```
+
+
+<br />
+<br />
+

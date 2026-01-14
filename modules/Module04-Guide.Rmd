@@ -1,0 +1,236 @@
+---
+title: "Module 4 Guide"
+author: "GEOG-3440"
+output: html_document
+---
+
+```{r setup, include=FALSE} 
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+This document describes the important concepts, workflows, functions, and other information useful for this week.
+
+### Readings
+
+* Skim this short *how to* article on [RStudio Projects](https://support.posit.co/hc/en-us/articles/200526207-Using-RStudio-Projects)
+* Read up on [R Markdown](https://rmarkdown.rstudio.com/lesson-1.html), including the **Introduction, How it Works, and Code Chunks** sections
+* Read the **Functions, Apply, and Flow Control** sections in the [R-Spatial book](https://rspatial.org/intr/10-flow.html)
+* (Optional) Read about [Datetime](https://bookdown.org/rdpeng/rprogdatascience/dates-and-times.html)
+
+### Main Goals
+
+1. Reproducible workflows with R Markdown and Projects
+2. Learn forms of iterations and alternation
+3. Explore datetime and other formats
+
+<br />
+
+
+## **1. Reproducible Workflows**
+
+Let's make life easier on you and anyone else you decide to share code with. While learning to organize your code in an *R script* with *annotations* is a great way to organize your efforts, there is still a better way to stay organized and share your code and results! Do your future self and others a favor by practicing reproducible workflows. 
+
+#### **R Projects**
+
+First, let's create an *R Project*. In many ways, an R project is similar to a project in *ArcGIS Pro*, which is used to organize specific tasks and workflows. In addition to helping with code organization, another key reason why *projects* exist in both of these software is to organize data files associated with a project and facilitate file paths.
+
+You previously learned about the difference between an absolute and relative file path. File paths are important road maps to connect the data to your software!
+
+> **Quick Challenge:** List files in your downloads folder using either the relative or absolute file path.
+
+If you haven't already, you will need to decide where to keep your code and projects for this course. OneDrive is a good option for now.
+
+> **Quick Challenge:** Use functions in R that we previously discussed to create a heirarchical folder structure system for this course, at minimum include a folder for modules and the project.
+
+Click on the **Projects** icon in the *top-right* corner of RStudio and select **New Directory**. Name your new project *Module04* (or similar) and select your new modules folder as the destination. I would encourage you to keep your work organized in projects. 
+
+**Create two folders** within your project called *data* and another called *results*.
+
+
+#### **R Markdown**
+
+An R script is a quick, convenient way to write code but it is somewhat lacking in its presentation and is not the most useful way to share code or results. **Enter R Markdown!**
+
+R Markdown is a useful tool that integrates code, results, and narrative into a single document. It allows users to combine code, visualizations, and text in a way that facilitates reproducible research and clear communication of analysis. Whether creating reports, tutorials, or presentations, R Markdown allows users to combine code with explanatory text in an informative and easy to follow manner. A variety of output formats are available, including HTML, PDF, Word, slides, and other formats. Libraries like `Shiny` and `plotly`, can also be used to create interactive documents to explore data visualizations directly. **Your future assignments will be submitted as an html document written in R Markdown**.
+
+An R Markdown file (.Rmd) consists of three key components:
+
+1. **YAML Header**: The document begins with a YAML (Yet Another Markup Language) header enclosed by `---` at the top of the file. The YAML specifies metadata like the output format and title of the document.
+
+   Example:
+   ```yaml
+   ---
+   title: "Data Science Analysis"
+   author: "Student Name"
+   output: html_document
+   ---
+   ```
+
+2. **Text and Narrative**: Below the YAML header, you can include text formatted using Markdown syntax. This allows for rich formatting (e.g., headings, bullet points, links) to structure your narrative and explain the analysis.
+
+ Example:
+ 
+ ```
+ \
+ ## Introduction (Header)
+ 
+ This document contains both paragraph text and code snippets
+ 
+ ### A New Section (Sub-header)
+ 
+ There are additional ways to format text including **bold** and *italicized* 
+ 
+ * bullet lists are available
+    + and sub-items
+ 1. Numbered lists are also useful
+ 
+ \
+ ```
+
+3. **Code Chunks**: R code is embedded within the document using code chunks, which are denoted by triple backticks (` ``` `) followed by `{r}` or `r` for non-executed code. These chunks contain the R code that will be executed when the document is rendered.
+
+Commented example:
+```markdown
+# ```{r}
+# summary(mtcars) 
+# ```
+```
+
+When ready, click **Knit** to render the document. When the document is rendered, the R code will be executed, and the results (e.g., summary statistics, plots) will be included in the final output.
+
+**The best way to learn R Markdown** is to use it! Start by opening up a new R Markdown file (or .Rmd file), which opens up as a template with several useful tips to get started. As always, learn more by *googling* what you want to do!
+
+<br />
+
+
+## **2. Iterate and Alternate**
+
+Frequently in data science, you will find the need to do repeat a function or process multiple times. There may also be conditions that dictate what to do at certain time steps in a process. If this sounds confusing, don't worry, you'll understand how iteration and alteration are vital for programming.
+
+Your book reading covers mapping functions with the (t,s,m) `apply` functions. Theses can be useful to apply a function across a range of values or a data structure.
+
+Consider taking the mean of values across a matrix:
+
+```{r}
+mat <- matrix(sample(1:100, 9), nrow=3)
+mat
+apply(mat, 1, mean) # average by row
+```
+
+While there are countless other situations where one of the `apply` functions may come in handy, a somewhat more approachable and flexible system for iterative processes is using `for` loops.
+
+**For loops** are a way to iterate, which is to say, they provide you a method for doing something multiple times. The essential components of a `for` loop include:
+
+```r
+for (variable in vector) {
+  # some process or workflow
+}
+```
+
+The *variable* is also known as the iterator, it is a temporary variable that only exists in the loop and will keep count or the use the nth value of the vector during the process. By convention, many for loops use `i` as the variable. The *vector* is a vector values, often the number of desired iterations. Note, that the *brackets* are required to indicate where to start and stop the process. 
+
+```{r}
+x <- 1:4
+for (i in x) {
+  x2 <- i**2
+  print(paste("i of x is:", i, "which is", x2, "when squared"))
+}
+```
+As stated, the utility of this function may not be fully apparent immediately, but I'm positive that you will grow to appreciate the simple power it can provide.
+
+So where does the **alternate** part come in? Consider an instance where you need to iterate through variables and execute additional steps when certain conditions are met. A for loop is much more functional if we can provide it with conditional `if` and `else` statements. These statements will require boolean logic (`TRUE` or `FALSE`) to determine whether conditions are met. These can be combined within a for loop structure and require their own brackets, or code blocks:
+
+```{r}
+x_random <- sample(3:10, 5)
+for (i in x_random){
+  # check if number is greater than 5
+  if (i > 5){
+    print(paste(i, "is greater than 5"))
+  }else{
+    next # skip to next iteration
+  }
+}
+```
+
+`next` and `break` can be used to skip iterations or break the loop. There is also an `else if` option that can be added. 
+
+We'll ease into for loops and if/else statements this week and explore them in greater details throughout the coming weeks.
+
+<br />
+
+
+## **3. Working with Dates and other values**
+
+Let's move into specific data variations within the data types you have already learned. 
+
+#### Dates and Times
+
+R provides various specialized data structures and formats beyond the basic types of data. For dates and times, R has Date, POSIXct, and POSIXlt objects. These store temporal data in ways that allow easy extraction of components like year, month, day, hour, minutes, etc using built-in functions. 
+
+```r
+now <- Sys.time() # current date and time
+class(now)
+#[1] "POSIXct" "POSIXt"
+```
+
+POSIXct stores times as the number of seconds since the Epoch, while POSIXlt uses a list structure with the components broken out. Converting between the two is straightforward using as.POSIXlt() and as.POSIXct().
+
+We can easily extract components like year, month, day, hour, minutes, etc using built-in functions. Converting between formats is also simple:
+
+```r
+now2 <- as.Date(now) # convert to Date class
+as.POSIXlt(now2) # back to POSIXlt
+as.Date("1969-08-15") # convert string to date (tries format "%Y-%m-%d" by default)
+```
+There are several ways to format and change date/time information. It can be a headache but is essential for some analysis.
+
+```{r}
+today <- Sys.Date()
+format(today, "%d %b %Y")  # with month as a word
+```
+
+The format function can transform your date and time information, however, there are also other helpful functions to do so:
+
+```r
+now <- Sys.time() # current date and time
+format(now, "%H") # extract hour of time stamp
+weekdays(now) # list the day of the week
+```
+
+Make sure your dates are formatted correctly, in some instances a correct timezone may even need to be specified. Time is an essential component in analysis, make sure that you understand how to work with dates and time. 
+
+#### Working with NA values
+
+As discussed earlier, the NA value represents missing data. is.na() tests for NA values:
+
+```r
+vals <- c(1, 2, NA, 4)
+is.na(vals) # [1] FALSE FALSE TRUE FALSE
+```
+
+However, NA values propagate through operations, and must consequently be dealt with. Two options that exist include omitting NA values or ignoring them within the function:
+
+```r 
+vals * 2 # [1]  2  4 NA  8
+mean(vals) # NaN 
+na.omit(vals) # [1] 1 2 4
+mean(vals, na.rm = TRUE) # [1] 2.333333
+```
+
+We'll discuss one other option for dealing with NA values later on.
+
+
+#### Dictionaries with Lists
+
+Some programming workflows rely heavily on dictionaries, or a structure with key words related to data. For dictionary-like data, R has lists which contain key-value pairs instead of just values like regular vectors. Lists are created with the list() function and elements are accessed using the $ operator. This makes them useful for storing parameters, configurations, and custom data structures. 
+
+We discussed lists previously, they are similar (but different) from dictionaries, which are commonly used in languages like python. We can create a named lists using the list() function:
+
+```r
+params <- list(mean=0, sd=1) 
+params$mean # extract an element by name
+```
+Dictionaries are not always the most useful way to store data but can come in handy. Some model outputs may be stored in dictionary-like lists.
+
+<br />
+<br />

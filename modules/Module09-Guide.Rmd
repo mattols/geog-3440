@@ -1,0 +1,424 @@
+---
+title: "Module 9 Guide"
+author: "GEOG-3440"
+output: 
+  html_document:
+    theme: simplex
+    code_folding: hide
+---
+
+```{r setup, include=FALSE} 
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+This document describes the important concepts, workflows, functions, and other information useful for this week.
+
+### Readings
+
+* Read the **Introduction, Exploration, and Basic Mathematical Operations** in **Remote Sensing** in the [R-Spatial book](https://rspatial.org/rs/index.html)
+* Read sections on **Interpolation** in the [R-Spatial book](https://rspatial.org/analysis/3-spauto.html)
+
+### Main Goals
+
+1. Remote sensing workflows
+2. (optional) Spatial autocorrelation
+3. Spatial Interpolation 
+
+<br />
+
+```{r, echo=F, warning=F, messages=F}
+library(terra)
+path_to_landsat_folder = "../data_tmp/landsat/everest_subset"
+```
+
+## **1. Remote Sensing Workflows**
+
+Remote sensing involves collecting data about the Earth's surface from a distance using satellite or airborne sensors. It provides valuable insights for environmental monitoring, land-use planning, and resource management without direct contact, using tools like multispectral or hyperspectral imagery. R offers many efficient solutions for processing remote sensing imagery through `terra`, including generating band indices, classification, PCA, change detection, and more.
+
+Load in a Landsat OLI (8) surface reflectance image. You can read more about [Landsat level 2](https://www.usgs.gov/landsat-missions/landsat-collection-2-level-2-science-products) science products and the [surface reflectance](https://www.usgs.gov/landsat-missions/landsat-collection-2-surface-reflectance) product specifically. More importantly, it's good to be familiar with the [band designations](https://www.usgs.gov/faqs/what-are-band-designations-landsat-satellites). Bands are discrete wavelengths of energy collected at specific parts along the electromagnetic spectrum (examples: blue or near infrared).
+
+The ability to work with multi-band (multispectral) imagery is essential for many remote sensing applications. You can read in several bands at once and perform simple arithmetic for band indices:
+
+```{r}
+# list all TIF band files
+lspath <- list.files(path_to_landsat_folder,
+                pattern = "B[1-7].TIF", full.names = T)
+# create spat rast object
+ls <- rast(lspath)
+# plot in RGB true color with stretch
+plotRGB(ls, r=3, g=2,b= 1, stretch="lin")
+```
+
+You can use band arithmetic to create indices. Histograms can provide further insight:
+
+```{r, warning=F, fig.width=5, fig.height=3, align="center"}
+# create function for Normalized Difference Vegetation Index (NDVI)
+my_ndvi <- function(image){
+  # Landsat 8 - NIR (5) and Red (4) bands
+  ndvi <- (image[[5]] - image[[4]]) / (image[[5]] + image[[4]])
+  names(ndvi) <- "Landsat 8 Vegetation Index"
+  return(ndvi)
+}
+# run function
+ndvi <- my_ndvi(image=ls)
+hist(ndvi, breaks=12, xlab="NDVI", col='forestgreen')
+```
+
+If you've taken remote sensing, you may notice that these values should probably be scaled (converted) to the correct surface reflectance value. You can use online sources or the metadata (MTL.txt file) to obtain the values to use:
+
+```{r}
+# read image metadata
+mtl_path <- list.files(path_to_landsat_folder, pattern= "MTL.txt", full.names = TRUE)
+mtl = readLines(mtl_path)
+
+# subset for lines with Level2 surface reflectance data 
+#  (note: Level1 reflectance scale factors are also in mtl file)
+mtl_sr_0  = grep("LEVEL2_SURFACE_REFLECTANCE_PARAMETERS", mtl)
+mtl_sr = mtl[mtl_sr_0[1]:mtl_sr_0[2]] # extract lines
+
+# take values for first band only (scale and offset are the same for each band)
+grep("REF.*MULT", mtl_sr, value=T)[1]
+grep("REF.*ADD", mtl_sr, value=T)[1]
+```
+
+These numeric values should be used to apply the scale (*MULT*) and offset (*ADD*) factors to all bands prior to calculating indices or performing an analysis.  
+
+We can also *zoom* or subset to a smaller region by creating a new ROI using the `click` or `draw` functions:
+
+```{r}
+## draw new polygon or region of interest for clipping
+# new_roi <- draw(x="polygon", n=4) # run and draw point
+# load previously made roi
+new_roi <- as.polygons(ext(c(465107.2, 490012.7, 3087024, 3107708))) 
+crs(new_roi) <- crs(ls)
+# crop and plot
+ls_crop = crop(ls, new_roi)
+plotRGB(ls_crop, r=3, g=2, b=1, scale=65536) # scale image values for brighter results
+```
+
+We can also extract band values to show the spectral profile:
+
+```{r, fig.width=5, fig.height=4, align="center"}
+# define locations to extract spectra (click on map to select location)
+# pt_rock = click(n=1) 
+# pt_snow = click(n=1)
+# pt_water = click(n=1)
+#    may also use draw()
+
+# create spatial vect
+# pts_combined <- rbind(pt_rock, pt_snow, pt_water)
+pts_combined <- matrix(c(480036.6, 3103716, 488816.8, 3099195, 468837.9, 3094463), ncol=2, byrow = TRUE) # previous spectra
+spectral_pts <-  vect(pts_combined, crs=crs(ls_crop))
+
+# extract values and create dataframe
+ls_spectral <- extract(ls_crop, spectral_pts)
+spec_df <- as.data.frame(t(ls_spectral)[-1,], row.names = FALSE)
+spec_df <- cbind(band = 1:7, spec_df)
+colnames(spec_df) <- c("band", "rock", "snow", "water")
+
+# plot
+plot(rock~band, spec_df, type="l", col='red', main="Landsat 8 spectral signatures", xlab="band (wavelength)", ylab="unscaled reflectance (DN)", ylim=c(0,max(spec_df$snow)))
+lines(snow~band, spec_df, col='deepskyblue3')
+lines(water~band, spec_df, col='blue3')
+legend("topright", c("rock", "snow", "water"), col=c("red","deepskyblue3", 'blue3'), lty=1, cex=0.7, bty="n")
+```
+
+Several other advanced functions exist within `terra` as well, like Principle Component Analysis (PCA) and unsupervised classification like k-means clustering (with stats package):
+
+```{r}
+# run PCA on landsat bands
+pca <- princomp(ls_crop)
+ls_pca <- predict(ls_crop, pca)
+
+# perform k-means clustering (10 classes)
+set.seed(299)
+nr <- as.data.frame(ls_pca, cell=TRUE)
+names(nr) <- c("cell", paste0("Band", 1:7))
+kmncluster <- kmeans(nr[,2:4], centers=10, iter.max = 500, nstart = 5, algorithm="Lloyd")
+# Use the ndvi object to set the cluster values to a new raster
+knr <- rast(ls_pca, nlyr=1)
+knr[nr$cell] <- kmncluster$cluster
+
+# plot parameters
+mycolor <- c("#daa520","#fef65b", "#00ffff","#daa520","#00ffff",
+             "#007fff","#000000","#5c4033", "#00ffff", "#00ffff", "#808080")
+par(mfrow = c(1,2))
+# plot PCA composite and k-means
+plotRGB(ls_pca, 1, 2, 3, stretch="lin", main="PCA 123 False Color")
+plot(knr, main = 'Unsupervised classification', col = mycolor, type="classes", axes=F)
+```
+
+We wont go into detail about these methods as they are covered in other GIS courses and are beyond the scope of this class. While not necessary to complete the module assignments, some of these methods may be useful for your final projects or future spatial analysis.
+
+Additional tools exist in various other libraries, such as `RStoolbox`, `rpart`, `rgee`, `landsat`, `WhiteboxTools`, and many others (*browse a few other geospatial packages* [here](https://github.com/sacridini/Awesome-Geospatial?tab=readme-ov-file#r). 
+
+*See more examples in class.*
+
+<br />
+
+
+## **2.** *(Optional)* **Spatial Autocorrelation**
+
+**Tobler’s First Law of Geography** states: *"Everything is related to everything else, but near things are more related than distant things."*
+
+This law is crucial for understanding spatial autocorrelation—the idea that nearby locations tend to have more similar values than distant ones. 
+
+Testing for spatial autocorrelation is essential in spatial analysis, as it helps determine whether the values of a variable are spatially related or randomly distributed. There are several methods and statistical tests available to assess spatial autocorrelation, each with different strengths and applications. Here are some of the most common options:
+
+1. **Moran's I**: Moran's I is the most widely used test for global spatial autocorrelation. It measures the degree to which similar values cluster together in space. It ranges from -1 (indicating perfect dispersion) to +1 (indicating perfect correlation), with 0 indicating no spatial autocorrelation.
+2. **Geary’s C**: Geary’s C is another statistic for measuring spatial autocorrelation, similar to Moran’s I but more sensitive to local variations. It ranges from 0 (indicating perfect positive spatial autocorrelation) to 2 (indicating perfect negative spatial autocorrelation).
+3. **Local Indicators of Spatial Association (LISA)**: LISA provides a local version of Moran's I, allowing you to identify regions within your dataset that exhibit significant spatial autocorrelation. This is useful for detecting clusters or outliers in your data.
+4. **Getis-Ord Gi Statistic**: The Getis-Ord Gi* statistic identifies hot spots and cold spots in spatial data. It focuses on local clusters of high or low values and is often used in hotspot analysis.
+
+**We will not cover these in this course** but you should be aware of them and know that several packages in R allow you to calculate statistics for spatial autocorrelation.
+
+* (optional) Read sections on **Spatial autocorrelation** in the [R-Spatial book](https://rspatial.org/analysis/3-spauto.html)
+
+<br />
+
+
+## **3. Spatial Interpolation**
+
+Spatial interpolation is the process of estimating unknown values at certain locations based on known values at nearby locations. In the context of geospatial data science, interpolation allows you to create continuous surfaces from discrete sample points, which is especially useful when data points are sparse. While you have been used statistical techniques to zonally average values over a region (e.g. HUC units), interpolation takes a modeling approach to solve the spatial problem of unknown data.
+
+An easy way to explore spatial interpolation is by using the **meuse** dataset, which contains data on soil properties (e.g., zinc concentration) at different locations along a river in Europe. We will cover three interpolation techniques: Nearest Neighbor, Inverse Distance Weighting (IDW), and Kriging.
+
+Before starting, you’ll need to install and load the required packages in R. install and load the **sp** and **gstat** packages. The `sp` package is the pre-cursor to the `sf` and `terra` package. It largely used
+
+```{r, warning=F}
+# Install and load the required packages 
+# install.packages("gstat")
+# install.packages("sp")
+library(gstat)
+library(sp)
+```
+
+The **meuse** dataset is available in the **sp** package, so we can load it directly from there.
+
+```{r}
+# Load the meuse dataset
+data(meuse)
+data(meuse.area)
+data(meuse.riv)
+head(meuse)  # View the first few rows of the dataset
+```
+
+```{r, fig.width=4, fig.height=5, align="center"}
+# Convert the meuse data to a a spatial object
+meuse_vect <- vect(meuse, geom=c("x","y"), crs="epsg:28992" )
+meuse_area <- vect(meuse.area, crs="epsg:28992", type="polygons")
+meuse_riv <- vect(meuse.riv, crs="epsg:28992", type="polygons")
+
+plot(meuse_vect, "zinc", col=hcl.colors(15, "Greens"), plg=list(title="zinc", cex=0.8))
+plot(meuse_riv, add=TRUE, col='deepskyblue3')
+plot(meuse_area, add=TRUE)
+```
+
+Let’s walk through three common interpolation techniques that we will apply to the **meuse** dataset: Theissen Polygons, Nearest Neighbor, and Inverse Distance Weighting (IDW).
+
+<br />
+
+#### **Thiessen Polygons**
+
+Voronoi polygons, also known as Thiessen or proximity polygons, create regions based on the proximity of points and essentially uses the nearest neighbor method to determine values surrounding each point.
+
+```{r, fig.width=4.5, fig.height=5.5, align="center"}
+# create voronoin polygons
+v = voronoi(meuse_vect)
+# crs(v) <- crs(meuse_vect) # spatial reference if needed
+meuse_voro = crop(v, meuse_area)
+
+# plot results
+plot(meuse_voro, "zinc", col=hcl.colors(5, "Greens"), plg=list(title="zinc ppm (mg kg-1)", cex=0.7))
+plot(meuse_voro, add=T, cex=0.2)
+# plot(meuse_vect, cex=0.3, col="grey70", add=T) # add points for visualization
+```
+
+These results can also be converted into a raster for more continuous spatial coverage
+
+```{r, fig.width=4, fig.height=5, align="center"}
+r <- rast(meuse_voro, res=10, crs=crs(meuse_voro)) # 10 km spatial resolution
+voi_rast <- rasterize(meuse_voro, r, "zinc")
+plot(voi_rast, col=hcl.colors(25, "Greens"), plg=list(title="zinc", cex=0.7))
+```
+
+As you can see, *voronoi* polygons create irregular shapes based on the distribution of your data and do not necessarily reflect real world features, while this can be a useful interpolation method, there are typically much more robust methods to use. 
+
+<br />
+
+#### **Nearest Neighbor Interpolation**
+
+Nearest neighbor interpolation assigns the value of the closest known data point to unknown locations. This is the simplest method for spatial aggregation and interpolation. We will use the `gstat` package to create a model and interpolate (predict) the results. Rather than only using the nearest neighbor, we can use the 5 nearest neighbors to estimate unknown values:
+
+```{r, warning=F, message=F, fig.width=4, fig.height=5, align="center"}
+# create dataframe
+meuse_dat <- data.frame(geom(meuse_vect)[,c("x", "y")], as.data.frame(meuse_vect))
+
+# generate model using nearest neighbor
+gs_nn <- gstat(formula=zinc~1, locations=~x+y, data=meuse_dat, nmax=5, set=list(idp = 0))
+
+# interpolate based on raster grid created above
+nn <- interpolate(r, gs_nn, debug.level=0)
+nnmsk <- mask(nn, meuse_area)
+plot(nnmsk, 1, col=hcl.colors(25, "Greens"), plg=list(title="zinc", cex=0.7))
+```
+
+The `gstat` function is fitting a model based on the coordinate information alone (~1 means intercept only, so only location is used). For nearest neighbor, the `idp` argument (“inverse distance power”) must be set to zero.
+
+<br />
+
+#### **Inverse Distance Weighting (IDW) Interpolation**
+
+IDW functions very similar to nearest neighbor, however weights are assigned to points based on the inverse of the distance. Points closer to the unknown location will have more influence.
+
+```{r, warning=F, message=F, fig.width=4, fig.height=5, align="center"}
+# create new model
+gs_idw <- gstat(formula=zinc~1, locations=~x+y, data=meuse_dat)
+# interpolation
+idw <- interpolate(r, gs_idw, debug.level=0)
+idwr <- mask(idw, meuse_area)
+plot(idwr, 1, col=hcl.colors(25, "Greens"), plg=list(title="zinc", cex=0.7))
+# plot(meuse_vect, add=T, cex=0.2, col="white") # add points again
+```
+
+While this method is technically more advanced than nearest neighbor, you can see that noticeable artifacts are created based on the distribution of points. *We will improve this slightly in the next section.*
+
+A more robust interpolation technique is **kriging** which considers spatial autocorrelation and uses a variogram to predict unkown values. Kriging requires additional inputs and is beyond the scope of this class.
+
+<br />
+
+
+#### **Detrending and Retrending with Interpolation**
+
+Spatial patterns may be dependent on another external variable, such as elevation. *Detrending* is the processes of removing the *hidden* relationship that another variable exerts on values. Consider that our interpolation methods above are flawed because our model does not factor how some contaminant values vary based on elevation. We will focus on lead for this section. You can learn more about detrending data for interpolation [here](https://smrf.readthedocs.io/en/latest/user_guide/dist_methods.html).
+
+First, assess the relationship (*trend*) between lead and elevation:
+
+```{r, fig.width=5, fig.height=4, align="center"}
+# run linear model
+model <- lm(lead ~ elev, data = meuse_dat)
+summary(model)
+
+# plot results
+plot(lead ~ elev, data = meuse_dat)
+abline(model, lty=2, col='firebrick')
+```
+
+It appears that the relationship is statistically significant. We can use the model above to detrend our data prior to performing spatial interpolation:
+
+```{r}
+# crteate residuals 
+meuse_dat$lead_detrend <- meuse_dat$lead - predict(model, newdata = meuse_dat)
+head(meuse_dat, 3)
+```
+
+Now perform idw interpolation again with detrended data:
+
+```{r, warning=F, fig.width=4, fig.height=5, align="center"}
+gs_idw_detr <- gstat(formula=lead_detrend~1, locations=~x+y, data=meuse_dat)
+# interpolation
+idw_d <- interpolate(r, gs_idw_detr, debug.level=0)
+idwr_d <- mask(idw_d, meuse_area)
+plot(idwr_d, 1, col=hcl.colors(25, "Greens"), plg=list(title="zinc", cex=0.7))
+```
+
+Now we *retrend* the data using elevation, keep in mind that this step would be even better to use a high resolution elevation raster. Instead we will create a new elevation dataset by rasterizing and resampling values
+
+```{r, echo=FALSE}
+# create DEM
+elev_idw <- gstat(formula=elev~1, locations=~x+y, data=meuse_dat, 
+                  set = list(idp = .5))
+idwe <- interpolate(r, elev_idw, debug.level=0)
+dem <- mask(idwe, meuse_area)
+# plot(dem, 1, col=hcl.colors(35, "Greens"), plg=list(title="elevation", cex=0.7))
+# plot(meuse_vect, add=T, cex=0.4)
+dem <- dem[[1]]
+names(dem) = "elev"
+```
+
+
+```{r}
+# use DEM of area for retrending
+dem
+```
+
+
+And then perform the retrending based on elevation from the gridded DEM product:
+
+```{r}
+# re-trend interpolated values
+new_elev = predict(dem, model)
+retrended_idw <- idwr_d[[1]] + new_elev
+
+# compare with original - for lead
+gs_idwo <- gstat(formula=lead~1, locations=~x+y, data=meuse_dat)
+idwo <- interpolate(r, gs_idwo, debug.level=0)
+idw_no_detrend <- mask(idwo, meuse_area)[[1]]
+
+# final layers
+mod_diff <-  idw_no_detrend[[1]] - retrended_idw
+
+par(mfrow=c(1,3))
+plot(idw_no_detrend, col=hcl.colors(25, "Greens"), axes=F, main="IDW")
+plot(retrended_idw, col=hcl.colors(25, "Greens"), axes=F, main="Retrended IDW")
+plot(mod_diff, col=hcl.colors(25, "Blue-Red"), axes=F, main="Difference")
+```
+
+Keep in mind that you would only want to do detrend data if there is a known relationship between variables. For example, there could be another confounding reason that high values of lead and zinc are found at low elevations in this small sample area. Additionally, this DEM was derived and smoothed from the elevation data we used so there are artifacts in the analysis above.
+
+Detrending data with elevation can be incredibly useful if you have sparse points and spatially extensive elevation data, such as with a DEM. In other cases, if the trend is not accurate, you may further bias the interpolation.
+
+Suffice it to say, that there are several considerations to make when performing spatial interpolation.
+
+<br />
+
+
+#### **Evaluating and Validating the Results**
+
+In practice, you would compare the results of these interpolation methods to a set of true values (e.g., measured values that were not used in the interpolation) to evaluate the accuracy of the predictions. Common evaluation metrics include:
+
+- **Root Mean Square Error (RMSE)**
+- **Mean Absolute Error (MAE)**
+
+Here’s an example of how to calculate the RMSE between the interpolated values and true values (if you had a validation dataset):
+
+```r
+# Example of calculating RMSE
+observed_values <- meuse$zinc  # Actual values from the dataset (assuming these are 'true' values)
+predicted_values <- extract(nn_result, meuse)  # Interpolated values
+
+# Calculate RMSE
+rmse <- sqrt(mean((observed_values - predicted_values)^2))
+print(paste("RMSE: ", round(rmse, 2)))
+```
+
+This process could be improved with cross validation and Monte Carlo simulation. 
+
+
+
+<br />
+
+## **Interactive Mapping**
+
+While not necessary for geospatial analysis, it can be helpful to display results in an interactive map. The `leaflet` library allows for interactive display of your geospatial data:
+
+```{r}
+# install.packages("leaflet")
+library(leaflet)
+
+leaflet() %>%
+  addProviderTiles("OpenStreetMap.HOT") %>% 
+  addRasterImage(idwr, col = hcl.colors(25, "Greens")) %>% 
+  addPolygons(data= project(meuse_vect, "epsg:4326")) %>%
+  addMiniMap()
+```
+
+Read more about different display options using [leaflet](https://rstudio.github.io/leaflet/articles/leaflet.html).
+
+<br />
+
+**Complete the Module Task**
+
+<br />
+<br />
+

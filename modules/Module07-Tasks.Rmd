@@ -1,0 +1,144 @@
+---
+title: "Module 7 Assignment"
+author: "GEOG-3440"
+output: html_document
+---
+
+```{r setup, include=FALSE} 
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Be sure to **read assigned chapters and articles** and carefully walk through all of the **Module Guide** before starting on this task.
+
+*Avoid using packages or solutions beyond the content covered in class or the guide.*
+
+**Submit** your responses in a single, organized html file written in *R Mardown.*
+
+<br />
+
+
+## **Module Tasks**
+
+Complete the following tasks related to the content of the week. Be sure that each answer is given in an organized, coded solution. All plots should at minimum contain useful axes labels and title. Maps do not need scale bar or north arrow.
+
+<br />
+
+```{r echo=FALSE, warnings=F, message=F}
+library(terra)
+```
+
+*Your assignment this week will explore basic spatial data, including how to visualize vector data formats.* **Only use the** `terra` **package** *for your assignment. There are other geospatial libraries that we will learn about later on in the course, but* `terra` *can do it all for now.*
+
+<br />
+
+##### **Creating Spatial Data**
+
+Read in the **"UTSNTL_META2.csv"** file. This table lists basic meta data for each SNOTEL site throughout the state, specifically, the coordinate location, site name and elevation. 
+
+1. Using only the `terra` package and `vect()` function, transform this dataframe into a spatial vector data object and create a basic plot (`plot` function) showing the SNOTEL stations colored by elevation (*use default plotting parameters and note that the y argument can be a column name*).
+      + *SNOTEL data uses the WGS 84 (World Geodetic System 1984) coordinate reference system, which can be specified with the argument* `crs="+proj=longlat +datum=WGS84"` (*this is often the same as other GPS-collected data as well.*)
+
+Next, read in the **"UTSNTL_April_WY2021_Clean.csv"**, which is the summarized and cleaned version of a previous dataset. This data contains the max SWE in April during the 2021-22 season for all SNOTEL stations in the state. **Join these two datasets** using one of the functions we've discussed in class. However, in a quick join, you will notice that several site names in your joined dataset will not have a match due to slightly different names that contain special characters and punctuation. See the example below:
+
+```r
+# count number of NA values for elevation in joined data
+sum(is.na(joined_data$Elevation..ft.)) # [1] 14
+
+# show station names that mismatched
+joined_data[is.na(joined_data$Elevation..ft.), "site"] # [1] [1] "Black Flat U M"   "Chalk Creek"  ...
+```
+
+To correct the mismatched names, you will **need to clean/adjust** several names (Station.Name) in the *UTSNTL_Meta2.csv* to match those found in the second dataset, prior to performing the join. Remove special characters and punctuation (e.g., `#`, `.`, `-`, etc.) with `gsub`, `grepl`, `trimws`, or other functions. Useful pattern matching might include `#[0-9]` (pattern for a pound sign followed by any number) and `[[:punct:]]` (pattern for all punctuation). Note that you can clean this in multiple steps (*e.g. remove all punctuation, then remove other mismatched values*).
+
+2. Clean the station names to perform a successful join between the two datasets. Provide code to show your steps to clean and join the data and show that there are no `NA` values in your final joined dataset. 
+
+Now that you have a successful join, create another SpatialVector object from the joined datasets using the latitude and longitude variables. Now, you should have elevation and max April SWE for each snotel site in the state.
+
+3. With your new joined dataset, create another basic spatial plot (with `terra` and `plot`) showing max SWE as `type = continuous`. Add the outline of the state of Utah using the `maps` package (e.g., `map(database="state", "Utah", add=TRUE)` - use `?map` to learn more if needed).
+      + *good options for color palettes might be* `hcl.colors(25)` *or* `colorspace::sequential_hcl(25)`, *the number indicates the number of colors to include and the* `rev` *function can be used to invert the color scheme. Review other color options in the [R color cheatsheet](https://www.nceas.ucsb.edu/sites/default/files/2020-04/colorPaletteCheatsheet.pdf).*
+
+You've learned in your GIS classes that different types of data classification in a map can enhance, or mislead, map interpretation. If you need a reminder of different data classification methods for choropleth maps, revisit [the gisgeography article](https://gisgeography.com/choropleth-maps-data-classification/) from your reading this week. You will compare a few different data classification methods in the next question.
+
+4. (*1.5 pts*) Using the `terra` plot functions, create three plots side-by-side showing the max SWE at SNOTEL sites in Utah during the 2021-22 season. For methods, use 1) equal interval with 7 classes, 2) quantile, and 3) standard deviation (*review link above if needed*). Specify the classification method the title of the legend in each plot and use sequential color schemes (one color of varying brightness) for equal interval and quantile, and a diverging color scheme (two colors) for the standard deviation classification method (see link above for more). Note the standard deviation scheme should include 1-3 standard deviations from the mean ($\mu \pm 3\sigma$). Provide 2-3 sentences describing the differences, benefits, and meaning of the classification methods used.
+
+**Tips** *for creating these plots:*
+
+  * Use the `par(mfrow=c(1,3))` argument to to create 3 plots side-by-side. There is also a `mar` function that can be added to adust the margin of each plot.
+  * All of these classifications will be `type="interval"` but will require you to create your own intervals.
+  * Intervals are defined by the `breaks = argument` in the plot (this argument can provide a single number for the amount of breaks or the actual breaks in the data classification method). 
+  * Stats functions like `quantile` and `sd` for standard deviation can be used to create the intervals (or breaks) for the classification.
+  * good options for color palettes might be `hcl.colors(n)`, `colorspace::sequential_hcl(n)` or `colorspace::diverge_hcl(n)`. *Review other color options in the [R color cheatsheet](https://www.nceas.ucsb.edu/sites/default/files/2020-04/colorPaletteCheatsheet.pdf).*
+  * There are other ways to plot and classify data, but stick to this basic method for this task.
+
+
+<br />
+
+#### **Manipulating Vector Data**
+
+Read in the **"UT_HUC8.shp"** file as a SpatialVector object with `terra`. This multipart polygon feature shows the various hydrologic units (watersheds) throughout the state of Utah.
+
+5. Create a basic map plot in `terra` that shows the individual watersheds colored by their unique names. Rather than adding a legend, use the `text()` function with the spatial data to add the names of each watershed to the map (*it is okay for this map to look a little messy*).
+
+6. Create an extent object (rectangular box) using the `ext()` function in terra for Utah Valley using the following: Latitude range: 39.915063 to 40.471646; Longitude range: -111.952211 to -111.536395. Plot the geometry (no variable) of the UT HUC layer and add the rectangular bounding box to the map in red, showing this as an area of interest. Add a legend in the top right of the map indicating what the area represents.
+
+**Tips** *for creating this plot:*
+
+  * Always check the projection of your data! Data must be in the same projection to work together. ArcGIS Pro has *projection on the fly*, but that doesn't exist anywhere else in the real world.
+  * The `crs` function from `terra` lists the full projection information, which is also seen when you print the objects information. You can also define a CRS for an object by assigning information to an object with this function (e.g. `crs(x) <- "...spatial.info..."`).
+  * When creating points or extents from latitude and longitude coordinates, the WGS 84 CRS can be used. R also recognizes the EPSG shortcut ("EPSG:4326"). Note, that extent objects do not have CRS information, so you will need to convert your extent to a polygon with `as.polygons`.
+  * Data transformations and projections can be done the `project` function.
+  
+Extent objects can also be useful to subset, or clip your dataset to a smaller region of interest.
+
+7. Use the same workflow you used in the previous question along with the `crop()` function to clip the UT HUC watersheds data to only show the part of the state above 39 degrees Latitude. Create a map plot
+
+Run the following code to read in the online vector data for Antelope Island:
+
+```{r, eval=FALSE, class.source = 'fold-show'}
+island <- vect("https://raw.githubusercontent.com/mattols/geospat_data/main/AntelopeIsland.geojson")
+island
+```
+
+A geojson file (like the one you just loaded) is similar to a shapefile, just another vector model format. We can read in this file as vector data from an online source.
+
+8. Create a subset of the UT_HUC vector that only contains the Great Salt Lake watershed. Then use the island vector above to cut the island out of the GSL watershed (see `erase`). Plot the new GSL feature that has a hole for Antelope Island, make the feature a color that would be used to represent water on a map. Add a text label to this plot indicating the location of Antelope Island.
+
+The hydrologic unit code (HUC) listed in this dataset represents a level of watershed in the USGS watershed boundary dataset. There are anywhere from 2 to 12 hydrologic units that exist, which relate to large-scale (2) and small (12) watersheds throughout the US. The HUC code listed in this dataset is HUC8, as it contains 8 digits. Visit the USGS site to learn more about the [watershed boundary dataset](https://www.usgs.gov/national-hydrography/watershed-boundary-dataset). While you cannot extrapolate any smaller than the HUC-8 level, the code contains information about larger watersheds. For example, the first two digits in the HUC code correspond to the HUC2 watershed. You will dissolve the HUC8 data into smaller HUC datasets .
+
+9. (*1.5 pts*) Create a new variables for the HUC4 and HUC2 codes, based on the HUC8 code. Dissolve the spatial vector into HUC4 units, then again in HUC2 units (see `aggregate`). Finally, create a map plot showing the three different levels of hydrologic units (HUC 8, 4, and 2), Use color, linewidth, linetype, and other arguments to distinguish between the different watershed units in the map plot.
+
+*Example:*
+
+```{r, echo=FALSE}
+h = vect("../data_tmp/water/Utah_HUC8/UT_HUC8.shp")
+h$HUC4 <- substr(h$HUC, 1, 4)
+h$HUC2 <- substr(h$HUC, 1, 2)
+d4 <- aggregate(h, "HUC4")
+d2 <- aggregate(h, "HUC2")
+
+# pplot
+plot(h, main="Utah Hydrologic Units")
+# axis(2,cex.axis=1.3);axis(1,cex.axis=1.3)
+rect(par("usr")[1],par("usr")[3],par("usr")[2],par("usr")[4],col = "gray60")
+plot(h, col="light blue", lty=2, border="blue", lwd=1, bg='grey40', 
+     add=T)
+lines(d4, lwd=5)
+lines(d4, col="white", lwd=1)
+lines(d2, col="black", lwd=1)
+text(d4, "HUC4", cex=.8, halo=TRUE)
+# text(d2, "HUC2", cex=.9, halo=TRUE, hc="firebrick")
+legend(5.6e5, 4.67e6, c("HUC8", "HUC4", "HUC2"), col = c("blue", "white", "black"), lty=c(2,1,1), lwd = c(1,2,2),  cex=0.7, xpd=TRUE, bty="n")
+legend(5.46e5, 4.59e6, "HUC 4 watersheds \nlabeled", cex=0.5, bty="n") 
+```
+
+<br />
+
+#### Submitting
+
+Upload a single, organized **html file** written in **R Markdown** showing **questions, code solutions, and responses**. Be sure to support your responses with code and result outputs.
+
+*Please reach out if you have any questions or concerns!*
+
+<br />
+<br />
+

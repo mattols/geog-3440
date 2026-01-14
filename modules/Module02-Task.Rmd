@@ -1,0 +1,155 @@
+---
+title: "Module 2 Assignment"
+author: "GEOG-3440"
+output: html_document
+---
+
+```{r setup, include=FALSE} 
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Be sure to **read assigned chapters and articles** and carefully walk through all of the **Module Guide** before starting on this task.
+
+*Avoid using packages or solutions beyond the content covered in class or the guide.*
+
+**Submit** your responses in a single, well-organized R script.
+
+<br />
+
+
+
+## **Module Tasks**
+
+Complete the following tasks related to the content of this week. Be sure that each answer is given in an organized, coded solution. *Tip: Use the* `print()` *and* `paste()` *functions to join variables and text in your responses. Also the* `round()` *function can be useful to reduce significant digits.*
+
+Your responses should **only include functions and workflows covered in the lecture and module guide - AI use is not allowed**
+
+**Try to write your code in a way that that is reproducible** and only uses data and functions to answer the questions below in a concise way.
+
+<br />
+
+#### Part 1. Air quality
+
+Situation: Your environmental science class is studying air quality in your hometown. The local government has set up sensors around town to measure particulate matter (PM2.5) and ozone levels over the past 15 days. There are two sites, one measuring both variables and the other only measuring PM2.5. Your assignment is to analyze the air quality data to identify potentially problematic days.
+
+Copy the following variables into your R session and script to answer the following questions.
+
+```r
+# Sample data for pm25 
+site1_pm25 <- c(10, 15, 27, 35, 30, 23, 16, 20, 18, 14, 15, 13, 15, 19, 20) 
+site2_pm25 <- c(11, 17, 26, 29, 20, 23, 15, 22, 20, 15, 17, 17, 18, 25, 22) 
+
+# Sample data for ozone
+site1_ozone <- c(65, 82, 71, 55, 63, 88, 79, 63, 72, 81, 89, 95, 70, 67, 60)
+```
+
+1) Print the following: the max and min PM2.5 levels for Site 1, the mean PM2.5 at Site 1, and a single mean value of PM2.5 that incorporates both sites. *remember to provide a code solution for all responses*
+
+2) Create a new vector called `march_dates` that correspond to the dates March 10-24 (character or numeric values are fine but you can also explore *date* objects if you wish, see `?as.Date`). Then, print the *March dates* in descending order of PM2.5 and ozone for Site 1? *tip: you can paste a character and series together; for sorting, explore arguments in the order() function and consider indexing*
+
+3) Assume that you are concerned about PM2.5 and ozone levels at or above 25 and 100 respectively. Print a count of total days surpassing the limit for each site and pollutant. *consider combining logic and basic descriptor functions*
+
+4) What is the percent increase in PM2.5 levels from the cleanest day to the most polluted day over the time period for Site 2? *instead of using values, include simple descriptor functions within the equation below*
+
+The standard formula for calculating percent increase is given by (**download file to view equation**):
+
+\[
+\text{Percent Increase} = \frac{\text{New Value} - \text{Old Value}}{\text{Old Value}} \times 100
+\]
+
+Where:
+
+- **New Value** is the final or updated value (maximum value for our case)
+- **Old Value** is the original or starting value (minimum value for our case)
+
+**Consider:** *analyzing hourly data of PM2.5 over an entire year would not require much more work than this.*
+
+<br />
+
+#### Part 2. The National Parks
+
+Use the following National park dataset, taken as a subset from [Wikipedia]("https://en.wikipedia.org/wiki/List_of_national_parks_of_the_United_States"), to answer the following questions:
+
+```{r}
+# Create data frame
+national_parks <- data.frame(
+  Park_Name = c("Black Canyon of the Gunnison", "Channel Islands", "Congaree", "Cuyahoga Valley", "Death Valley", "Dry Tortugas", "Gates of the Arctic", "Gateway Arch", "Glacier Bay", "Great Basin"),
+  Date_Established = as.Date(c("1999-10-21", "1980-03-05", "2003-11-10", "2000-10-11", "1994-10-31", "1992-10-26", "1980-12-02", "2018-02-22", "1980-12-02", "1986-10-27")),
+  Area_Hectares = c(30779.83, 249561.00, 26692.60, 32571.89, 3408395.63, 64701.22, 7523897.45, 192.83, 3223383.43, 77180.00),
+  Visitors_2022 = c(297257, 323245, 204522, 2913312, 1128862, 78488, 9457, 1618774, 545758, 142115)
+)
+
+# View the dataframe
+head(national_parks)
+```
+
+**Advanced option:** *Scrape the full table of National Parks using the link above and respond to these questions using the full dataset.*
+
+5) Create a new column called `park_percentage` that shows the percent area of each park relative to the total area of all National Parks in the dataset.
+
+6) Show which National Parks (list name) had the greatest and least visitation in 2022?
+
+7) Create a new column called `visitation_space` that calculates the space per visitor (assuming all visitors appeared on the same day). List the *three* parks with the greatest space per visitor in 2022 and the single park with the least amount of *visitation space*.
+
+8) Print the total number of parks with an area greater than or equal to the average park area in your dataset. Then, print the total number of parks with both an area greater than 100K hectares and visitation of more than 100K people in 2022.
+
+Run the following code to extract the years in which each park was established:
+
+```{r}
+np_years_established <- substr(x = national_parks$Date_Established, start = 1, stop = 4)
+```
+
+9) Use this new vector to estimate the rate at which national parks were created, based on this sample dataset. A very basic rate can be estimated by dividing the total number of occurrences by the total time period (in years). 
+
+<br />
+
+#### Part 3. Reading data into R
+
+To get a jump on next week, you will learn to read real data into R! 
+
+Navigate to the [EPA Air Quality Data Download Page](https://www.epa.gov/outdoor-air-quality-data/download-daily-data).
+
+Input the following:
+
+- Pollutant: PM2.5
+- Year: 2024
+- Geographic Area: Utah
+    + Select a State... Utah
+    + Select a County... UT - Utah
+- All sites (*keep selected - should only be 2*)
+- **Get Data**
+- **Download CSV**
+
+To read in a csv file, you can use the function below **but MUST specify the correct filepath** (location) on your computer and **correct file name**. 
+
+```r
+# read in csv file
+airq_data = read.csv("path_folder/name_of_file.csv")
+# e.g., airq_data = read.csv("C:/Users/10201776/Downloads/ad_viz_plotval_data.csv")
+```
+
+*please reach out if you are struggling on this step!*
+
+10) Read in the 2025 dataset and print the *Date* of the highest daily mean PM2.5 concentration for both sites (*based on Site.ID*) in Utah County. List both the date, concentration, and units in a single line for each site.
+
+**Optional:** How else can you analyze this dataset? What other information can you extract?
+
+<br />
+
+#### Submitting
+
+**Great work!** Upload a neat and clean R script with each question, code used, and code output. 
+
+Example:
+
+```r
+# 1. Print the following: the max and min PM2.5 levels for...
+print(paste(c("Max:", "Min:"), range(site1_pm25)))
+# [1] "Max: 10" "Min: 35"
+...
+```
+
+*Please reach out if you have any questions or concerns!*
+
+<br />
+<br />

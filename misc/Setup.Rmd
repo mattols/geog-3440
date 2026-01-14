@@ -1,0 +1,187 @@
+---
+title: "Setup"
+author: "GEOG 3400 - Geospatial Data Science"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Carefully read through the five sections below about installing and setting up the software for this course. If you have any questions, please reach out!
+
+**Note: The software should already be set up on the lab computers. These steps are to help you with your own setup. Carefully read each section and reach out for help if you are confused.**
+
+### Installing R and RStudio
+
+R is a powerful and flexible programming language used for statistical computing, data analysis, and visualization. R is favored by many data scientists, statisticians, and researchers for its extensive collection of packages that facilitate tasks such as data manipulation, statistical modeling, and graphical representation. 
+
+RStudio is an integrated development environment (IDE) that enhances the R user's experience by providing a suite of tools for code editing, debugging, visualization, and project management. RStudio has an intuitive interface and strong support for data science workflows and makes it easier for both beginners and experts to write, test, and share R code effectively. Rather than opening R, you will open RStudio to interact with the R programming language.
+
+R and RStudio are already setup on the lab computers. Follow the steps below if you would like to install R on your own computer, but be sure to finish reading this entire document to ensure that you are able to access geospatial libraries from inside R.
+
+1. Download R from https://www.r-project.org/ and install the latest version for your operating system.
+
+2. Download RStudio Desktop Open Source License from https://rstudio.com/products/rstudio/download/ and install it. 
+
+3. Open RStudio which contains windows for the R console (where code is executed), environment/history (for saved variables and history for the current session), and another pane for files/plots/packages/help/viewer.
+
+
+### Installing Packages
+
+One of the greatest benefits to an open-source tool like R is that individuals create custom toolboxes to perform interesting functions. You can install these tools (or packages) from several sources. CRAN is the best managed and default repository for R packages.
+
+We will be discussing installing new packages in the coming weeks. Feel free to read this section but no additional packages are necessary for this week.
+
+4. No need to install any additional packages yet.
+
+- to install a new R package, you can use the `install.packages()` function, which uses the default CRAN repository.
+- You can also click on the packages tab, click *install* and search for the package of interest
+
+
+```{r, eval=FALSE}
+install.packages("ggplot2")
+```
+
+**This course will require you to install geospatial packages. Be sure to read the final section about installing geospatial packages.**
+
+A few useful geopsatial packages include:
+
+- Install the **sf** package, which provides simple features access for vector data.
+- Install the **terra** package for raster data access and analysis:
+- Install the **tmap** package for thematic mapping
+- Install **ggplot** package for visualization
+- Other useful packages to install include **rgdal**, **rgeos**, **leaflet**, **tidyverse**, **ggmap** and more. Install as needed.
+
+5. Use `library()` to load installed packages, such as:
+
+```{r, eval=FALSE}
+library(ggplot2)
+```
+
+**It is necessary** to load a package before using the functions or tools provided. Consider this step like opening up the toolbox.
+
+### Troubleshooting Issues
+
+- Review [stack overflow](https://stackoverflow.com/questions/tagged/r) posts for specific error messages
+- Google error messages and search through other online help forums to learn how to solve your problem on your own
+- Be cautious about using AI. While AI can occasionally help, it can also leave you confused and take away valuable learning opportunities. Force yourself to use other resources first.
+- **If you use AI in this class**, you must explicitly state how you used it, including prompts you provided. I expect your solutions to more or less fall within the context of what we have covered (i.e. avoid using libraries and functions we have not yet covered).
+
+### Setting Up RStudio Projects
+
+RStudio Projects are a way of organizing your work in class, consider these akin to an ArcGIS Pro Project. You should create projects to help organize your work. 
+
+6. Create a new RStudio project for your class modules by clicking the Project icon in the top-right, choose "New Project" in a new directory and name this directory `geospatial_course_modules`. 
+
+7. Projects automatically set the working directory environment. We'll talk more about this next week. 
+
+8. Once your new project opens, click in the top-left corner (green plus sign over paper) to add a new "R Script."
+
+Add the following lines to the top of your script:
+
+```{r, eval=FALSE}
+# This commented cell does not run
+print("Hello Geospatial World!")
+```
+
+9. Save your new script as "test.R" and click "Run" to run the code.
+
+Great work! You should be ready to start using R for this course.
+
+Please let me know if you encounter any setup issues or have additional questions! Proper installation now will save you time as we start working with geospatial data in R.
+
+
+**One final, but very important note:**
+
+
+### Installing Geospatial Dependencies
+
+Some key R spatial packages rely on external geospatial libraries and dependencies. Installing these dependencies first can help avoid errors when installing the R packages. The primary libraries include GDAL, and PROJ4.
+
+Because the lab computers have geospatial packages installed for programs like ArcGIS Pro and QGIS, there is a possibility that required libraries can be installed.
+
+**Try this code first before continuing to install these dependencies**
+
+```{r, eval=FALSE}
+# Check if sf is installed
+installed <- "sf" %in% installed.packages()[, "Package"]
+if (installed) {
+  message("The sf package is installed!")
+} else {
+  message("Missing sf package, installing now...")
+  install.packages("sf")
+}
+
+# Check if GDAL, PROJ, and GEOS are available via the 'sf' package
+library(sf)
+
+gdal_info <- st_drivers()  # Check if GDAL drivers are available
+proj_info <- tryCatch(st_crs(4326), error = function(e) e)  # Check if PROJ is working
+geos_info <- tryCatch(st_is_valid(st_sfc(st_point(c(0, 0)))), error = function(e) e)  # Check GEOS
+
+# Display dependency check results
+if (inherits(gdal_info, "error")) {
+  message("GDAL is not correctly installed.")
+} else {
+  message("GDAL is correctly installed.")
+}
+
+if (inherits(proj_info, "error")) {
+  message("PROJ is not correctly installed.")
+} else {
+  message("PROJ is correctly installed.")
+}
+
+if (inherits(geos_info, "error")) {
+  message("GEOS is not correctly installed.")
+} else {
+  message("GEOS is correctly installed.")
+}
+```
+
+This should give you a good indication of whether all dependencies are properly installed and functioning. If any errors are thrown during these checks, it may indicate that additional setup is required (e.g., installing GDAL, PROJ, or GEOS system libraries).
+
+**If GDAL, PROJ, and GEOS are installed correctly you may stop here.**
+
+#### Windows Users
+
+Follow the section below to install RTools from within R:
+
+##### Installing RTools from R
+
+RTools provides Windows builds for many R packages. Installing RTools can help with package installation and is necessary for geospatial libraries.
+
+To install RTools from within R:
+
+- Download and run the RTools .exe file [here](https://cran.r-project.org/bin/windows/Rtools/)
+- Here is a step-by-step [guide](https://cran.r-project.org/bin/windows/base/howto-R-4.4.html) for setting up the latest version of RTools
+
+#### Mac and Linux users
+
+Rather than following the steps below, simply **installing QGIS** on your machine will automatically download all external libraries.
+
+###### *Otherwise, follow these steps:*
+
+###### GDAL, PROJ, GEOS manual installation
+
+The Geospatial Data Abstraction Library (GDAL) provides capabilities for working with raster and vector data formats. The PROJ library provides coordinate transformation capabilities. The GEOS library allows for 2D vector geometry operations.
+
+- On Mac, GDAL, PROJ, and GEOS can be installed using Homebrew:
+
+```bash
+brew install gdal
+brew install proj
+brew install geos
+```
+
+- On Linux, GDAL is available through most package managers, e.g.: 
+
+```bash
+sudo apt-get install libgdal-dev
+sudo apt-get install proj-bin
+# etc.
+```
+
+Once these dependencies are installed, R packages like sf, raster, and rgdal will be able to find them on your system. Let me know if you have any other questions!
+

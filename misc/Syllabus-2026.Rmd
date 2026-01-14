@@ -1,0 +1,139 @@
+---
+output:
+  html_document: default
+  pdf_document: default
+---
+## GEOG 3440: Geospatial Data Science
+###  Spring 2025
+
+> Instructor: Matt Olson  \
+> Email: Canvas messaging or [matt.olson@uvu.edu](mailto::matt.olson@uvu.edu) \
+> Time: MW 10:00-11:15pm \
+> Location: SB 175 (GIS Peper Lab) \
+> Office Hours: After class, [book a time](https://outlook.office.com/bookwithme/user/99affef35d9f4707be160110794033e8@uvu.edu?anonymous&ep=bwmEmailSignature), or send an email \
+
+## Course Description. 
+
+Introduces computational workflows for organizing, analyzing and visualizing datasets related to the various sub-disciplines in Earth science. Connects geographic concepts and geospatial methods with data science workflows. Explores various statistical methods and modeling techniques to test hypotheses, visualize information and solve new and common problems in Earth science.
+
+By the end of the course, students will demonstrate the ability to perform data analysis and computational workflows to address relevant tasks. 
+
+*This course serves as an elective for the GIS Certificate and in most programs*
+
+### Learning Outcomes
+By the end of the course, students will be able to: \
+
+1.	Manage common data formats alongside proper project organization and sharing practices
+2.	Apply diverse quantitative methods to spatial and non-spatial datasets
+3.	Create visual representations of data, such as statistical plots and thematic maps
+4.	Analyze spatial and temporal datasets using classification techniques, modeling approaches, and customized tools
+5.	Develop an original project incorporating experimental design, geospatial analysis, and computational workflows
+
+##### Prerequisites.  
+
+* Introduction to Geographic Information Systems (GEOG 3600)
+* Principles of Statistics (STAT 2040) *or instructor approval*
+* *Recommended:* Environmental Remote Sensing (GEOG 3400)
+* Prior programming experience is **NOT** required for this course
+
+### Class Format.  
+
+* Two 75-minute class periods per week
+* Primarily meeting face-to-face, with occasional *virtual meetings or recorded lectures*
+* Class will consist of hands-on coding, short lectures, group discussion, and individual or group work 
+* The Utah System of Higher Education expects 2-3 hours of work *outside of class*, per credit hour (or 6-9 hrs total per week)
+* Skills acquired throughout the semester will prepare students for a final project 
+
+## Resources. 
+This course will focus on open-source software, texts, and other resources. Open-source typically means that the resources is completely free to use, as long as you have access to a computer and the internet. Open-source resources and programs level the playing field and make science and learning more equitable. *Resources, readings, and other materials are subject to change and will be communicated in class.*  
+
+### Open Educational Resources.
+* [R-spatial data with *terra*](https://rspatial.org/spatial/) © Copyright 2019-2025. License: CC BY-SA 4.0.
+* [Spatial Data Science: With Applications in R](https://r-spatial.org/book/) by Edzer Pebesma and Roger Bivand 2023
+* [Geocomputation with R](https://r.geocompx.org/) by Robin Lovelace, Jakub Nowosad, Jannes Muenchow
+* [R for Data Science](https://r4ds.hadley.nz/) by Hadley Wickam, Mine Cetinkaya-Rundel, and Garret Grolemund 
+* *Additional readings and resources will be posted*  
+
+### Additional resources. 
+* [Stack Overflow](https://stackoverflow.com/questions/tagged/r) is the best online help forum for troubleshooting
+* [tidyterra vignettes](https://dieghernan.github.io/tidyterra/articles/tidyterra.html) contains advanced visualization techniques
+* [R-spatial project](https://r-spatial.org/) contains various resources
+* *Other resources will be provided throughout the semester*
+
+### Software. 
+* R and RStudio (Free and open source) 
+  + **we will explore many base and add-on packages over the semester**
+  + important geospatial packages include sf, tmap, terra, leaflet, and others
+  + important data manipulation packages include dplyr, plyr, tidyr, broom, and others
+
+### Use of AI
+
+Most of the time, what we are referring to as "AI" (like ChatGPT) are really language-based learning models (not always). These have scraped massive amounts of data and are generated to compile information and respond to requests like a human would. AI is here to stay, it has some problems, but can also be helpful when used correctly. **PLEASE do not let AI become a crutch for you in this, or any, class!** Your greatest challenge is figuring out how to use technology in a way that doesn't inhibit your learning and skill growth. AI is not necessarily good at logic and reasoning. It can be wrong or misleading, and sometimes the solution is more simple than what the model has "learned" on its own. 
+
+**IMPORTANT:** First, try to figure out the solution **on your own**. It will be much more satisfying and you will learn more from it! Second, reach out to **your peers** for help! Don't just ask for the answer, and don't hand out answers, as this takes away from your ability to learn and grow. Third, rather than use AI, I would recommend searching on **[Stack Overflow](https://stackoverflow.com/questions/tagged/r)** first to find a similar example that you can adapt. A google search will typically produce results from Stack Overflow or a few other online help forums, which will be the most useful. Finally, *if you do use AI in this class*, you should **explicitly state** that you used it and how you used it. I expect solutions you provide to more or less fall within the context of what we have covered. **In general, use AI sparingly**. It can be useful to brainstorm, edit, or provide general direction for troubleshooting a specific problem. 
+
+## Course Structure. 
+
+### Grading. 
+* **Participation:** 20% 
+  + Participation: Attendance, in-class activities, group discussions, and pop quizzes.
+* **Skills Tests:** 20% 
+  + Skills tests: Short exams to test your skills in programming language; expect 3-5 throughout the semester.
+* **Assignment Modules and Case Studies:** 30%   
+  + Assignment: Near-weekly assignments (modules) to build necessary skills throughout the semester, become progressively more difficult. Begins with theoretical scenarios and builds towards real-world datasets and geospatial problems.
+* **Final Project:** 30% 
+  + Final Project: The culminating effort of this class will test your ability to apply what you have learned in a class project. The last several weeks of class will focus on preparing students for their project presentation
+
+**Final Grades will be determined based on the following:**
+
+| Excellent | Good | Satisfactory | Unsatisfactory | Incomplete |
+|-----------------|-----------------|-----------------|-----------------|-----------------|
+| A: 94–100%      | B+: 87–89.9%    | C+: 77–79.9%    | D+: 67–69.9%    | E: 0–60%        |
+| A-: 90–93.9%    | B: 84–86.9%     | C: 74–76.9%     | D: 64–66.9%     |
+|                 | B-: 80–83.9%    | C-: 70–73.9%    | D-: 60–63.9%    |
+
+*Categories and weights are subject to change*  
+
+### Class policies. 
+* All assignments must be complete and “solved” *on your OWN!* (unless specified otherwise).
+* Assignments are due at 11:59 pm on due dates
+* Late work will receive a -2% deduction per day
+* Makeup and excused work is only given for university excused absences, or case-by-case basis with instructor approval
+
+### Course Schedule. 
+
+**Tentative weekly topics:**
+
+1. Introduction
+2. Basic data types and structures
+3. Filepaths, data exploration, and visualization
+4. Reproducible workflows and flow control
+5. Problem Solving
+6. Data cleaning and statistical models
+7. Packages and spatial data basics
+8. Spatial data with terra
+9. Spatial analysis I
+10. Spatial analysis II
+11. Terrain modeling
+12. Remote Sensing Basics and Spatial Interpolation \
+13. (13-16) **Final project work**
+
+*Schedule is subject to change. Attend class and stay tuned to updates and emails.* 
+
+### University Policies. 
+
+* AI Statement:Generative AI tools present new ways to brainstorm, fine-tune, and add additional information to your work. These programs are not meant to replace you or your effort when completing a course. Using AI responsibly is import for the modern student and human. Ultimately you are responsible for your assignment submissions in this course and should use personal knowledge, critical thinking, and good judgement with the aid of resources (such as generative AI) to complete assignments. Student work submitting with the help of an AI query should be explicitly stated. No more than 25% of the work can be generated by AI. Plagiarism is no longer limited to the theft of human intellect alone. Reach out if you have any further questions. 
+
+* Academic Integrity: University policies clearly state that plagiarism, cheating, or fabrication will not be tolerated. Give credit where credit is due. Minor violations will result in a failing grade for the assignment and major violations may be reported to the University (possibly resulting in failing the course). For further information, see UVU Policy 541: Student Code of Conduct. 
+
+* Food, Housing, Health and Safety: Check out the UVU CARE page for more resources.
+
+* Additional needs: Students needing accommodations due to a disability including temporary and pregnancy accommodations may contact the UVU Accessibility Services at accessibilityservices@uvu.edu or 801-863-8747. Accessibility Services is located on the Orem Campus in LC 312.
+
+#### Syllabus and course attributions.
+
+This course has been built referencing various open-source educational resources, with contributions from the resources listed and others mentioned throughout the course.
+
+Parts of this syllabus (mainly organization) were generated with Claude natural language AI assistant (Anthropic, Inc., 2023). Additionally, help documents, guides, and some assignment questions are partially generated with the assistance of AI. 
+
+<br><br />

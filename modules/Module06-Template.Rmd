@@ -1,0 +1,108 @@
+---
+title: "Module 6"
+author: "Your Name"
+output: 
+  html_document
+---
+
+```{r setup, include=FALSE} 
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+Insert your code and responses for each question below.
+
+```{r}
+# load libraries and datasets
+
+```
+
+
+<br />
+
+##### **Advanced Visualization**
+
+1. (2 points) Plot and provide your script to recreate the graphic above. This shows the SWE for three seasons alongside average air temperature for the snotel station (Agua Canyon).
+
+```{r}
+
+```
+
+
+<br />
+
+##### **Advanced Pivoting**
+
+2. How many total stations are there in this dataset? How many variables are included for each station? Provide code for your response.
+
+```{r}
+
+```
+
+
+3. Show the top 5 snotel sites with the deepest snow depth for each winter season. Include the max snow depth value (inches) and the Date of max snow depth for each season. Try to perform this with one continuous piped dplyr statement.
+
+```{r}
+
+```
+
+
+4. Use the results above to generate a bar plot in `ggplot` showing the counts of snotel sites in the top 5 for for snow depth over the three seasons. Which sites continually receive the deepest snow depth?
+
+```{r}
+
+```
+
+Provide a statement
+
+5. Copy and modify your code above to create another summarized subset that shows the top 5 snotel sites with the greatest snow water equivalence for each winter season. Add a few lines of code to this and your snow depth dataset to compare the months that experience the deepest snow depth vs months with the greatest amount of SWE.
+
+```{r}
+
+```
+
+
+6. Combine your tables of monthly max summary variables together and create a final barplot or boxplot using `ggplot` showing the how the max monthly values of snow depth vary compared to SWE. 
+
+```{r}
+
+```
+
+
+<br />
+
+##### **Joining**
+
+7. (2 points) Join the summarized max April SWE dataframe with the elevation dataframe. Create a scatter plot that shows the max SWE (snow water equivalent) during the month of April as a function of elevation (x-axis).
+
+```{r}
+
+```
+
+
+8. It is well known that precipitation amount can be enhanced at higher elevations due to orographic lift (air masses flowing over mountains). Utah's mountains benefit and often have an enhancement of 5+ times the amount of precipitation that the valleys receive. Statistically assess the strength of the linear relationship between April SWE as a function of elevation. *Consider the direction, strength, significance, and wellness of fit of this relationship, and discuss whether elevation is a good predictor of SWE.*
+
+```{r}
+
+```
+
+Provide a statement
+
+<br />
+
+##### **Spatial Data**
+
+Make sure that you have properly installed the `terra` package:
+
+```{r, eval=F}
+# install.packages("terra") # be sure you have all dependencies installed first!
+library(terra)
+```
+
+
+
+
+<br />
+
+<br />
+

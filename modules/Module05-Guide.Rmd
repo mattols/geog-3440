@@ -1,0 +1,294 @@
+---
+title: "Module 5 Guide"
+author: "GEOG-3440"
+output: html_document
+---
+
+```{r setup, include=FALSE} 
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+This document describes the important concepts, workflows, functions, and other information useful for this week.
+
+### Readings
+
+* Read **Data preparation, and Statistical models** in [R-Spatial book](https://rspatial.org/intr/11-dataprep.html)
+* Read about [regular expression](https://paulvanderlaken.com/2017/10/03/regular-expressions-in-r-part-1-introduction-and-base-r-functions/) in base R
+* Skim through these [statistical vignettes](https://serc.carleton.edu/eddie/teaching_materials/statistical_vignettes.html) to get a refresher on some important statistical concepts 
+* (optional) Check out this useful flowcharts for [statistical tests](https://statsandr.com/blog/what-statistical-test-should-i-do/)
+
+
+### Main Goals
+
+1. Data preparation and string manipulation
+2. Statistical relationships
+
+<br />
+
+## **1. Data Preparation and String Manipulation**
+
+Data preparation is an essential step in data analysis. A common operations for analysis is merging data frames. This section explores `merge()` for combining data frames. We will save reshaping and pivoting for another week.
+
+Finally, you will learn a bit more about string manipulation and regular expression. This is a very powerful way to extract additional information and clean messy data.
+
+<br />
+
+#### **Combining Data**
+
+When working with multiple datasets, you often need to combine data based on a common variables, such as a shared geographic location. The `merge()` function in base R is used to combine data frames by matching rows based on one or more common columns. Let's combine a dataset of air quality measurements with one that contains geographical coordinates.
+
+```{r}
+# Example: Merging two data frames by a common column
+
+# Create two sample data frames: one for air quality and one for location coordinates
+air_quality <- data.frame(
+  Location = c("Location1", "Location2"),
+  AQI = c(45, 75)
+)
+
+coordinates <- data.frame(
+  Location = c("Location1", "Location2"),
+  Latitude = c(40.7128, 34.0522),
+  Longitude = c(-74.0060, -118.2437)
+)
+
+# Merge the two data frames by 'Location'
+merged_data <- merge(air_quality, coordinates, by = "Location")
+print(merged_data)
+```
+
+In this example, the `merge()` function combines the air quality data with the geographic coordinates based on the `Location` column, providing a more complete dataset for analysis.
+
+Merging data is a foundational tools in data preparation, making it easier to explore and analyze datasets in R. We will continue to use this throughout the semester.
+
+<br />
+
+#### **String manipulation**
+
+Character data types, also known as "strings" are a primary data type in any programming language. R provides powerful pattern matching capabilities, including the ability to find and omit special characters. String manipulation and regular expression are invaluable for processing text-based data.
+
+The two easiest ways to manipulate character strings is by either splitting the string based on a known character with `strsplit`, or extracting parts of strings.
+
+```r
+strsplit("Jose_Gonzalez", "_") # [1] "Jose"     "Gonzalez"
+substr("8274_Neil123", start = 6, stop = 9) # [1] "Neil"
+```
+
+If possible, I would generally recommend using one of the methods above first. If a problem is more complex, other forms of pattern matching exist. 
+
+Functions like `grep` and `grepl` search for matches to argument pattern within each element of a character and differ in the format of and amount of detail in the results. Whereas functions like `sub` and `gsub` perform replacement of the first and all matches respectively.
+
+```r
+grep("\\d", c("abc123", "def", "45def")) # match strings containing digits
+grepl("[A-Z]", c("abc", "XYZ", "AbC")) # test for uppercase 
+gsub("-", "_", c("text-data", "more-text")) # replace - with _
+gsub("[[:punct:]]", "", c("Hi there!", "How are you?")) # remove punctuation
+grepl("(and|or)", c("this and", "another", "or this one")) # detect and/or
+```
+
+While some forms of pattern matching are straightforward, other types of matching require more extensive use of regular expression. Regular expression (or regex) is a way of providing rational to edit or extract parts of character strings, such as `"(?<=\\$)\\d+"`. It is a language all of its own. This provides a powerful pattern matching syntax for text data. While you likely will not likely become an expert in regex, it is useful to know a little for small, straightforward tasks.
+
+Some useful special characters for matching patterns include:
+
+- \\d - digits
+- \\s - whitespace
+- . - any character
+- [] - set/range of characters *(e.g. [0-9] are digits and [a-z] are lowercase letters)*
+- ^ and $ - start and end of string
+
+By combining these special characters with repetition qualifiers like * and +, we can create complex regex patterns to match all sorts of text-based formats. Here's a [cheatsheet](https://hypebright.nl/index.php/en/2020/05/25/ultimate-cheatsheet-for-regex-in-r-2/) if you want to know more. Keep in mind that sometimes there is an easier way, for example, you can also use the `toupper` and `tolower` functions to simplify some situations.
+
+Regular expression tasks can be fundamental to some data science workflows, but each situation requires unique syntax, some situations quickly become very challenging. It is most helpful to look for help and examples on Stack Overflow when you run into issues. Other R packages can help with string maipulation and regular expression, feel free to read more about [strings](https://r4ds.had.co.nz/strings.html) in the R for Data Science book.
+
+<br />
+
+
+## **2. Statistical Relationships**
+
+R comes equipped out of the box with all of the standard statistical tests and models used in data analysis. Interpreting the strength of relationships is an important part of any analysis. Statistical metrics are useful to support observations and provide a quantitative measure
+
+This class **is not a substitute for a statistics class**, you should have already taken a stats course or be enrolled in one currently. Statistics courses will help you learn how to know which models and tests to use, and how to interpret the results. We will stick to simple statistics and metrics in this class.
+
+**Below is a brief overview of relevant quantitative and statistical concepts.**
+
+
+<br />
+
+
+#### **Summary Statistics and Significant Figures**
+
+We've already covered basic summary statistics. Summary statistics are essential for understanding the central tendencies and variability of your data. They help describe the main features of a dataset and provide insight into its overall distribution.
+
+For example, you might want to summarize the average pH levels of a lake at different times of the year.
+   
+```{r}
+# pH levels of water samples from a lake
+pH_levels <- c(7.2, 7.4, 7.1, 6.9, 7.0, 7.3, 7.5)
+
+# summary statistics
+summary_stats <- summary(pH_levels)
+print(summary_stats)
+```
+ 
+The `summary()` function will provide the minimum, 1st quartile, median, mean, 3rd quartile, and maximum values for the dataset. You can quickly determine the central tendency (mean/median), the range (min/max), and the spread (quartiles) of the data with these functions.
+
+Significant figures are used to express the precision of measured data. Correctly rounding or truncating numbers is essential when presenting scientific results. The number of reported significant figures is a way of indicating how precise the original measurements are. 
+
+For example, you might be measuring pollutant concentrations in air samples and want to report the results with appropriate precision.
+   
+```{r}
+# pollutant concentrations
+concentration <- c(23.46, 45.2, 67.2395, 34.2562)
+
+# report mean with appropriate two significant figures
+mean_concentration <- mean(concentration) 
+mean_concentration_sig <- signif(mean_concentration, 3) # also use round() in some cases
+cat("mean:", mean_concentration, "\n",
+        " with sig figs:", mean_concentration_sig)
+```
+ 
+*Note* that the final answer should be reported based on the measurement with the least number of significant figures.
+
+The `signif()` function rounds the values to the specified significant figures. The result gives you the concentration values rounded to a specified number of significant figures, ensuring that your reported values are consistent with the precision of your measurements.
+
+Some general rules for significant figures are:
+
+- *Non-zero digits are always significant:* 123 has 3 significant figures.
+- *Any zeros between significant digits are also significant:* 1003 has 4 significant figures.
+- *Leading zeros (zeros before the first non-zero digit) are not significant:* 0.0045 has 2 significant figures.
+- *Trailing zeros in a decimal number are significant:* 12.300 has 5 significant figures.
+- *Trailing zeros in a whole number without a decimal point are not necessarily significant:* 1500 could have 2 or 4 significant figures depending on the context, whether that is the actual number is 1500. (4) or rounded (2) based on data precision.
+- *Exact numbers (such as counts of objects) have an infinite number of significant figures:* 1000 trees is exact, so it has an infinite number of significant figures.
+- *See the Pacific - Atlantic Rule* for more ways to remember significant figures.
+
+<br/>
+
+#### **Distributions and Spread**
+
+Understanding distributions helps model and visualize how data points are spread across a range. It also allows us to assess whether the data follow a certain type of distribution (e.g., normal).
+
+For example, you might want to check if the concentration of a pollutant follows a normal distribution in a specific area.
+   
+```{r}
+set.seed(124)
+# pollutant concentration
+concentrations_site1 <- sample(x = seq(from = 2, to = 5, by = 0.1) , size = 1000, replace = TRUE) # random data
+concentrations_site2 <- rnorm(n = length(concentrations_site1), mean = mean(concentrations_site1)) # create a more normally distributed dataset
+
+# histogram to visualize the distribution
+par(mfrow=c(1,2)) # two plots side-by-side
+hist(concentrations_site1, main="Pollutants - Site 1", xlab="Concentration (ppm)", col='lightblue') # plot 1
+hist(concentrations_site2, main="Pollutants - Site 2", xlab="Concentration (ppm)", col='lightblue') # plot 2
+```
+ 
+The `hist()` function creates a histogram that shows the distribution of concentrations. By examining the shape of the histogram, you can assess whether the concentrations follow a normal, skewed, or uniform distribution, which informs further statistical analysis.
+
+As discussed above, the **central tendency** and **spread** are two key concepts that help summarize and describe the characteristics of a data distribution. Central Tendency refers to the central point around which data tends to cluster. Common measures of central tendency include the mean and median. This also provides an estimate of the "typical" value within a dataset, but it doesn’t tell us how spread out the values are. 
+
+The **sample variance** and **standard deviation** are measurements of the spread or dispersion of a dataset. While variance is  indicates how much the individual data points deviate from the mean on average. A small standard deviation means the data points are closely packed around the mean, while a large standard deviation indicates that the data points are spread out over a wider range. 
+
+Variance is an important metric using in many algorithms and machine learning. The equations is: 
+
+$$s^2 = \frac{1}{n - 1} \sum_{i=1}^n (x_i - \bar{x})^2$$
+- Where $x_i$ is each individual data point, $\bar{x}$ is the sample mean, $n$ is the sample size.
+
+The sample standard deviation is then calculated as the square root of the variance: $\sigma = \sqrt{s^2}$
+
+The `var` and `sd` functions can be used to calculate the sample variance and standard deviation:
+
+```{r}
+data <- c(2, 4, 6, 8, 10)
+variance <- var(data) # Sample variance
+std_dev <- sd(data) # Sample standard deviation
+cat("Sample variance:", variance, "\n",
+    " Standard deviation:",  std_dev)
+```
+
+The units of variance are the square of the units of the original data, which makes it harder to interpret directly in the context of the original data. The standard deviation is typically more easier to interpret because it is in the same units as the data.
+
+For normally distributed data, 68% of the data points fall within one standard deviation above or below the mean. About 95% of the data points are within two standard deviations of the mean. Roughly 99.7% of the data points are within three standard deviations from the mean. Data points beyond the third standard deviation are considered extreme outliers, typically representing less than 0.3% of the data. 
+
+These intervals give insight into the distribution and spread of data, with most values concentrated around the mean and fewer values falling as you move further away from it.
+
+```{r}
+# histogram to visualize the distribution
+hist(concentrations_site2, main="Pollutants - Site 2", xlab="Concentration (ppm)", col='gray', breaks = 50) # normally distributed
+# add central tendency
+cct_mean <- mean(concentrations_site2)
+abline(v = cct_mean, col='red', lwd = 3)
+# measures of spread
+cct_sd <- sd(concentrations_site2)
+abline(v = (cct_mean + cct_sd*c(1,-1)) , col='blue', lwd = 3, lty = 2) # 1st std dev
+abline(v = (cct_mean + cct_sd*c(2,-2)), col='blue', lwd = 2, lty = 3) # 2nd std dev
+legend("topright", c("mean", "1-stdev", "2-stdev"), lty = 1:3, col=c("red","blue","blue"))
+```
+
+While not perfect, you can see that this data mostly follows a normal distribution. You can double check this with various tests. The Shapiro-Wilk test is a statistical method used to check if a sample follows a normal distribution. It produces a p-value, and if this p-value is below 0.05, it suggests that the distribution deviates significantly from normal. 
+
+```{r}
+shapiro.test(concentrations_site2)
+```
+
+Because the p-value is above 0.05, we can assume the distribution is approximately normal.
+
+These measures are particularly useful for understanding the nature of distributions. For example, in environmental studies, you might look at the **mean temperature** over a year to understand typical conditions and the **standard deviation** to assess the variability in temperature. A small standard deviation could indicate consistent weather patterns, while a larger standard deviation would suggest more fluctuating conditions.
+
+<br />
+
+#### **Correlation**
+
+Correlation measures the strength and direction of a linear relationship between two variables. It’s commonly used to understand how changes in one variable might relate to changes in another. You might want to test if there is a correlation between soil temperature and plant growth rate in a study on agricultural land.
+   
+```{r}
+# soil temperature and plant growth rate
+temp <- c(15, 18, 22, 25, 30)
+growth_rate <- c(3, 5, 6, 7, 9)
+
+# correlation between temperature and growth rate
+correlation <- cor(temp, growth_rate)
+print(correlation)
+```
+ 
+The `cor()` function returns a correlation coefficient (between -1 and 1). A positive value (close to 1) suggests a strong positive correlation (as temperature increases, growth rate also increases), while a negative value indicates an inverse relationship.
+
+**Recall** that strong correlation does not imply causation. So take care of how you report this statistic.
+
+<br/>
+
+#### **Linear Regression**
+
+Linear regression is used to model the linear relationship between a dependent variable and one or more independent variables. The `lm()` function is used to fit linear models and allows us to predict a continuous outcome based on one or more predictors. The output can be analyzed with `summary()`, `confint()`, and extractor functions for residuals, predictions, etc. 
+
+Let's fit a model for the relationship between `Petal.Length` (the dependent variable) and `Petal.Width` (the independent variable), plot the model fit, and display the model output:
+
+```{r}
+# linear regression model
+model <- lm(Petal.Length~Petal.Width, data = iris)
+# plot results
+plot(Petal.Length~Petal.Width, data = iris)
+abline(model)
+# model summary
+summary(model)
+```
+
+The `summary()` function then provides detailed results, including several key components:
+
+* **Call**: Displays the formula used in the regression, showing that we are predicting `Petal.Length` from `Petal.Width`
+* **Coefficients**: These values represent the intercept and the slope of the regression line:
+   - **Intercept**: The estimated value of `Petal.Length` when `Petal.Width` is 0.
+   - **Slope (Sepal.Width)**: The estimated change in `Petal.Length` for each unit increase in `Petal.Width`.
+* **R-squared**: This statistic tells us the proportion of the variance in `Petal.Length` that is explained by the model. An R-squared of 0 means no explanatory power, while 1 means perfect explanation. In general, higher R-squared values indicate a better fit.
+* **p-value**: For each coefficient, the p-value tests the null hypothesis that the coefficient is equal to zero (no effect). A low p-value (typically below 0.05) indicates that the corresponding predictor is statistically significant.
+
+The model above shows a positive relationship between `Petal.Width` and `Petal.Length`, with a relatively high R-squared, suggests that `Petal.Width` alone does not explain all of the variability in `Petal.Length`.
+
+Linear regression is a powerful tool for exploring relationships between variables. By interpreting the coefficients, R-squared, and p-values, you can gain insights into how well your model fits the data and which variables are significant predictors.
+
+*Other* simple test can also be carried out for hypothesis testing such as t-tests, chi-squared, ANOVA, as well as others. Further statistical tests are beyond the scope of this class and can be explored more *in your own* time!
+
+<br />
+<br />
+
+**Complete the Module Task**
+
+<br />

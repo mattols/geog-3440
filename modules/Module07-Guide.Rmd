@@ -1,0 +1,253 @@
+---
+title: "Module 7 Guide"
+author: "GEOG-3440"
+output: 
+  html_document:
+    code_folding: hide
+---
+
+```{r setup, include=FALSE} 
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+This document describes the important concepts, workflows, functions, and other information useful for this week.
+
+### Readings
+
+* *Continue* all readings from last week about R packages and the tidyverse
+* Read this article on What is [Spatial Data Science](http://gisgeography.com/spatial-data-science/)
+* Read the **Introduction, Spatial data, and Vector data** sections under Spatial data with *terra* in the [R-Spatial book](https://rspatial.org/spatial/1-introduction.html)
+* Start reading the **Vector Manipulation and Maps** sections under Spatial data with *terra* in the [R-Spatial book](https://rspatial.org/spatial/7-vectmanip.html)
+* Read this short [article from gisgeography](https://gisgeography.com/choropleth-maps-data-classification/) about classification methods for choropleth maps
+* Save and review a few default color options the [R color cheatsheet](https://www.nceas.ucsb.edu/sites/default/files/2020-04/colorPaletteCheatsheet.pdf)
+
+### Main Goals
+
+1. Exploring tidyverse workflows
+2. Introduction to spatial data
+3. Spatial visualization and manipulation
+
+<br />
+
+
+## **1. Exploring tidyverse Workflows**
+
+While there are several benefits in learning the base R functions, some of the added libraries we will use can make workflows easier and more efficient. These workflows are covered in much more detail in the **Module 06 Guide**.
+
+We will continue to explore additional packages in R that are useful for data wrangling. This will will continue to focus on the following packages associated with the *tidyverse*:
+
+- `ggplot`
+- `dplyr`
+- `tidyr`
+- *and others*
+
+A few key functions mentioned include: `dplyr` piping with `%>%` and data transformation with `filter`, `select`, `group_by`, `mutate`, and `summarize` functions; various `ggplot` functions for visualizations; and `pivot_longer` (`_wider`) functions from `tidyr`.
+
+This introduces another, sometimes more convenient workflow for analyzing your data. Keep in mind that in some instances, it might be just as easy or easier to use base R functions.
+
+**TLDR:** *It can be helpful in the long-run to learn additional methods for the same task. tidyverse workflows can be more efficient but are not required for data cleaning and analysis.* 
+
+<br />
+
+## **2. Introduction to Spatial Data**
+
+Welcome to the world of geospatial data! Spatial data can be thought of any information with a spatial (x, y) component, though it typically refers to data with location information. Geospatial data is unique in that the spatial information pertains to location information on the Earth. 
+
+While a simple Cartesian coordinate systems is used to display data on a x/y plane, a geographic coordinate system (GCS) uses other coordinates (e.g., long/lat, easting/northing) to represent data on a geographic system. Several reference systems exist using different estimations (datums) of the real world. Furthermore, data can be projected to to transform 3D GCS information into a 2D plane, which is essential for maps. Keep in mind that projections introduce distortions of area, size, and shape into spatial visualization and analysis. Chosen projections should be aware of location, scale, and situation for any analysis.
+
+This week, you will specifically focus on **vector data models.**
+
+Geospatial data represents real-world features. Discrete objects are typically represented as points, lines, or polygons. Recall our demonstration from class, where we simulated precipitation data for weather stations along a series of coordinates labeled as longitude and latitude. We can generate random precipitation data just like before. The `runif()` creates a random sample of values within a normal distribution between defined min/max values. 
+
+**Click show** to reveal the hidden code.
+
+```{r}
+# extent the state of Utah
+m <-  maps::map("state", "Utah", plot = F)
+e <- m$range
+
+# create lat/long and precip data
+set.seed(123)
+longitude <-  sample(seq(e[1], e[2], 0.01), 25)
+latitude <-  sample(seq(e[3], 41, 0.01), 25) # use 41 instead of e[4]
+precip <- round((runif(length(latitude))*10)^3) # simulated rainfall data
+station_locations <- cbind(longitude, latitude)
+
+# plot
+psize <- 1 + precip/500
+plot(station_locations, cex=psize, pch=20, col='deepskyblue3', main='Precipitation')
+maps::map("state", "Utah", add=T)
+text(station_locations, LETTERS[1:length(latitude)], pos=4)
+# add a legend
+breaks <- c(100, 250, 500, 1000)
+legend.psize <- 1+breaks/500
+legend("topright", legend=breaks, pch=20, pt.cex=legend.psize, col='deepskyblue3', bg='gray')
+
+```
+
+**Note, that the information plots** as a Cartesian coordinate grid, assuming that x and y vary equally with one another (this is not true for longitude and latitude).
+
+Point data is the most basic form of a vector data model. Line and polygon data models can also be incredibly useful. In the most basic sense, these data formats rely on either knowing the correct drawing order of points (line) or start and end with the same point (polygon), closing the feature.
+
+While the plot above could very well represent true geospatial data, there is no defined CRS or projection. The data above is really just a Cartesian coordinate system, where we have labeled x/y as longitude/latitude.There are additional rules and conventions to follow in geospatial data formats, which you will learn more about over time. Geospatial data must contain several types of information, ideally all within a single callable object in R. Fortunately, there are several useful packages dedicated to working with geospatial data formats.
+
+Vector data typically represents discrete objects as a series of points, lines, or polygons. These objects contain various attributes about the surface. For example, imagine a stream polyline dataset. Each stream tributary could contain information about the stream gradient, monthly discharge, average width, average depth, gaining/losing discharge characteristics, water quality information, as well as several other attributes. 
+
+We will want a data model that can store the geometry of the data, detail the spatial reference information, and contain various attributes about the features all in one data structure. This is when we need a package that specializes in spatial data.
+
+You can create a vector object with the `vect()` function in the `terra` package.
+
+```{r, message = FALSE, class.source = 'fold-show'}
+library(terra)
+# make into vector data
+pts <- vect(station_locations) # create vector data from long/lat points
+class(pts)
+pts # data structure
+```
+
+This data does not have any spatial reference information or attribute information. At the moment it is just a structure containing coordinates. Let's define the CRS for this data. Fortunately, we know that GPS measurements are typically recorded in the standard WGS 1984 datum.
+
+```{r, class.source = 'fold-show'}
+crdref <- "+proj=longlat +datum=WGS84" # CRS used for GPS data
+pts <- vect(station_locations, crs=crdref)
+cat(crs(pts))
+```
+
+You can also use EPSG codes, which are spatial reference identifiers. EPSG stands for the European Petroleum Survey Group, but they are widely used in geospatial data analysis. Rather than the PROJ4 (library) script above, you could use: `"EPSG:4326"`, which is the code for the WGS 1984 datum.
+
+We can also use data a dataframe as input for attribute information into the spatial vector object. This is a better way to store information and can help with plotting. We will use a another randomly generated variable and display values with a new symbol (specified with `pch`) and color palette.
+
+**Click show** to reveal the hidden code.
+
+```{r}
+# create spatial vector object from dataframe
+snowfall <- runif(nrow(station_locations), min=0, max=100) # new precipitation 
+df <- data.frame(ID=1:nrow(station_locations), snow=snowfall)
+df <- cbind(df, station_locations)
+# specify geometry attributes and CRS
+ptv <- vect(df, geom = c("longitude", "latitude"), crs="EPSG:4326")
+
+# plot using default classification (interval)
+plot(ptv, "snow", ylim = c(36.8, 42), xlim = c(-114.2, -109), pch = 8,
+     main = "Utah Snow Totals", plg= list(title = "Snowfall (in)"),
+     col = hcl.colors(5))
+maps::map("state", "Utah", add=TRUE, col='firebrick', lwd=2)
+```
+
+**Note, now our data plots in a geographic system** using the `terra plot` function. However, keep in mind that our data only has a GCS and not a PCS (projected coordinate system). It can be fine to work in only a GSC for some applications.
+
+We can also generate simple line and polygon features in a similar method:
+
+```{r}
+# geometry for one lake (polygon)
+set.seed(123)
+lon <-  c(-113.3, -112, -112.2, -113, -113.5)
+lat <-  c(41.5, 41, 40, 39.2, 40.8)
+p_lonlat <- cbind(id=1, part=1, lon, lat)
+
+# geometry for two river
+lon <- c(-113, -112.5, -112, -111, -110, -111, -111.2, -111.4, -111.5)
+lat <- c(39.2, 38.6, 38.4, 38.2, 38.1, 41, 40.5, 40.3, 40.2)
+l_lonlat <- cbind(id = c(rep(1, 5),rep(2, 4)), lon, lat)
+# create lines/polygon objects
+pols <- vect(p_lonlat, type="polygons", crs=crdref)
+lns <- vect(l_lonlat, type="lines", crs=crdref)
+# plot
+maps::map("state", "Utah", col='firebrick', lwd=2)
+plot(pols, border='black', col=adjustcolor('deepskyblue3', alpha.f = 0.2), lwd=1, add=TRUE)
+plot(lns, col='blue', add=TRUE)
+plot(ptv, "snow", col = blues9[5:9], pch=18, add=TRUE,
+      plg= list(title = "Snowfall (in)", bg = 'grey60', bty="o"))
+```
+
+Note that the polygon is a single-part polygon feature. A polygon or line feature may relate to a single feature in the real world. As such, you may want a vector model that contains a multi-part lines/polygon feature, which is very common. At this point, we probably don't want to continue to create these objects from scratch. You can, but you will mostly be working with existing spatial data. At most, you will find your self converting point data from a csv table of long/lat points. This is the workflow for incorporating basic field measurements into GIS.
+
+**Keep in mind that you will likely never be creating your own data like this**, instead you will generally use existing GIS layers but may use a csv file containing latitude and longitude coordinates.
+
+
+<br />
+
+
+## **3. Spatial Visualization and Manipulation**
+
+At this point in your GIS journey, you should be familiar with various different vector model data formats. I imagine you are mostly familiar with shapefiles (.shp), which is the ESRI standard vector format. Several other vector data models also exist! Most of these formats can be read by the `terra` package.
+
+`terra` has a few built-in spatial datasets we can play around with, let's look at the the Luxembourg dataset:
+
+```{r}
+f <- system.file("ex/lux.shp", package="terra")
+lux <- vect(f)
+lux
+```
+
+You can plot attributes from this spatial data by calling the variables fo interest:
+
+```{r}
+plot(lux, "NAME_2")
+```
+
+You can also extract or add attribute information:
+
+```{r, class.source = 'fold-show', eval=FALSE}
+lux$NAME_2 # extract variable values
+lux[, "NAME_2"] # extract variable with geometry
+lux$lets <- sample(letters, nrow(lux)) # add new or edit variable
+lux$lets <- NULL # remove variable
+```
+
+In may ways, you can treat geospatial vector data models like a dataframe, both contain attributes that can be analyzed, plotted, joined, or subset. We will learn about specific vector analysis and overlay operations in the coming weeks.
+
+Here are a few final map visualization tips using the `terra::plot()` function:
+
+```{r, warnings=F, message=F}
+library(maps)
+par(mfrow=c(1,2)) # change plot frame
+# map 1
+map("world", c("Belgium", "Germany", "Luxembourg"), ylim=c(48,53), xlim=c(3,12), mar=c(1,1,3,1), col='grey30', bg="grey", lwd=3)
+title("Study Region Location"); box()
+plot(ext(lux), border="firebrick", lwd=1.5, add=T)
+map.text("world", c("Belgium", "Germany$"), add=T)
+# map 2
+plot(lux, "POP", col=blues9, main = "Cantons of Luxembourg", mar=c(2,1,2,2), type="interval", legend="topright", plg=list(title="Population", cex=0.5, bty="o"))
+map("world", c("Belgium", "Germany", "Luxembourg"), col='grey40', lty=3, lwd=2, add=T)
+map.text("world", "Luxembourg", add=T, col="grey30", cex=0.8)
+text(x=6.4, y=49.95, "Germany", cex=0.8, col='grey30')
+```
+
+**Click show** to reveal the code.
+
+Key to interpret the arguments used in the code above:
+
+* the `par()` function allows you to set graphical parameters, the mfrow argument sets the number of c(row, column) plots
+* the `mar` argument within the plot functions accesses the `par(mar=...)` parameter, which sets the plot margins
+* `box()` draws the black rectangular plot box, `axis`, `text`, and `title` components can also be added, including text from spatial objects and from graphical parameters (see last two lines)
+* the `maps` library can be used to quickly visualize country and state borders alongside other spatial data (including text). Note that the map scale at which these are generated is insufficient for precision (see right plot above)
+* use `?plot` (from terra) to learn more about the different parameters; common arguments include line width (`lwd=`), line type (`lty=`), size (`cex=`), `plg` to access plot legend parameters, and `add=T` to continue adding data to the current plot
+* within map plots you can include a `type=` argument to specify whether to plot your values as "continuous", "classes", or "interval" - the default will be chosen based on your data type (i.e. numeric vs. factor)
+* note that legend arguments can be given within the plot function as well as in a new `legend()` function on the next line.
+
+**Don't feel the need to spend too much time trying to make a perfectly beautiful maps yet!** You'll learn more as you go and discover other workflows and packages for plotting. 
+
+<br />
+
+#### **Map Overlay Operations**
+
+Your R-Spatial book covers several important map overlay operations in `terra` that you should become familiar with. Be sure to review important map overlay techniques such as:
+
+* `merge`
+* `clip`
+* `erase`
+* `aggregate`
+* *and many others*
+
+
+<br />
+
+
+
+
+**Complete the Module Task**
+
+<br />
+<br />
+

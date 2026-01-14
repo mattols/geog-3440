@@ -1,0 +1,411 @@
+---
+title: "Module 2 Guide"
+author: "GEOG-3440"
+output: html_document
+---
+
+```{r setup, include=FALSE} 
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+This document describes the important concepts, workflows, functions, and other information useful for this week.
+
+### Readings
+
+* Read **Basic Data Types, Data Structures, and Indexing** in the [RSpatial book](https://rspatial.org/intr/2-basic-data-types.html)
+* Read this article on [data manipulation](https://www.pickl.ai/blog/data-manipulation-types-examples/) (we will only cover the basics this week)
+
+### Module Goals
+
+1. Create your first script
+2. Basic data types and structures
+3. Descriptive functions and basic data manipulation
+
+<br />
+
+## **1. Create your first script**
+
+A script is a way to save and document your work in an organized way. Scripts can be run line-by-line or run all at once. Click on the icon in the upper-left of RStudio with a green plus sign over a sheet of paper and select **R Script**.
+
+Every script should begin with a header and demonstrate clear organization so that you can easily revisit your work, and so it can be easily interpreted by others (primarily me for this course).
+
+An example header, along with a few other lines, for your script might look like this:
+
+```r
+##
+# Author: Matt Olson
+# Date: 01/13/2025
+# Module 2 Assignment
+## # # # # # # # # # # # # #
+
+# Question 1. [type question prompt here]
+#  < start writing code below this but continue with annotation >
+```
+
+**Add a header to your script and continue to add your code responses** (with annotations) to the questions below. You will submit your R script as your **final deliverable for this assignment.**
+
+Save your script as "Module02-Responses-[YourInitials].R in a known folder somewhere on your machine or OneDrive. Lost files will need to be redone! *I would recommend you create an organized folder structure on OneDrive for this course*.
+
+**Note:** *points will be removed for messy, unreadable scripts.*
+
+<br />
+
+## **2. Basic Data Types and Structures**
+
+This section continues to explore basic data types and structures in R. Data formats and structures build the content of a program. *Understanding* your data on a deeper level is a fundamental step in analysis.
+
+#### **Data Types and Conditional Statements**
+
+R has several basic data types that are important to understand when working with data:
+
+- Numeric - Numbers like 1, 2, 3.4  
+- Integer - Whole numbers like 1L, 2L
+- Character - Text data like "A", "fish"
+- Factors - Categorical data with distinct levels
+- Logical - True/False values like TRUE, FALSE 
+- Complex - Complex numbers with real & imaginary parts like 1+2i (*we will not likely use these*)
+- *and others*
+
+We explored some of this last week, but let's add a few other common data types. Note, this is not comprehensive.
+
+Understanding your data is key. It's essential to know the type of data you're working with. Some key functions to examine data types include:
+
+- `class()` - Get the class of any object
+- `is.numeric()` - Test if numeric 
+- `is.character()` - Test if character
+- `is.factor()` - Test if factor
+
+There are also functions to convert to a new format:
+
+- `as.numeric()` - Convert to numeric
+- `as.character()` - Convert to character
+- `as.factor()` - Convert to factor
+
+Before jumping into any analysis, use these functions to get a better sense of the type of data you're dealing. As you may have learned in the past, understanding your data is more than half the battle.
+
+Let's define a few variables:
+
+```{r}
+x <- 2 # Numeric 
+y <- 2L # Integer
+z <- "Hello" # Character
+```
+
+There are several useful functions to check the data type or convert data to a new format. The `class` function in particular is very useful to understand your data:
+
+```{r, eval=FALSE}
+# Check class
+class(x) # "numeric" 
+class(y) # "integer"
+class(z) # "character"
+
+# Convert types
+as.numeric(z) # NA
+as.character(x) # "1.5" 
+```
+
+Character data is also referred to as a *string.* Note that our conversion from character to numeric produced a value that was non-existent or `NA` which stands for **Not Available**. We can combine these functions and test whether something is NA:
+
+```r
+is.na( as.character(x) ) ## [1] FALSE
+```
+
+It is useful to know how to work with NA values, since they exist in many datasets. We'll talk more about them in the future.
+
+**Conditional** (also known as logical or boolean) statements are also frequently used. `TRUE` and `FALSE` are reserved characters *(similar to NA).*
+
+```r
+# Logical
+a <- TRUE
+as.numeric(a) ## [1] 1
+```
+
+Logical operators can be useful when subsetting data, these are also known as logical boolean operators.
+
+A boolean expression is an expression that produces a boolean (logical) value, which can be used for a variety of to test parts of a program or parse data.
+
+Here are a few short examples of boolean expression (all statements are `TRUE`):
+
+```r
+10 > 9 # greater than 
+x == y # equal to
+10.1 != 10L # not equal to
+```
+
+Note that the `!` symbol is used to negate (i.e. "NOT"). Other boolean operators we can use include `&` for "AND" as well as `|` (pipe command) as "OR".
+
+```r
+!(5 > 4) ## [1] FALSE
+TRUE & FALSE ## [1] FALSE
+TRUE | FALSE ## [1] FALSE
+```
+
+The final data type we'll discuss this week is a "factor". Factors are typically used for categorical information, which have a fixed and known set of possible values.
+
+```{r}
+# is.factor(z) # FALSE
+as.factor(z)
+
+# create new factor data
+teams_data <- c("team 1","team 2","team 3", "team 1", "team 1", "team 3")
+teams_factor <- factor(teams_data)
+levels(teams_factor)
+teams_factor
+```
+
+Factors contain levels, which describe the available categories.
+
+Checking data types and converting between types is critical for cleaning and wrangling data before analysis. This is what we are building toward over the next couple of weeks.
+
+**Code Practice**
+
+* Convert `c(1,2,1)` to character, check the class, then convert to factor and check the number of levels
+* What is the result of `5 < 4 | class("data") == "character" & 1 != "science"`
+
+#### **Data Structures**
+
+Beyond atomic data types, R has several data structures for storing data:
+
+- Vector - 1D array of values, all must be same basic type 
+- Matrix - 2D rectangular dataset
+- DataFrame - Tabular dataset with columns of different types
+- List - Container to store different objects
+
+These structures relate a series of data in different ways. Each have their use and there are several more we will learn about in the future. You're already familiar with vector data
+
+```{r}
+v <- c(1, 2, 3) # Vector
+sum(v)
+```
+
+Matrices are the best way to store tabular data that is all in the same format
+
+```{r}
+m <- matrix(1:6, nrow = 2, ncol = 3) # Matrix  
+m
+```
+
+Vectors (1D) and Matrices (2D) are the foundational formats for storing **geospatial data**. The term *vector* is used both to describe a 1D array, as well as a *geospatial vector object* such as a point, line, or polygon (shapefile). We'll start working with geospatial data in a couple weeks after we have a better foundation in R.
+
+Lists can also be a useful format for storing information, particularly when aggregating different data types together or maintaining structure.
+
+```{r}
+my_list <- list(1, "Hello", TRUE) # List 
+```
+
+Lists are typically for specific situations. We will definitely use them later on, but likely less frequently. 
+
+DataFrames may be one of the most important and commonly used data structures in most programming languages. Data frames are essential for many data analysis workflows, and we will spend a good amount of time working with them. You can think of a data frame as R's version of Excel, a way to organize data into rows and columns of different data types *(Only way way better than Excel).*
+
+```{r}
+# Create a DataFrame
+df <- data.frame(
+  name = c("John", "Mary"),
+  age = c(25, 31) 
+)
+df
+```
+
+Individual column vectors can be called on using `$` such as `df$name`, which will return the data listed in the named column.
+
+The different data structures presented above allow you to organize and store data in R. Data structures differ based on the situation but many of the formats above form the basis for most data analysis, and geospatial analysis.
+
+**Activity**
+Complete class data frame (*name, city, age, height, eye color, hair color, major, etc.*)
+
+<br />
+
+## **3. Descriptive Functions and Basic Data Manipulation**
+
+So far, we have already covered many base functions in R. Functions perform specific tasks or operations and are the building blocks of a programming language. These are also used to combine data and generate new data from existing data.
+
+#### **Descriptive Base Functions**
+
+A **Base function** is a function that is already loaded into your R session upon launch. These are such universal and commonly used functions that they are always available. *Next week we'll start talking about how to load additional functions into your session*. 
+
+Base functions we have already covered, some of which are descriptive, include:
+
+- `print()`: Print the value or variables
+- `paste()`: Combine vectors or objects after converting to string (often used in print statements)
+- `c()`: Combine values or objects into a vector
+- `class()`: Check the class of an object or structure
+- `is.numeric()`: Logical (boolean) check for a specific class (also works for character, factor, etc.)
+- `as.numeric()`: Convert data into a new format (also works for character, factor, etc.)
+- `seq()`: Generate a regular sequence
+- `sum()`: Take the sum of values
+
+It can be difficult to remember every function. While you will get used to the R syntax, **tab completion** is a useful tool to help you remember function names, simply start typing the function and press tab to see suggested functions that match. *This also works for variables (objects)*.
+
+Remember that you can always pull up the help doc for any functions with `help(seq)` or `?seq`.
+
+Simple functions to understand the descriptive statistics in data includes (we'll introduce more next week):
+
+- `min()`: Take the minimum of values
+- `max()`: Take the maximum of values
+- `mean()`: Take the average of values
+
+```r
+my_values <- 1:100
+min(my_values) ## [1] 1
+max(my_values) ## [1] 100
+```
+
+Descriptive functions can help you better understand the data structure for many of the above examples:
+
+- `length()`: The length of items, mainly used for vectors and lists
+- `dim()`: The dimension, or number of rows and columns (matrices or dataframes)
+- `ncol()`: Number of columns in a dataset
+- `nrow()`: Number of rows in a dataset
+- `colnames()`: View column names of a matix or data frame (`rownames` also exists)
+- `head()/tail()`: View first/last few rows (for larger datasets)
+- `summary()`: Summary stats for each column 
+
+```r
+# length of a vector (above example)
+length(v) ## [1] 3
+
+# dimensions and descriptions of matrix and dataframe
+dim(m) ## [1] 2 3
+colnames(df) ## [1] "name" "age"
+nrow(df) ## [1] 2
+```
+
+It is important to gain an understanding of the type and structure of your data before performing any analysis.
+
+#### **Data Manipulation**
+
+Arithmetic is one way of combining data, however the dimension of your data matters in R. For example, what happens if we multiply two vectors of the same length and two vectors of different lengths:
+
+```{r}
+# create two vectors of length 10
+vect1 <- 1:10
+vect2 <- vect1 * 3 # all values multiplied by single scalar
+vect1 * vect2 # each number is multiplied by the value in the same location
+
+# multiply two vectors of length 10 and length 2
+vect3 <- 1:2
+# length(vect3) ## [1] 2
+vect1 * vect3 
+
+```
+
+You can see that when vectors are multiplies, the lengths must be multiples of one another. In our example, vect3 must become `c(1,2,1,2,1,2,1,2,1,2)` to match the length of vect1.
+
+Combining vectors with different lengths that are not multiples of one another produces a `Warning`, but the code still executes:
+
+```{r}
+# multiply two vectors of length 10 and length 3
+vect4 <- c(-1, 0, 2)
+vect1 * vect4 # throws warning but still executes
+```
+
+Data can also be combined with structures. You've learning about combining data with the `c` function in R. There are other ways of combining data into structures as well. Rows, columns, and full DataFrames can also be combined with cbind(), rbind(). New columns can be added simply by assigning to the `$` operator.
+
+```{r}
+# create two new vectors of data
+names <- c("John", "Paul", "Yoko")
+heights <- c(6.2, 5.9, 5.2)
+
+# cbind vectors (becomes matrix)
+combined_vectors <- cbind(names, heights)
+# class(combined_vectors) ## [1] "matrix" "array"
+
+# convert to data frame and add new column
+new_df <- as.data.frame(combined_vectors)
+new_df$age <- c(40, 82, 91) # new age column added
+new_df
+```
+
+#### **Indexing and Subsetting**
+
+R's built-in manipulation functions allow much processing and analysis without needing additional packages. Rows, columns, and locations can be extracted using integer indexing or names. Logical subsetting with a vector corresponding to TRUE values elegantly filters data frames based on conditions.
+
+Brackets `[ ]` are used to index objects:
+
+```{r}
+v <- seq(100,120)
+v[5] # extract 5th value
+```
+
+You can also *slice* a subset of a vector:
+
+```{r}
+v[10:15] # extract 10th to 15th values
+```
+
+Indexing can also be used on dataframes and matrices by specifying row and column position or names:
+
+```{r}
+new_df[1, 2] # extract value in row 1, column 2
+new_df[1:2, "heights"] # rows 1-2 of the heights column
+new_df[new_df$age > 50, ] # logical subset rows where age meets specified condition
+```
+
+Data frame indexing and subsetting can be performed when:
+
+- Location is specified 
+- df[i, j] where i are rows, j are cols
+- Subsets are sliced df[1:5, ]
+- Specific cols df[, c("col1", "col2")] (blank row arguments keeps all rows)
+- Logical conditions are met (`TRUE` statements)
+
+Indexing can be very useful to subset data, either by providing the position of the elements you wish to extract `[numbers_to_keep]` or by giving a boolean vector of the same length indicating which `TRUE` values to keep. 
+
+The `subset()` function also performs a similar actions:
+
+```{r}
+subset(x = new_df, subset = heights > 6.0) # all rows with heights greater than 6.0
+subset(x = new_df, subset = heights < 6.0, select = age) # heights less than 6.0 and only keep the age column
+```
+
+*Note that some arguments (e.g., select) are optional. Use* `?functionName` *or* `help(functionName)` *to learn more about function arguments and see examples.*
+
+Finally, list subsetting requires a double bracket.
+
+```{r}
+my_list[[2]]
+```
+
+Overall, subsetting and indexing are important ways to manipulate and modify your dataset.
+
+#### **Sorting and Extracting**
+
+You may need to organize data or extract values in a particular manner, this can be a useful way to perform preliminary analysis or analyze final results.
+
+Sorting is done via the `order()` and `sort()` functions.
+
+```{r}
+sort(new_df$age) # sort ages 
+reordered_df <- new_df[order(new_df$height),] # reorder data based on height
+reordered_df
+```
+
+Note that the example above combines indexing and ordering to manipulate the dataframe.
+
+Another incredibly helpful function is `which`, which gives the location of statements that are `TRUE`. The variations of this function include `which.min` and `which.max` to produce the position of max and min values in a dataset.   
+
+```r
+# example of which
+height_condition <- new_df$heights < 6.0
+height_condition ## [1] FALSE  TRUE  TRUE
+which(height_condition) ## [1] 2 3
+
+# example of which.min and .max
+which.min(new_df$heights) ## [1] 3
+which.max(new_df$heights) ## [1] 1
+```
+
+Keep in mind that the **result is a position** in the data. `which` can be combined with indexing to extract actual values in a dataset.
+
+For example:
+
+```{r}
+new_df[which.max(new_df$heights), ] # keep all columns for tallest individual
+```
+
+In summary, data manipulation involves structure modification, utilizing pre-built functions, and combining different data through arithmetic and other operations. Data manipulation is an important topic that we will regularly revisit throughout the semester. One important thing to keep in mind is that there is always **more than one way to accomplish the same task** in programming. There may be a better solution, but most of time, the best solution is the one that works (i.e. whichever one you figure out). 
+
+**Complete the Module Task**
+
+<br />
+<br />

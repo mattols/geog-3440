@@ -1,0 +1,251 @@
+---
+title: "Module 6 Assignment"
+author: "GEOG-3440"
+output: 
+  html_document:
+    code_folding: hide
+---
+
+```{r setup, include=FALSE} 
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Be sure to **read assigned chapters and articles** and carefully walk through all of the **Module Guide** before starting on this task.
+
+**You are allowed to use additional packages in your solutions!**
+
+**Submit** your responses in a single, organized html file written in *R Mardown.*
+
+<br />
+
+
+## **Module Tasks**
+
+Complete the following tasks related to the content of this week. Be sure that each answer is given in an organized, coded solution. All plots should at minimum contain useful axes labels and title.
+
+<br />
+
+Your task this week will include *visualizing, pivoting, combining,* data using new libraries in R. 
+
+Read in the **"UTSNTL_ALL_2020_2022_Daily_Wide.csv"** dataset. This file contains meteorological and snow data from snow telemetry (snotel) weather stations in the mountains of Utah. Data from three winter seasons in 2020-21, 2021-22, and 2022-23 were added to this dataset. Several different variables are included for each station. Check out the dataset with `dim`, `colnames`, and a few other functions to get a sense of the type and shape of the data. Running the `head()` function on a wide dataset is not very useful, instead try specifying smaller dimensions that might be easier to digest, like `df_wide[1:4, 1:7]` for the first four rows and first 7 columns.
+
+Note that the water year or winter season begins on Oct 1st and goes until Sep 31st of the following year.
+
+<br />
+
+##### **Advanced Visualization**
+
+We will start off with a very advanced visualization. This is a complicated figure and I will walk you through the steps to create it. I mainly want to show you what can be done with `gglot`.
+
+**Note: No transformation (pivoting)** is required to complete this first section.
+
+Recreate the following plot for the *Agua Canyon* station using `ggplot`:
+
+```{r echo=FALSE, warnings=F, message=F}
+library(ggplot2);library(dplyr)
+snowide <- "../data_tmp/snotel/UTSNTL_ALL_2020_2022_Daily_Wide.csv"
+dfw <- read.csv(snowide)
+# plot swe and temperature of one site
+scal = 3
+dfw %>% mutate(Date=as.Date(Date,format="%m/%d/%y")) %>%
+  mutate(t_color = if_else(Agua.Canyon..907..Air.Temperature.Average..degF. > 32, "No", "Yes")) %>% 
+  ggplot(aes(x=Date)) +
+  geom_bar(aes(y = Agua.Canyon..907..Snow.Water.Equivalent..in..Start.of.Day.Values),
+           col='lightblue', stat='identity') +
+  geom_line(aes(y = Agua.Canyon..907..Air.Temperature.Average..degF. / scal, color=t_color, group=1 ), linewidth=0.5) +
+  scale_y_continuous(name = "SWE (inches)",
+    sec.axis = sec_axis( transform=~.*scal, name="Temperature (degF)")) +
+  scale_color_manual(values=c("firebrick","deepskyblue3"),name="Freezing") +
+  theme_bw() +
+  theme(
+    axis.title.y = element_text(color = "lightblue4"),
+    axis.text.y = element_text(color = "lightblue4"),
+    axis.title.y.right = element_text(color = "firebrick"),
+    axis.text.y.right = element_text(color = "firebrick")
+  ) +
+  labs(title="Agua Canyon Snotel 2020-2023")
+
+```
+
+**Code:** Click *show* to the right to see the basic code for this `ggplot2` figure, without all the details provided (*i.e. the "..." signifies you need to change or add something*):
+
+```{r, eval=F}
+df_snotel %>% 
+  # convert the date to the correct format
+  mutate(...) %>%
+  # create a variable to indicates when <Station Temperature> is above or below freezing ("Yes"or "No")
+  mutate(temp_color = if_else(...)) %>%      
+  # start ggplot specifying only the date as x-axis, you will add multiple variables on the y-axis below
+  ggplot(aes(x = ...)) +   
+  # create a barplot of <Station SWE> (snow water equivalent) in blue
+  geom_bar(aes(y = ...), col='lightblue', stat='identity') + 
+  # add a line for the <Station Temperature>, scale this (3) to match the SWE scale and color line based on the freezing variable defined above
+  geom_line(aes(y = ... / 3, color = ..., group = 1), linewidth = 0.5) +
+  # manually set temperature colors based on the temp_color variable
+  scale_color_manual(values=c("firebrick","deepskyblue3"), name="Freezing") +
+  # label the y-axis and add a second axis on the right for the temperature, scale values as above (3)
+  scale_y_continuous(name = "SWE (inches)", sec.axis = sec_axis( transform = ~.* 3, name= "Temperature (degF)")) +
+  # set the theme style (no arguments needed)
+  theme_bw() + 
+  # format other theme elements to make the plot look nice
+  theme(
+    axis.title.y = element_text(color = "..."), # color for left y-axis (make consistent)
+    axis.text.y = element_text(color = "..."), 
+    axis.title.y.right = element_text(color = "..."), # color for right y-axis (make consistent)
+    axis.text.y.right = element_text(color = "...")
+  ) +
+  # add a title
+  labs(title = "...")
+```
+
+*Take a minute to appreciate how dplyr and ggplot can chain this process into what is essentially a single line of code.*
+
+**Tips** *to recreate this plot:*
+
+* Remember that you do not need to modify, subset, or pivot the data for this step!
+* Use the code above with filled in details
+* This plot is only for one single site (Agua Canyon), which is the first snotel station to appear in this *wide* format dataset.
+* The column names are a bit messy, use these for now and learn how to clean them up in the next section:
+  - Station SWE: Agua.Canyon..907..Snow.Water.Equivalent..in..Start.of.Day.Values
+  - Station Temperature: Agua.Canyon..907..Air.Temperature.Average..degF.
+
+1. (2 points) Plot and provide your script to recreate the graphic above. This shows the SWE for three seasons alongside average air temperature for the snotel station (Agua Canyon).
+
+
+<br />
+
+##### **Advanced Pivoting**
+
+Let's analyze this data using the various new packages we are exploring in R. **You must pivot** and summarize the data to complete this section. This section includes more advanced pivoting than covered in class and the guide. Once again, I will provide you with the tricky parts of the code so you can see how useful pivoting can be.
+
+*Note: responses do not need to be in a single chain, but can have multiple steps.*
+
+2. How many total *stations* are there in this dataset? How many *variables* are included for each station? Provide code for your response (*there are many ways to do this, however, the next question's tips will help you understand how to do this using some of the new functions we discussed*).
+
+3. Show the top 5 snotel sites with the deepest snow depth for each winter season. Include the max snow depth value (inches) and the Date of max snow depth for each season. Try to perform this with one continuous piped dplyr statement (*see tips below*).
+
+*Let's break this down, working backward:*
+
+* **Goal:** Show the top 5 snotel sites with the deepest snow depth for each season
+* Order and take a slice of top 5 snow depths for each season
+* Summarize dataset to only show max snow depth, with date for each site for each season
+* Group data based on site and season
+* Calculate season for each date
+* Pivot table to longer and only keep snow depth variable
+* Read in data and prepare other necessary fields
+* *it might help to read this backward*
+
+**Note:** *one season has a tie for top 5 snow depths making 6 final sites with the code below, this is fine to leave*
+
+**Code:** The chained code to pivot and summarize your data, without all the details provided (*... signifies you need to change or add something*):
+
+```{r, eval=F }
+df_snotel %>%  
+  # (if needed) convert the date to date format
+  mutate(Date=...) %>%
+  # filter the dataset to only contain the Date and text contained in all snow depth variables (note this is case and character sensative)
+  select(Date, contains("...")) %>% 
+  # pivot to longer (the ! before date keeps the date from being pivoted)
+  #   instead this takes all the snow depth columns and puts the column names into new a field called "site" with all variables in "depth"
+  pivot_longer(cols=!Date, names_to = "site", values_to = "depth") %>%
+  # get rid of dates where there is no snow to make things easier 
+  filter(...) %>%
+  # create a new column for seasons using the cut() function
+  #   this function puts our ranges of dates into specified intervals
+  #   We use Oct 1st of each season (2020-22) as that marks the start of the water year
+  mutate(season = cut(..., breaks =  c(as.Date(c("...", "...", "...")), Inf), 
+                      labels = paste0("season_", c(1, 2, 3)))) %>%
+  # Regular expression match to clean up the messy site names in the data
+  #   take a look at what this does!
+  mutate(site = gsub(pattern = "^([^.]+(?:\\.[^.]+)*)\\..*", replacement = "\\1", x = ...)) %>% 
+  # group by site and season for the summary step
+  group_by(site, season) %>%
+  # summarize data (in grouping) for max() depth and the date of max depth (which.max() and indexing)
+  summarise(snow_max = ..., max_day = ...) %>%
+  # group by season again (grouping is lost after summary)
+  group_by(season) %>%
+  # cool function to sort data based on a variable and only keep the top n values
+  slice_max(order_by = ..., n = 5) # note ties will produce more than 5 - which is fine to report
+```
+
+Your final summary table will contain 5 sites for each season (6 sites for 2022 due to a tie).
+
+**You will modify and add to this code for later sections**
+
+<br />
+
+Next you will create a few visuals and another summary table.
+
+4. Use the results above to generate a bar plot in `ggplot` showing the counts of snotel sites in the top 5 for for snow depth over the three seasons. Which sites continually receive the deepest snow depth?
+
+*A few tips for creating a bar plot:*
+
+* You will need to count the occurrences of sites, you can use the `count` or `table` functions but can also apply a count in the plotting function
+* Depending on your steps, you may either want the argument `stat = "identity"` (if x and y are specified) or `stat = "count"` (to summarize) in `geom_bar` - read more about these arguments to learn more
+* Within the `theme()` function in your ggplot, you can rotate the text to be more easily readable with `axis.text.x = element_text(angle = 45, hjust = 1)`
+
+5. Copy and modify your code above to create another summarized subset that shows the top 5 snotel sites with the greatest *snow water equivalence* for each winter season. Add a few lines of code to this and your snow depth dataset to compare the months that experience the deepest snow depth vs months with the greatest amount of SWE (*the* `format` *and* `count` *functions could be useful, but other methods exist*).
+
+6. Combine your tables of monthly max summary variables (*snow depth and swe*) together and create a final barplot or boxplot using `ggplot` showing the how the max monthly values of snow depth vary compared to SWE. (*one simple option is to use* `rbind` *to combine tables (if same dimension) and create a new variable to indicate whether the value is snow depth or swe prior to plotting*)
+
+<br />
+
+##### **Joining**
+
+Snow water equivalent (SWE) is an important metric used to assess the amount of water in the snowpack. In particular, as you have seen, the month of April can be critical for water managers to assess conditions for the coming year. 
+
+Create a new summary table using the snotel data from above, to show the max SWE amount for the month of April during season 2.
+
+**Pseudocode:** This time, I will only provide the pseudo-code, you should only have to slightly modify what you already have:
+
+```{r, eval=F}
+# dataset %>% 
+  # <code> modify date to correct format
+  # <code> select  columns that contains() SWE (use correct word)
+  # <code> pivot longer
+  # <code> filter out 0 values
+  # <code> create season variable
+  # <code> extract site names from messy site values
+  # <code> modify site name again and replace . with " "
+  # <code> create a month column and filter to April
+  # <code> filter by season 2
+  # <code> group by site
+  # <code> summarize to find max SWE for each site
+  # ungroup if necessary
+```
+
+Read in the **"UTSNTL_ELEV.csv"** file and perform a join (e.g. `left_join`) with your summarized table of max april SWE. Be sure to make any necessay adjustments to the site names between datasets as they are slightly different.
+
+7. (2 points) Join the summarized max April SWE dataframe with the elevation dataframe. Create a scatter plot that shows the max SWE (snow water equivalent) during the month of April as a function of elevation (x-axis). (*optional, add a linear model using* `geom_smooth` *alongside the point data*)
+
+8. It is well known that precipitation amount can be enhanced at higher elevations due to orographic lift (air masses flowing over mountains). Utah's mountains benefit and often have an enhancement of 5+ times the amount of precipitation that the valleys receive. Statistically assess the strength of the linear relationship between April SWE as a function of elevation. *Consider the direction, strength, significance, and wellness of fit of this relationship, and discuss whether elevation is a good predictor of SWE.*
+
+<br />
+
+##### **Spatial Data**
+
+At this point, you are likely done with new things...
+
+Well, let's introduce one more incredibly useful package. Say hello to `terra`, your primary geospatial package for the next few weeks. 
+
+You will continue to work with this snotel dataset and add in a spatial component, however, we will save that for next week. Your final task for this assignment is to make sure that you have properly installed the `terra` package.
+
+```{r, eval=F}
+# install.packages("terra") # be sure you have all dependencies installed first!
+library(terra)
+```
+
+**Re-read the Setup document** in Canvas and pay special attention to the geospatial libraries section.
+
+Reach out ASAP if you need help installing `terra` for next week!
+
+<br />
+
+#### Submitting
+
+Upload a single, organized **html file** written in **R Markdown** showing **questions, code solutions, and responses**. Be sure to support your responses with code and result outputs.
+
+*Please reach out if you have any questions or concerns!*
+
+<br />
+

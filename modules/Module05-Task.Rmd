@@ -1,0 +1,108 @@
+---
+title: "Module 5 Assignment"
+author: "GEOG-3440"
+output: html_document
+---
+
+```{r setup, include=FALSE} 
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Be sure to **read assigned chapters and articles** and carefully walk through all of the **Module Guide** before starting on this task.
+
+*Avoid using packages or solutions beyond the content covered in class or the guide.*
+
+**Submit** your responses in a single, organized html file written in *R Mardown.*
+
+<br />
+
+
+## **Module Tasks**
+
+Complete the following tasks related to the content of this week. Be sure that each answer is given in an organized, coded solution. All plots should at minimum contain useful axes labels and title.
+
+<br />
+
+##### **Snow statistics**
+
+Revisit the Timpanogos Divide SNOTEL data, `snotel820_timp.csv`, previously used to assess the relationship between variables. 
+
+1. Consider which variables might be most closely related with snow depth (`depth`). Use the `cor` function to explore the relationship between daily snow depth and other variables available in this dataset. Describe the two most and two least statistically related variables for snow depth. Attempt to explain why any of these relationships that might logically make sense.
+
+Create a new DataFrame that is a subset of the original and **only includes dates after January, 10th**, which are dates during the height of the storm (*you can see this by plotting snow depth over time as a line*). Also, recalculate **density** if needed using the equation listed in Module 04.
+
+As mentioned in Module 04, the amount (depth) of snow that falls during a storm depends on partially on *density*, which is related to the *air temperature*. This means that we should see a relationship between air temperature and 
+
+2. Fit a linear model of daily snow *density* as a function of the *average temperature* (`t_ave`) using the storm *subset* dataset. Report the $R^{2}$ and p-value and of your linear model. Describe the statistical strength of the relationship and direction (i.e. positive or negative). Provide a scatterplot with the linear model shown. (*Tip, you can retreive the multiple* $R^{2}$ *from the model fit with* `summary(fit)$r.squared` *and the pvalue with* `summary(fit)$coefficients[2,4]`)
+
+3. Fit another linear model for the change (`diff`) in daily snow depth (*depth*) as a function of the change (`diff`) in snow *density*. Report the $R^{2}$ and p-value and describe how changes in density affect snow depth
+
+
+<br />    
+
+#### **Cleaning data**
+
+Read in the `messy_state_elev.csv` data. First, you will need to clean up this data frame so it is in a more usable format. This data was scraped from this [USGS website](https://www.usgs.gov/educational-resources/highest-and-lowest-elevations) and has been slightly modified to make one step easier.
+
+Note that there are two columns for elevation, the first relates to the highest elevation, and the second is the lowest elevation.
+
+4. (*2 pts*) Show steps to clean and reformat each column in the dataset based on the list below. To show this, use the `summary()` and `head()` functions to summarize your final cleaned dataset. At minimum, do the following:
+
+  - Use existing column names (*e.g. first word*) as input and change column names to something more concise (*i.e. use at least some partial string manipulation rather than manually changing all names*). Note, you can use the function `make.unique` to handle columns that might end with the same name.
+  - Remove special characters like `{ }` with digits in them and commas `,` in both elevation columns (the bracket numbers come from superscript references when the data was scraped). *Tip, this is a great job for* `gsub` *and remember that* `\\` *is used for literal matches, since brackets are also used for grouping.*
+  - Replace all instances of "Sea level" in the low elevation column with the value of 0. *Tip, use* `gsub` *again and use one statement to account for the fact that sometimes Level is capitalized, and sometimes not.*
+  - Convert both elevation columns into numeric type data (*make sure you correctly completed steps above to avoid* `NA` *values*)
+  - Create a new column for *elevation_range* based on the difference in the high and low elevations.
+
+5. Is the elevation range of states in the US normally distributed? Provide evidence. Also, list the total number and names of all *States* that have an elevation range greater than one mile.
+
+
+<br />
+
+#### **Combining and analyzing data**
+
+Read in the `us-pop.csv` data. This dataset was obtained from the US Census Bureau's [website](https://www.census.gov/data/tables/time-series/dec/popchange-data-text.html) and contains decennial population information over the past five decades for each state or territory in the US.
+
+The us-pop data will need to be cleaned up a bit as well. The `skip =` argument can be useful when reading in a csv file to skip unnecessary lines at the top of the document. You may need to open the file to see how many lines (*number*) to skip. *See documentation* `?read.csv` *for more help.* Also, rename the column names so that they are easier to work with.
+
+6. Use similar techniques as above to convert all population columns to numeric. This will require you to remove all *commas* before to converting to numeric. *Tip, this is a good opportunity to combine* `sapply` *with* `gsub`*, and* `sapply` *again with* `as.numeric`.
+
+Create a new columns that contains the percent change in population for each state from 2010 to 2020, which shows the increase in population (as a percentage) from 2010-2020. As a reminder, a percent change can be calculated with:
+
+$$Percent Change = \frac{end - start}{start} * 100$$
+
+7. List the **top 6 states** *(and values)* with the greatest increase in population from 2010 to 2020 (*show only the state name and population increase in 2020*).
+
+Use the `merge` function the USGS elevation dataset (above) with the us-pop data. To join dataframes together, you will need to find a common variable name in each dataset for the merge (*note, you can specify different column names to merge for each dataset, see by in* `?merge`).
+
+You have a loose *hypothesis*, you think that the elevation range of a state partly determined the change in population from 2010-2020 (*note, this is different from hypothesis testing in statistics*).
+
+8. Run a linear model of the percent change in population from 2010-2020 as a function of the elevation range in your merged dataset. Report the p-value and $R^2$. Do your results support your hypothesis?
+
+Through research, you have determined that several US states have experienced singular events that may have offset their population over the past several decades. You think it would be best to exclude these states from your analysis. Use the list below to filter these states from your dataset:
+
+```r
+exclude_states <- c("Alaska", "California", "Delaware", "District of Columbia", "Florida", "Hawaii", "New Mexico","North Dakota", "Puerto Rico", "West Virginia", "Wyoming")
+```
+
+**Tip:** You can use indexing and boolean logic with the `%in%` function to help match and filter state names in this dataset. For example, `1:5 %in% c(2,5)` returns `# [1] FALSE  TRUE FALSE FALSE  TRUE`. 
+
+Create a *subset* of your merged data that excludes the states above. 
+
+9. Show your code to subset the dataframe to exclude the above states. Then, fit another linear model to assess the relationship again between the percent change in population from 2010-2020 as a function of the elevation range with this subset. Report the p-value, $R^2$, and describe whether any relationship exists. Create a scatterplot that shows the linear fit as well.
+
+Create three new columns that show the percent change in population from 1980-1990, 1990-2000, and 2000-2010 for each state in the *subset* dataframe (the one excluding the states above).
+
+10. (*2 pts*) Write a `for` loop that fits a linear model for the changes in population between each decennial census (1980-2020) and saves the p-value and $R^2$ from each (*i.e. you will have values that show the strength of this relationship for each of the four time periods of population change*). Describe whether the relationship between a state's elevation range (*independent variable*) and the change in population (*dependent*) varies over time. Provide a barplot that shows the $R^2$ over the different decadal periods.
+
+
+<br />
+
+#### Submitting
+
+Upload a single, organized **html file** written in **R Markdown** showing **questions, code solutions, and responses**. Be sure to support your responses with code and result outputs.
+
+*Please reach out if you have any questions or concerns!*
+
+<br />
+

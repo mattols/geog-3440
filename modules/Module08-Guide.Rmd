@@ -1,0 +1,189 @@
+---
+title: "Module 8 Guide"
+author: "GEOG-3440"
+output: 
+  html_document:
+    theme: spacelab
+    code_folding: hide
+---
+
+```{r setup, include=FALSE} 
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+This document describes the important concepts, workflows, functions, and other information useful for this week.
+
+### Readings
+
+* Finish reading **Vector data manipulation** in the [R-Spatial book](https://rspatial.org/spatial/7-vectmanip.html)
+* Read the **Raster data** and **Raster Data Manipulation** sections in the [R-Spatial book](https://rspatial.org/spatial/8-rastermanip.html#)
+* Finish up the section on *Spatial data with terra* in the book
+
+### Main Goals
+
+1. Combining raster and vector data
+2. Terrain analysis
+
+<br />
+
+```{r, echo=F, warnings=F, messages=F}
+library(terra)
+```
+
+## **1. Combining Raster and Vector Data**
+
+Digital elevation models (DEMs) are a form of digital raster data that represents elevation. This can be freely downloaded from multiple sites, including [USGS Earth Explorer](https://earthexplorer.usgs.gov/) site. Global datasets have been made available through remote sensing missions like the Shuttle Radar Topography Mission (SRTM). Elevation is typically displayed in a terrain color scale, though each pixel in the raster represents the ground elevation (typically in meters above sea level).
+
+The `terra` packages comes with a DEM of Luxembourg, and we can use this in conjunction with vector data: 
+
+```{r, fig.height=4, align="center"}
+filename <- system.file("ex/elev.tif", package="terra")
+r <- rast(filename) # read in raster file
+# plot(r, main="SpatRaster DEM of Luxembourg")
+f <- system.file("ex/lux.shp", package="terra")
+p <- vect(f) # read in vector file
+plot(r, col = terrain.colors(25), plg=list(title="Elevation", cex=0.7, bty="o")) # plot
+p_sub <- p[p$NAME_2=="Diekirch",] # only keep Diekirck
+plot(p_sub, border='firebrick', lty=2, lwd=2, add=T)
+text(p, "NAME_2", cex=0.7)
+```
+
+We can also extract or subset spatial datasets based on one another. The R-Spatial book goes into more detail about some of the high-level functions. Two you will likely use frequently are `crop` and `mask`, which will subset your raster based on a region (polygon):
+
+```{r, fig.height=3.5, align="center"}
+r_crop <- crop(x = r, y = p_sub, mask = TRUE) # crop r to the extent of p_sub
+
+par(mfrow=c(1,2))
+h <-  hist(r_crop, breaks=9, col=terrain.colors(8), main="Elevational distribution", xlab="Elevation (m)") # create histogram of elevation
+plot(r_crop, col=terrain.colors(8), axes=FALSE, mar=c(0,0,0,0)) # plot subset of r
+plot(p_sub, border='firebrick', lty=2, lwd=2, add=T)
+text(p_sub, "NAME_2", cex=1.2, halo=TRUE)
+```
+
+Point data can be used to `extract` values from another raster or vector dataset:
+
+```{r}
+# create point data from centroids of polygons
+pts <- centroids(p)
+
+# extract elevation values at each point
+extract(r, pts)
+```
+
+The extracted data contains the same dimensions as the `pts`, which means this can be added as a new variable to the pts dataset with `$` or `cbind`.
+
+Furthermore, you can calculate statistics based on the entire image (global):
+
+```{r}
+# global stats
+e_mean <- global(r, na.rm=T)$mean
+cat("The average elevation of Luxembourg is", round(e_mean, 2), "meters above sea level")
+```
+
+And individual areas (zonal):
+
+```{r, fig.height=3.7}
+# zonal stats
+z <- zonal(r, p, fun="mean", na.rm=T, as.polygons=TRUE) 
+z$elevation <- round(z$elevation) 
+  
+# plot
+plot(r, col=terrain.colors(25), plg=list(title="Elevation", cex=0.7, bty="o", pos=4), mar=c(2,0,2,3.5), axes=F) # plot
+legend("topleft", legend="Mean Elevation \nby Canton", bty="n") # add a description
+plot(z, border='grey20', lty=3, lwd=1, add=T) # plot cantons
+text(z, "elevation", halo=TRUE, adj=0.7) # add mean elevation by canton
+```
+
+The `zonal` function calculates a specified statistic from a raster (or vector) within a defined boundaries (typically a polygon). Zonal and global statistics provide incredibly useful summary statistics about regional information. 
+
+The `geodata` package, and several others, can also be used to access and download useful raster datasets for environmental and socioeconomic variables. Explore different datasets that are quickly accessible through [geodata](https://cran.r-project.org/web/packages/geodata/geodata.pdf).
+
+<br />
+
+## **2. Terrain analysis**
+
+Terrain variables can be useful for a variety of analyses. Terrain is also a useful way to explore raster data manipulation. Terrain starts with understanding elevation. Elevation is used to calculate other terrain parameters, such as slope, aspect, and a hillshade:
+
+```{r, fig.height=3.8, align="right"}
+# calculate terrain parameters
+alt <- disagg(r, 10, method="bilinear")
+slope <- terrain(alt, v="slope", unit="degrees")
+aspect <- terrain(alt, v="aspect", unit="degrees")
+# hillshade in radians (pi/180) - for visual aid
+hill <- shade(slope*pi/180, aspect*pi/180, angle = 40, direction = 270) 
+
+# set plot frame
+par(mfrow = c(1,3))
+plot_mar = c(2,2,3,4)
+
+# plot 1
+plot(hill, col=grey(0:100/100), legend=FALSE, mar=plot_mar, axes=FALSE)
+axis(side = 1, cex = 1.5)
+plot(slope, col=rev(colorspace::heat_hcl(10, alpha=0.6)), add=T, axes=FALSE, plg = list(title="Slope", cex=0.8, bty="o"))
+
+# plot 2
+plot(hill, col=grey(0:100/100), legend=FALSE, mar=plot_mar, axes=FALSE)
+axis(side = 1, cex = 1.5)
+plot(aspect, col=rev(adjustcolor(c("#3288BD",RColorBrewer::brewer.pal(7, "Spectral")), alpha.f = 0.7)), add=T, axes=FALSE, plg = list(title="Aspect", cex=0.6, bty="o"))
+
+# plot 3
+plot(hill, col=grey(0:100/100), legend=FALSE, mar=plot_mar, axes=FALSE)
+axis(side = 1, cex = 1.5)
+plot(alt, col=terrain.colors(25, alpha=0.5), add=TRUE, axes=FALSE, plg = list(title="Elevation", cex=0.8, bty="o"))
+```
+
+\
+
+*Read the* `?plot` *function for mapping to interpret the arguments above. The* `adjustcolor` *or* `alpha` *function makes color values semi-transparent.*
+
+
+**Slope** describes the steepness of a hillside, typically represented in degrees. For slope, 0º represents a flat surface and 90º would be a vertical cliff face.
+
+**Aspect** is a measurement of the cardinal direction in which the hill is facing and is shown as a cardinal direction (NE) or frequently calculated in degrees *azimuth*. Degrees azimuth includes 0-360º. North is both 0º and 360º, while South is 180º, and East being 90º. The latter is how we will use aspect in our terrain analysis.
+
+**Hillshade** is a visual aid that uses slope, aspect, and a hypothetical location of the sun to create an illumination map. Shadows and rendering gives depth to our vision and helps us more easily interpret terrain. I have plotted a hillshade underneath each layer and added the terrain parameter semi-transparent with `alpha =` argument, or wrapping colors with the base function `adjustcolor`. Note the hillshade function expects slope and aspect in radians rather than degrees, so the code above converts with `pi/180`. Finally, I also artificially coarsened the raster with the `disagg()` function.
+
+Color options can be seen in the [nceas R color cheatsheet](https://www.nceas.ucsb.edu/sites/default/files/2020-04/colorPaletteCheatsheet.pdf).
+
+First, let's *artificially adjust* the slope layer we created of Luxembourg to be steeper, then we will find all slope angles greater than 20º. We can use raster algebra, specifically, boolean operations to determine where this condition is met. The result of a boolean operation on a raster is a new TRUE (1) or FALSE (0) raster showing pixels that met the condition:
+
+```{r, fig.height=3.5}
+# set plot frame
+par(mfrow = c(1,2))
+plot_mar = c(2,2,3,4)
+
+# plot 1 - slope
+plot(hill, col=grey(0:100/100), legend=FALSE, mar=plot_mar, axes=FALSE, main = "Steeper slopes")
+new_slope = slope * 12 # new slope values
+cols = rev(colorspace::heat_hcl(10, alpha=0.6))
+plot(new_slope, col=cols, add=T, axes=FALSE, plg=list(title="Slope", cex=0.8, bty="o"))
+
+# plot 2 - condition
+plot(hill, col=grey(0:100/100), legend=FALSE, mar=plot_mar, axes=FALSE, main = "Slopes > 20º")
+slopes_20 = new_slope > 20
+plot(slopes_20, col=adjustcolor(c(NA,"red"), 0.5), add=T, legend="topright", bty="n", axes=FALSE)
+```
+
+The `clamp` function provides a similar result. We can also combine conditional boolean statements. Let's find pixels that have a slope greater than 20º and  elevations between 300-450 meters:
+
+```{r, fig.width=4}
+# create elevation conditions and combined conditions (boolean)
+elev_400 <- alt > 300 & alt < 450
+# alternative - clamp(alt, lower=300, upper=450, values=FALSE)
+cond_combined <-  slopes_20 * elev_400
+
+# plot
+plot(hill, col=grey(0:100/100), legend=FALSE, axes=FALSE, main = "Condition 1")
+plot(cond_combined, col=adjustcolor(c(NA,"red"), 0.5), add=T, legend="topright", plg=list(title="Condition met?", legend = c("No", "Yes"), cex=0.7, bty="o"), axes=FALSE)
+```
+
+Map overlay and spatial analysis operations are powerful tools for analyzing geospatial data. This involves combining multiple layers of spatial data to examine relationships between different features, such as land use, elevation, and political boundaries. Spatial analysis helps to uncover patterns within geographic areas. These techniques add an additional component to any analysis. 
+
+<br />
+
+
+**Complete the Module Task**
+
+<br />
+<br />
+

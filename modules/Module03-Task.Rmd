@@ -1,0 +1,133 @@
+---
+title: "Module 3 Assignment"
+author: "GEOG-3440"
+output: html_document
+---
+
+```{r setup, include=FALSE} 
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Be sure to **read assigned chapters and articles** and carefully walk through all of the **Module Guide** before starting on this task.
+
+*Avoid using packages or solutions beyond the content covered in class or the guide.*
+
+**Submit** your responses in a single, well-organized R script.
+
+<br />
+
+
+## **Module Tasks**
+
+Complete the following tasks related to the content of this week. Be sure that each answer is given in an organized, coded solution. 
+
+
+#### **1. The Iris Dataset**
+
+In the first section, you will describe an existing dataset and recreate a plot in base R. In other words, you will not use any additional packages. *We'll start using other packages next week..*
+
+This section uses the famous `iris` dataset (Fisher and Anderson), which gives the measurements in centimeters of the variables sepal length and width and petal length and width, respectively, for 50 flowers from each of 3 species of iris. It is built-in to R so you should be able to directly call the `iris` dataset in R at any time, if not, use `data(iris)` to load the DataFrame into memory.
+
+Perform the following **tasks.**
+
+1) Describe the iris dataset using the various functions discussed in the guide. At minimum, include information about the dimensions, data types, data structure, and summary statistics for the dataset.
+
+2) What species of iris has a sepal length greater than or equal to 7 cm and petal length less than or equal to  5 cm? How about a sepal length greater than or equal to 7 cm and petal length less than or equal to  5.8 cm?
+
+3) Recreate the plot below. Describe any relationships you observe and suggest additional steps that you could take to better understand any relationship between variables.
+
+|    **Recreate the following graph** *(trend line optional)*
+
+```{r, echo=FALSE}
+# Load iris dataset
+data(iris)
+
+# Scatterplot of Petal Width vs Petal Length
+plot(iris$Petal.Width, 
+     iris$Petal.Length,
+     main="Iris Flower Petal Dimensions",
+     xlab="Petal Width (cm)",
+     ylab="Petal Length (cm)")
+
+# Color code by iris species 
+colors <- c("red","green","blue")[iris$Species]
+points(iris$Petal.Width, iris$Petal.Length, col=colors)
+
+# Add legend
+legend("topleft", inset=.05,
+       c("Setosa", "Versicolor", "Virginica"),
+       fill=c("red","green","blue"))
+
+# Add regression line
+abline(lm(iris$Petal.Length~iris$Petal.Width))
+```
+
+The code above creates a basic scatterplot of petal width vs petal length for all species, colors each point based on species, and adds axis labels and a title. Remember, for a more detailed explanation of a function, type `?plot` or `?plot.default` to open the help window in the Rstudio console.
+
+*Tip: the color argument must provide a vector of existing colors* (e.g. `"red"`) *that are the same length as the data being used.*
+
+*Optional:* Linear regression can be performed using the `lm()` function and the line may be added with `abline()`. Adding this part is not required as we will go over it in more detail next week.
+
+<br />
+
+
+#### **Climate Analyst**
+
+Imagine you are assigned to analyze the climate of a remote region in South America. You have installed and compiled monthly precipitation data from a weather station in the region for the past five years. Additionally, you have the monthly average precipitation values for the past 30 years based on historical research nearby (`ave30`).
+
+Run the following code to generate the data frame in your R session:
+
+```r
+precip_data <- data.frame(
+  month = c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"),
+  year1 = c(3.879, 10.430, 6.991, 10.071, 17.864, 21.627, 20.853, 16.377, 10.000, 2.754, 3.507, 5.033),
+  year2 = c(4.540, 7.922, 8.719, 12.649, 19.564, 26.676, 19.410, 16.108, 12.000, 4.194, 2.943, -1.098),
+  year3 = c(8.117, 4.470, 8.637, 11.067, 17.948, 25.307, 21.790, 14.876, 13.000, 4.067, 2.914, 3.169),
+  year4 = c(5.141, 5.626, 9.217, 12.242, 18.542, 22.724, 21.756, 14.388, 15.000, 6.560, 5.737, 2.248),
+  year5 = c(5.259, 6.109, 8.888, 14.054, 18.750, 27.508, 21.643, 14.239, 18.000, 4.833, 2.548, 2.432),
+  ave30 = c(4.491, 6.015, 9.719, 14.322, 17.637, 23.872, 20.194, 14.301, 9.587, 3.585, 2.633, 1.460)
+)
+```
+
+Your task is to analyze the precipitation data for this region. Write a script to answer the following:
+
+4) For each month, count the number of years with precipitation above the 30 year monthly average, and number of years below monthly average. Display this information using two barplots.
+
+5) Calculate the five-year monthly averages and standard deviations based on your station data. Which months have the most variable precipitation? How does the five-year average differ from the 30-year average? Provide one plot showing all three variables for each month.
+
+6) Describe how precipitation in the past five years has changed with respect to the historical climatology of the region. If any of the observed patterns continue, how do you expect the climate in this area to change in the future? Describe any *trends* or patterns that seem telling. *Include your code for the data exploration*
+
+\
+
+#### **Environmental Science**
+
+You are working for the Oregon Department of Water Quality, a state-level agency that enforces EPA standards. You have been collecting weekly stream samples at four monitoring sites throughout the state for the past year. Stakeholders will use this data to know how to best direct any remediation efforts.
+
+EPA regulation indicates that **nitrate levels above 5 ppm** and **phosphate above 2 ppm** exceed the accepted standard, in which case, some action will be required. High levels can be particularly worrisome when levels exceed limits by more than 3 consecutive weeks. There is also added concern when nitrate and phosphate limits exceed together during the same time period.
+
+Read in the `cs01_river_data.csv` *(available in Canvas)* to analyze the stream data, which provides values in parts per million (ppm). The date field indicates the date at the start of the week. You can keep the date field as a character, convert to factor with `as.factor`, or convert to date with `as.Date` (we'll talk more about dates next week).
+
+Respond to the following questions:
+
+7) Report the number of occurrences (weeks) for each site in which the limits for nitrate and phosphate were exceeded. Which site(s) seem to be the greatest concern.
+
+8) Report any instances in which either chemical exceeded limits for more than three consecutive weeks and when nitrate and phosphate levels exceeded at the same time. Which weeks or months are of concern for each site?
+
+9) Create two plots to present to stakeholders in order to help focus remediation efforts for these different sites. Write a short statement with your recommendations or concerns to go alongside the figures.
+
+\
+
+#### **Filepaths**
+
+10) Use functions in the guide to create a directory called *module03*, with another folder inside it called *m03-data*. Save a csv of each of the three data frames above (*iris, precip_data, cs01_river_data*). Then, list the files, and read each back in giving it a new unique name.
+
+<br />
+
+#### Submitting
+
+Upload a single, organized R script showing **questions, code solutions, and responses**. Be sure to support your responses with stand-alone code that can be executed.
+
+*Please reach out if you have any questions or concerns!*
+
+<br />
+
