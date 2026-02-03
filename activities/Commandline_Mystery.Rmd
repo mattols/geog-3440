@@ -1,0 +1,237 @@
+---
+title: "Command Line Murders"
+author: "GEOG-3440 Geospatial Data Science"
+output: 
+  html_document
+---
+
+### Murder
+
+> There's been a murder in Terminal City, and TCPD needs your help.
+> To figure out whodunit, you need access to a command line.
+
+The command line is a text-based interface that allows users to interact with their computer by typing commands. It gives users direct access to the system's file structure and allows for automation, scripting, and performing tasks more efficiently than using a graphical interface. It's often used by developers and system administrators for tasks like software installation, file management, and running scripts. You will use the command line is only very basic ways in this class.
+
+First, make sure you've installed **Git**. To check if Git is already installed on your system, you can use the command line. Here's how to do it on both Windows and macOS:
+
+#### Check installation:
+1. Open **Git Bash** (Windows) or **terminal** (Mac)
+2. Type the following command:
+   ```
+   git --version
+   ```
+3. Press **Enter**. If Git is installed, it will display the installed version of Git, like `git version 2.x.x`. If it’s not installed, you'll see an error message or a prompt asking to install it.
+
+**Installing Git on Windows:**
+
+1. Download the Git installer from [git-scm.com](https://git-scm.com/download/win).
+2. Run the installer and follow the prompts, choosing the default settings.
+3. Once installed, open Git Bash (installed with Git) to start using Git.
+
+**Installing Git on macOS:**
+
+1. Open the Terminal.
+2. Install Git by typing `brew install git` (if you don’t have Homebrew, install it from [brew.sh](https://brew.sh)).
+3. Alternatively, download the Git installer from [git-scm.com](https://git-scm.com/download/mac) and follow the installation instructions.
+
+<br />
+
+### **Investigator Training**
+
+This activity requires you to navigate through your computer and filter and *peek* at different files. Let's do a quick reminder of file paths and then we will go over simple functions.
+
+Consider this your training to become a full-fledged detective for Terminal City!
+
+#### File Paths
+
+File paths are like a road map showing where a file or folder is located on a machine.
+
+- **Relative Path**: A relative path refers to a location in the file system relative to your current working directory. For example:
+  ```
+  ./foldername/file.txt
+  ```
+  This points to `file.txt` inside `foldername`, relative to where you are currently in the file system.
+
+- **Absolute Path**: An absolute path gives the full path starting from the root of the file system. For example:
+  ```
+  /home/user/foldername/file.txt
+  ```
+  This points to `file.txt` starting from the root directory (`/`), regardless of your current location.
+
+---
+
+#### Basic Navigation
+
+You can use several functions to look at your location, files, and even perform some operations. Be careful with some functions because some changes may be permanent, there is no temporary trash folder for deleted items. Keep to the following functions for now.
+
+1. **`pwd`** – Print Working Directory
+   - Use `pwd` to see your current directory. This is where you are currently located on your operating system.
+   ```
+   pwd
+   ```
+
+2. **`ls`** – List Directory Contents
+   - `ls` lists files and folders in your current directory.
+   ```
+   ls
+   ```
+   - To see detailed info, use `ls -l`:
+   ```
+   ls -l
+   ```
+
+3. **`cd`** – Change Directory
+   - Use `cd` to move between directories.
+   ```
+   cd foldername
+   ```
+   - Use `cd ..` to move up one directory level (back one level).
+   ```
+   cd ..
+   ```
+
+---
+
+#### Working with Files
+
+The biggest tip when working with file paths and file names is to start typing and hit *Tab* to complete, this ensures the correct spelling of each file.
+
+4. **`cat`** – Display File Contents
+   - `cat` shows the entire content of a file. We will stick to text files for now.
+   ```
+   cat filename.txt
+   ```
+
+5. **`head`** – View the Beginning of a File
+   - `head` shows the first 10 lines of a file by default.
+   ```
+   head filename.txt
+   ```
+   - you can also specify a certain number of lines to show.
+   ```
+   head -n 3 filename.txt
+   ```
+
+6. **`tail`** – View the End of a File
+   - `tail` shows the last 10 lines of a file by default.
+   ```
+   tail filename.txt
+   ```
+   - or the last line of a file.
+   ```
+   tail n -1 filename.txt
+   ```
+
+7. **`touch`** – Create an Empty File
+   - `touch` creates a new empty file or updates the timestamp of an existing one.
+   ```
+   touch newfile.txt
+   ```
+- You can then use the `echo` command to write a line of text to the file:
+  ```
+  echo "This is a line of text" > newfile.txt
+  ```
+  - The `>` operator will create the file if it doesn't exist, or overwrite it if it does.
+
+- To append multiple lines to the file, use `>>`:
+  ```
+  echo "This is another line" >> newfile.txt
+  ```
+
+---
+
+#### Filtering and Searching Files
+
+This section will be very useful for the murder mystery you need to solve!
+
+8. **`grep`** – Search and Filter Text
+   - `grep` filters lines in a file based on a search pattern.
+   ```
+   grep "pattern" filename.txt
+   ```
+   - **Useful `grep` options**:
+     - `-A <num>`: Shows `<num>` lines after the match.
+       ```
+       grep -A 3 "pattern" filename.txt
+       ```
+     - `-B <num>`: Shows `<num>` lines before the match.
+       ```
+       grep -B 2 "pattern" filename.txt
+       ```
+     - `-C <num>`: Shows `<num>` lines before and after the match.
+       ```
+       grep -C 2 "pattern" filename.txt
+       ```
+9. **`man` Command** (Manual Pages)
+  - The `man` command (short for "manual") displays detailed documentation about a command or function. Like a help doc.
+  ```
+  man commandname
+  ```
+  - For example, to get help on the `ls` command:
+  ```
+  man ls
+  ```
+  - To navigate within the manual pages, use the **up** and **down** arrow keys. Press **q** to quit and exit the manual page.
+  - Most commands support the `--help` option, which provides a summary of how to use the command.
+  ```
+  commandname --help
+  ```
+  For example, to get help with `grep`:
+  ```
+  grep --help
+  ```
+- The `info` command provides a more detailed help page than `man` for some commands.
+  ```
+  info commandname
+  ```
+
+This organization helps you explore basic file and directory management commands, while also introducing ways to search, filter, and manipulate file contents using simple yet powerful terminal commands.
+
+**You are now ready to start the case!**
+
+<br />
+
+## **Start the Case**
+
+Now that you are a fully trained command line detective, let's obtain the case files.
+
+You will clone (copy) a code repository from online containing clues about the murder case. Open Git Bash (or the terminal) and navigate to your Desktop folder using the commands above. The Desktop folder is typically one step below the home directory on a machine, in Windows OS it is typically `Users/username/Desktop` and `username/Desktop` for Mac OS.
+
+Once there, run the following:
+
+```
+git clone https://github.com/veltman/clmystery.git
+```
+*Alternatively, you may download it as a* [zip file](https://github.com/veltman/clmystery/archive/refs/heads/master.zip) *and extract it to your desktop* .
+
+A new folder called **clmystery** will be added to your desktop folder. Navigate inside this folder to begin the investigation.
+
+Open a Terminal, go to the location of the files, and start by reading the file 'instructions' with:
+
+```
+cat instructions
+```
+
+**Additional Training:** If you would like to go over another more detailed document on using the command line, open cheatsheet.md or cheatsheet.pdf (from the command line, you can type `open cheatsheet.pdf` or `nano cheatsheet.md`).
+
+**Don't use a text editor** (i.e. open files) to view any file's contents except these instructions, the cheatsheet, and hints (if needed).
+
+**Remember:** You are solving a case through the command line, so you must shift your mindset to a text-based investigation.
+
+> Good luck detective!
+
+Credits:
+By Noah Veltman
+[noahveltman.com](noahveltman.com)
+
+
+<br />
+
+#### **Submitting**
+
+Upload a single **html file** written in **R Markdown** listing all the important clues gathered, *including the code used to get each clue*, and the **name of the murderer!**
+
+*Please reach out if you have any questions or concerns!*
+
+<br />
+<br />

@@ -30,13 +30,17 @@ This section uses the famous `iris` dataset (Fisher and Anderson), which gives t
 
 Perform the following **tasks.**
 
-1) Describe the iris dataset using the various functions discussed in the guide. At minimum, include information about the dimensions, data types, data structure, and summary statistics for the dataset.
+1) What species of iris has a sepal length greater than 7 cm and petal length less than or equal to  2 cm? List the name and upload the code used.
 
-2) What species of iris has a sepal length greater than or equal to 7 cm and petal length less than or equal to  5 cm? How about a sepal length greater than or equal to 7 cm and petal length less than or equal to  5.8 cm?
+2) Make a boxplot showing Sepal.Length by Species. Change the appearance by adding labels and modifying the color. 
 
-3) Recreate the plot below. Describe any relationships you observe and suggest additional steps that you could take to better understand any relationship between variables.
+3) Recreate the plot below, including colors, labels, and legend (trend line is optional and can be added using the `abline` function - see tip below plot).
 
-|    **Recreate the following graph** *(trend line optional)*
+*Tip: the color argument must provide a vector of existing colors* (e.g. `"red"`) *that are the same length as the data. Use this code to generate a vector to pass into the color argument:*
+
+`colors <- c("red","green","blue")[iris$Species]`
+
+*See additional tips below plot*
 
 ```{r, echo=FALSE}
 # Load iris dataset
@@ -62,11 +66,9 @@ legend("topleft", inset=.05,
 abline(lm(iris$Petal.Length~iris$Petal.Width))
 ```
 
-The code above creates a basic scatterplot of petal width vs petal length for all species, colors each point based on species, and adds axis labels and a title. Remember, for a more detailed explanation of a function, type `?plot` or `?plot.default` to open the help window in the Rstudio console.
+*Above:* The plot above is showing a basic scatterplot of petal width vs petal length for all species, color for each point is based on species. Axis labels and a title are also used for clarity. Remember, for a more detailed explanation of a function, type `?plot` or `?plot.default` to open the help window in the Rstudio console. learn more about the legend with the `?legend` argument.
 
-*Tip: the color argument must provide a vector of existing colors* (e.g. `"red"`) *that are the same length as the data being used.*
-
-*Optional:* Linear regression can be performed using the `lm()` function and the line may be added with `abline()`. Adding this part is not required as we will go over it in more detail next week.
+*Optional tip:* A line may be added with `abline()`, which can include a specific slope and intercept (or even a horizontal or vertical position argument). Even better than estimating the slope and intercept of your data would be to perform linear regression, which can be done using the `lm()` function. The `lm` object can be inserted directly in the `abline` function as an argument. Adding this part is **not required** as we will go over it in more detail next week.
 
 <br />
 
@@ -89,43 +91,61 @@ precip_data <- data.frame(
 )
 ```
 
-Your task is to analyze the precipitation data for this region. Write a script to answer the following:
+Your task is to analyze the precipitation data for this region. Answer the following:
 
-4) For each month, count the number of years with precipitation above the 30 year monthly average, and number of years below monthly average. Display this information using two barplots.
+4) For each month, show how many times precipitation was above the 30 year monthly average for years 1 and 2. Display this information using a barplot with `"lightblue"` bars, labels, and a title.
 
-5) Calculate the five-year monthly averages and standard deviations based on your station data. Which months have the most variable precipitation? How does the five-year average differ from the 30-year average? Provide one plot showing all three variables for each month.
+*Tip: while there are many ways to do this, it might be easiest to break it into two steps. First, you can use logic to investigate the conditions above for each individual year, then take the* `sum` *of these two vectors. This works because TRUE and FALSE are the same as 1 and 0 in programming. Names can be added to barplot with the* `names.arg` *parameter.*
 
-6) Describe how precipitation in the past five years has changed with respect to the historical climatology of the region. If any of the observed patterns continue, how do you expect the climate in this area to change in the future? Describe any *trends* or patterns that seem telling. *Include your code for the data exploration*
+5) Calculate a new field showing the five-year monthly averages and standard deviations to show how the past five years differ from the 30-year average? Show this in one plot that includes the 30- and 5-year averages as different colors. Provide the standard deviation (`sd`) for the 5-year average.
+
+*Tip for averaging: calculating the 5-year average is a great opportunity to use the* `apply` *function on a subset of your data*
+
+*Tip for plotting: Instead of using month names, make a new column that lists month by 1:12. You will need to plot single series of the data and then add a new series to the existing plot with either the* `lines()` *function or* `plot(..., add=T, type='l')`*. One simple way to add sd error bars to a base plot is with the following:* `arrows(x_values, mean5yr_values-sd5yr_values, x_values, mean5yr_values+sd5yr_values, length=0.05, angle=90, code=3)` *(fill in place holders with your values)*
+
 
 \
 
 #### **Environmental Science**
 
-You are working for the Oregon Department of Water Quality, a state-level agency that enforces EPA standards. You have been collecting weekly stream samples at four monitoring sites throughout the state for the past year. Stakeholders will use this data to know how to best direct any remediation efforts.
+You are working for the Department of Water Quality, a state-level agency that enforces EPA standards. You have been collecting weekly stream samples at four monitoring sites throughout the state for the past year. Stakeholders will use this data to know how to best direct any remediation efforts.
 
 EPA regulation indicates that **nitrate levels above 5 ppm** and **phosphate above 2 ppm** exceed the accepted standard, in which case, some action will be required. High levels can be particularly worrisome when levels exceed limits by more than 3 consecutive weeks. There is also added concern when nitrate and phosphate limits exceed together during the same time period.
 
-Read in the `cs01_river_data.csv` *(available in Canvas)* to analyze the stream data, which provides values in parts per million (ppm). The date field indicates the date at the start of the week. You can keep the date field as a character, convert to factor with `as.factor`, or convert to date with `as.Date` (we'll talk more about dates next week).
+Read in the `cs01_river_data.csv` *(available in Canvas)* to analyze the stream data, which provides values in parts per million (ppm). The date field indicates the date at the start of the week. Convert (overwrite) the date field using the `as.Date` function (we'll talk more about dates next week).
 
-Respond to the following questions:
+Create the following visualizations and use good design practices (e.g. labels and titles):
 
-7) Report the number of occurrences (weeks) for each site in which the limits for nitrate and phosphate were exceeded. Which site(s) seem to be the greatest concern.
+6) Create a time-series line plot showing nitrate levels over time for each site (different colors for each). Provide a legend and clean axis titles. (*optional add a horizontal dashed line indicating the EPA limit with* `?abline`)
 
-8) Report any instances in which either chemical exceeded limits for more than three consecutive weeks and when nitrate and phosphate levels exceeded at the same time. Which weeks or months are of concern for each site?
+*Tip: You will need to plot subsets of the data and add new series to the existing plot with either the* `lines()` *function or* `plot(..., add=T, type='l')`. 
 
-9) Create two plots to present to stakeholders in order to help focus remediation efforts for these different sites. Write a short statement with your recommendations or concerns to go alongside the figures.
+7) Create a boxplot showing the distribution of phosphate levels by site. 
+
+8) Report the total number of occurrences (weeks) for each site in which the limits for nitrate and phosphate were exceeded. Show this information in one or more plots.
+
+\
+
+#### **One more time**
+
+Practice makes perfect. Create a new visualization of your own design using one of the datasets above.
+
+9) Perform another analysis using the `iris`, `mtcars` (also exists within R), or one of the two datasets above. Provide one additional visualizations to illustrate a point or answer a question.
+
+*Tip: see plot visualizaiton help guide*
+
 
 \
 
 #### **Filepaths**
 
-10) Use functions in the guide to create a directory called *module03*, with another folder inside it called *m03-data*. Save a csv of each of the three data frames above (*iris, precip_data, cs01_river_data*). Then, list the files, and read each back in giving it a new unique name.
+10) Use functions in the guide to create a directory called *module03*, with another folder inside it called *m03_data*. Save a csv of each of the three data frames above (*iris, precip_data, cs01_river_data*). Then, list the files, and read each back in giving it a new unique name. Do each of these steps in R and provide the code for doing so.
 
 <br />
 
 #### Submitting
 
-Upload a single, organized R script showing **questions, code solutions, and responses**. Be sure to support your responses with stand-alone code that can be executed.
+Upload answers to canvas and include a single, organized R script showing **questions, code solutions, and responses**. Be sure to provide complete responses or visualizations to each question above.
 
 *Please reach out if you have any questions or concerns!*
 

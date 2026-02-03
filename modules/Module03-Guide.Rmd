@@ -78,22 +78,6 @@ R can also be used to navigate directories and paths
 - `dir.create()`: Create a new directory (folder)
 - `dir.exists()`: Determine if a directory (based on path) exists
 
-> **Quick Challenge:** \
-> 1. Create a directory (folder) named `file_path_examples` inside your working directory. \
-> 2. Change your working to this new folder. \
-> 3. Download the `generate_files.sh` file from Canvas and place it in this folder (*this is a bash script that you are going to run to generate some data as an example*). \
-> 4. Use `list.files()` to list all files to see the bash file. \
-> 5. Run the following function in the R console: `system("bash generate_files.sh")` - **What this does:** This function executes the bash file. The bash file is going to generate another folder containing several text files and an additional folder, which you will use in the next example. **Note:** *Bash is another lower-level programming language used to navigate your operating system. You will learn a few bash commands, but don't be concerned about learning everything!* \
-> \
-> **Complete the following:** \
-> Create a folder called *random_files* has been generated containing several text files and another folder. \
-> List and count the files. \
-> Create a variable that contains all file names. \
-> Use the `readLines` function, along with the filepath to print the phrase in each file. \
-> Create a new folder called copy_folder and use the function `file.copy` to copy two files into this. \
-> **Advanced option:** *Combine all lines within the text files in the "secret_folder" to extract the message. (hint: use indexing)* \
-> *What else might you want to extract from these files?* \
-
 Knowing how to work with file paths can be incredibly useful. Consider how you might make your life easier by finding specific files, or several types of files within one or more directories of a computer. many of these functions also use pattern matching or regular expression, which we may discuss more in the future.
 
 For example, consider that we have a very unorganized folder but we know that there are one or more .csv files. When listing files, you can add a pattern argument to the function so that the results only lists the type of files you are looking for. You can also add other text to find files that match
@@ -140,26 +124,6 @@ cat("Descriptive statistics for random numbers \n",
 
 Descriptive statistics are usually the first step in knowing your data and can be important for analysis. 
 
-Vector operations can also be useful when exploring data. Rather than combining vectors or using scalars (e.g. `2 * c(1,3,5,7)`) you can perform arithmetic operations directly *between* neighboring values in a vector:
-
-```{r}
-# create vector
-new_vect <- seq(from = 12, to = 36, by = 3)
-
-# take difference between values
-diff_vals <- diff(new_vect)
-
-# take the product of values
-prod_vals <- prod(new_vect)
-
-# print
-cat("Our vector of length: ", length(new_vect), " has a difference of \n",
-    " ", diff_vals, " between numbers \n",
-    "  and is now a vector of length ", length(diff_vals), "\n",
-    "The product of these values is: ", prod_vals, "\n",
-    "We can also take the sum: ", sum(new_vect), "or \n",
-    " the cumulative sum: ", cumsum(new_vect), "of the vector.")
-```
 *Many other operations exist that you will discover throughout the course!*
 
 #### **Data Exploration**
@@ -223,6 +187,26 @@ cat("Unique cyliner categories are: ", unique(mtcars$cyl) )
 ```
 This sort of data manipulation is really the meat and bones of data analysis so we will spend more time on this in the future!
 
+Another way to summarize data by row and column is to use the `apply` functions. Your book goes over variations of this function. 
+
+In a basic sense, apply can be used to summarize row and column information for example:
+
+```{r}
+# summarize by row
+mat <- matrix(sample(1:100, 9), nrow=3)
+mat
+apply(mat, 1, sum) # add all values by row 
+```
+
+This can also be used with a dataframe:
+
+```{r}
+# average car stats for datasets 
+apply(mtcars[, c("mpg","hp", "wt")], 2, mean) # by column
+```
+
+See more examples in your book or with `swirl`.
+
 #### **Read and Write Data**
 
 As you saw above, you can read in datasets with a *filepath* to import more data into R. We will mainly use external datasets for analysis. The most simple form of tabular data is a **csv file**, or a text file with *comma-separated values*. While you can use other packages to read in files like an Excel file (.xlsx), it is generally easier to stick to a csv file for less headache. 
@@ -271,6 +255,114 @@ hist(x = mtcars$mpg)
 ```
 
 > **Challenge:** Visually show the relationship between two other variables in the `mtcars` dataset and add additional arguments for *color, symbol type, title, axis titles, and symbol size.* Use `?plot.default` and check under the *commonly used graphical parameters* to see how to structure these arguments.
+
+
+### Scatterplot
+
+A scatterplot can be used to visualize the relationship between two continuous variables. Let's plot mileage (mpg) vs horsepower (hp):
+
+```r 
+plot(mtcars$hp, mtcars$mpg)
+```
+You can alter the point type of a scatterplot using the `pch` argument. 
+
+We should also add axis labels, a title, and customize other elements:
+
+```{r}
+plot(mtcars$hp, mtcars$mpg, 
+     main="Scatterplot of Horsepower vs Mileage",
+     xlab="Horsepower", ylab="Miles Per Gallon")
+```
+
+lines can also be added to plots
+
+```{r}
+plot(mtcars$hp, mtcars$mpg, pch = 17,
+     main="Scatterplot of Horsepower vs Mileage",
+     xlab="Horsepower", ylab="Miles Per Gallon")
+abline(a = 35, b = -0.1) # intercept and slope
+```
+
+The `abline` function will also accept model outputs and objects that contain the required coefficients. \
+\
+
+### Histogram 
+
+A histogram shows the distribution of a continuous variable. We can use `hist()` to plot a histogram of the mpg values:
+
+```r
+hist(mtcars$mpg)
+```
+
+Customize the number of bins, add labels and title:
+
+```r
+hist(mtcars$mpg, breaks=15, 
+     main="Histogram of Mileage",
+     xlab="Miles Per Gallon")
+```
+
+### Boxplot
+
+A boxplot visualizes numeric data by quartiles. Let's make a boxplot of mpg by number of cylinders:
+
+```r
+boxplot(mpg ~ cyl, data=mtcars)
+```
+
+Add axis labels:
+
+```{r}
+boxplot(mpg ~ cyl, data=mtcars, 
+        main="Mileage by Cylinders",
+        xlab="Number of Cylinders",
+        ylab="Miles Per Gallon")
+```
+
+### Bar Plot
+
+Use a barplot to compare numeric values across categories:
+
+```r
+barplot(table(mtcars$cyl))
+```
+
+Customize with axis labels, title, legend:
+
+```{r}
+barplot(table(mtcars$cyl), 
+        main="Number of Cars by Cylinders",
+        xlab="Number of Cylinders",
+        ylab="Frequency", col=c("red","green","blue"))
+legend("topright", legend=c("4", "6", "8"), fill=c("red","green","blue"))
+```
+
+### Pie Chart 
+
+A pie chart shows proportional values as slices of a pie. We can use `pie()` to plot a pie chart of the number of cars by cylinder:
+
+```r
+pie(table(mtcars$cyl), 
+    labels = c("4 cyl", "6 cyl", "8 cyl"),
+    main="Cars by Cylinders")
+```
+
+Add a legend:
+
+```{r}
+pie(table(mtcars$cyl), 
+    labels = c("4 cyl", "6 cyl", "8 cyl"),
+    col=c("red","green","blue"),
+    main="Cars by Cylinders")
+legend("topright", c("4 cyl", "6 cyl", "8 cyl"), fill=c("red", "green", "blue"))
+```
+
+The pie chart allows us to easily visualize the proportions for each cylinder category.
+
+In general, I would say that pie plots are bar plots are the least useful type of plot, there is typically a better way to show the information. However, in some instances, this can be the perfect type of visualization.
+
+\
+
 
 **Complete the assigned readings** to learn more about base plotting in R and to explore additional arguments to improve these graphics. We will introduce additional packages for visualization soon!
 

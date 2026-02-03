@@ -195,6 +195,7 @@ The format function can transform your date and time information, however, there
 now <- Sys.time() # current date and time
 format(now, "%H") # extract hour of time stamp
 weekdays(now) # list the day of the week
+as.POSIXct(format(now, "%Y-%m-%d %H:00:00")) # format to hourly data and reconvert to datetime format
 ```
 
 Make sure your dates are formatted correctly, in some instances a correct timezone may even need to be specified. Time is an essential component in analysis, make sure that you understand how to work with dates and time. 
@@ -219,6 +220,30 @@ mean(vals, na.rm = TRUE) # [1] 2.333333
 
 We'll discuss one other option for dealing with NA values later on.
 
+#### Neighbor operations
+
+Vector arithmetic operations can be useful when exploring data. However, rather than combining vectors or using scalars (e.g. `2 * c(1,3,5,7)`) you can perform arithmetic operations directly *between* neighboring values in a vector:
+
+```{r}
+# create vector
+new_vect <- seq(from = 12, to = 36, by = 3)
+
+# take difference between values
+diff_vals <- diff(new_vect)
+
+# take the product of values
+prod_vals <- prod(new_vect)
+
+# print
+cat("Our vector of length: ", length(new_vect), " has a difference of \n",
+    " ", diff_vals, " between numbers \n",
+    "  and is now a vector of length ", length(diff_vals), "\n",
+    "The product of these values is: ", prod_vals, "\n",
+    "We can also take the sum: ", sum(new_vect), "or \n",
+    " the cumulative sum: ", cumsum(new_vect), "of the vector.")
+```
+
+This could be useful if you are interested in decomposing cumulative values or performing other relationships directly between neighbors.
 
 #### Dictionaries with Lists
 

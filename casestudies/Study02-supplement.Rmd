@@ -1,0 +1,131 @@
+---
+title: "Case Study 2 Supplement"
+author: "GEOG-3440"
+output: 
+  html_document:
+    code_folding: hide
+---
+
+<br />
+
+```{r, echo=F, warnings=F, messages=F, include=F}
+library(terra)
+```
+
+<br />
+
+### **Case Study Supplement**
+
+Use the information below to help with your case study.
+
+<br />
+
+#### **Historical Data**
+
+For plotting, categorical data is best viewed as barplots, piecharts (*usually less helpful*), or boxplots depending on the values you are showing for each category. To see the distribution of continuous data, use a histogram.
+
+To obtain the frequency of categorical values in a vector, use the `table` function, this can be passed directly into plotting functions like `barplot`. The `las=2` argument in a plot with categorical x values will rotate names 90 degrees, making all categories and names more easily visible. 
+
+There are several options for dealing with multiple variables, The `table` function can take arguments for `table(category, level)`, however, it is often more common to use `dplyr` to `group_by` categories and `summarize` different fields. 
+
+Be sure to convert date objects when necessary. The month, year, and day values can be extracted from a date object with `format(dates, "%Y")` for year or using `%m` for month. 
+
+Be sure to check the data type of any field, including whether any items need to be removed prior to converting values (*e.g. removing punctuation from numeric data*). You can also split strings based on a characters using `strsplit` or `gsub`. Don't forget to remove white space with `trimws` when needed.
+
+<br />
+
+#### **Spatial Relationships**
+
+Some coordinates that were entered incorrectly, you will need to exclude coordinates that fall outside of Utah. There are multiple ways to do so before and after converting to a spatial vector object.
+
+To assess the fatalities and probability of fatality in being caught, use `zonal` statistics to sum all values by county.
+
+To expand your spatial vector object beyond ski boundaries, use the `buffer` tool. The distance is in the units of the spatial reference system so it could be degrees or meters. Make the appropriate conversions to expand the boundary by 0.5 mile.
+
+
+<br />
+
+#### **Avalanche Hazard Modeling**
+
+Terrain analysis is an important type of raster analysis. Elevation proves to be incredibly useful in the many different aspects of environmental and geospatial analyses. *Revisit the Module 7-8 Guides for other tips on raster data.*
+
+`terra` has several function to calculate the necessary terrain parameters.
+
+```{r}
+filename <- system.file("ex/elev.tif", package="terra")
+r <- rast(filename) # read in raster of Luxembourg
+# calculate terrain parameters
+slope <- terrain(r, v="slope", unit="degrees")
+aspect <- terrain(r, v="aspect", unit="degrees")
+# hillshade in radians (pi/180) - for visual aid
+hill <- shade(slope*pi/180, aspect*pi/180, angle = 40, direction = 270) 
+```
+
+The hillshade is only for visual aid, and serves as a good background for terrain visualization.
+
+<br />
+
+#### **Conditional statements and reclassifying values:**
+
+In the assignment, you will need to learn how to reclassify the values of raster and combine layers (conditions) together, similar to a suitability analysis. There is always more than one way to reclassify and combine these, we'll go over one method below.
+
+Module 08 discusses combining raster conditions. As a reminder, you can easily combine raster values with arithmetic or use boolean (True/False) arguments to create conditionals statements, which can also be combined with arithmetic:
+
+```{r,  class.source = 'fold-show'}
+new_slope = slope * 12 # artificially steeper slopes (for demonstration)
+## binary conditions (0/False or 1/True)
+slopes_20 = new_slope > 20 # slopes greater than 20 degrees
+elev_cond <- r > 300 & r < 450 # elevation ragnes (boolean)
+cond_combined <-  slopes_20 * elev_cond # combine conditions
+```
+
+By combining *boolean* statements (True/False), you find locations (pixels) that meet the criteria of each condition.
+
+To visualize these layers:
+
+```{r, fig.height=3.8, align="right"}
+# set plot parameters
+par(mfrow = c(1,3)); plot_mar = c(2,2,3,4)
+## plots (with hill shade in background)
+# map 1 - slope conditions
+plot(hill, col=grey(0:100/100), legend=FALSE, mar=plot_mar, axes=FALSE, main = "Slopes > 20º")
+plot(slopes_20, col=adjustcolor(c(NA,"red"), 0.5), add=T, legend="topright", bty="n", axes=FALSE)
+# map 2 - elevation condition
+plot(hill, col=grey(0:100/100), legend=FALSE, mar=plot_mar, axes=FALSE, main = "Elevation criteria")
+plot(elev_cond, col=adjustcolor(c(NA,"blue"), 0.5), add=T, legend="topright", bty="n", axes=FALSE)
+# map 3 - combined conditions
+plot(hill, col=grey(0:100/100), legend=FALSE, axes=FALSE, main = "Combined condition")
+plot(cond_combined, col=adjustcolor(c(NA,"green"), 0.5), add=T, legend="topright", plg=list(title="Condition met?", legend = c("No", "Yes"), cex=0.7, bty="o"), axes=FALSE)
+```
+
+Basic boolean multiplication and raster math like this can be incredibly powerful! However, multiple ranges or conditions might warrant a more sophisticated approach
+
+The `classify()` function in the *terra* package helps reclassify ranges in a dataset to new values. Along with the input raster is a matrix table that contains columns that provide a range of values with new values (min, max, new value) and rows for each new classification. For example:
+
+```{r, fig.width=3}
+m <- c(140, 275, 1, # min, max, new value
+       275, 425, 2,
+       425, 560, 3)
+rcl_mat <- matrix(m, ncol=3, byrow=TRUE) # create matrix
+r_class = classify(r, rcl_mat) # run function
+plot(hill, col=grey(0:100/100), legend=FALSE, axes=FALSE, main = "Reclassified elevation")
+plot(r_class, col=adjustcolor(c("blue", "red", "green"), 0.5), add=T, legend="topright", plg = list(title="New values"), bty='n', axes=FALSE)
+```
+
+Breaking down the code above, we create a vector that has the structure: min value for range 1, max value for range 1, new assigned value. This can be repeated for any number of ranges or new values desired. Note the line spacing is only for convention so we can more easily see the ranges and new values. We then convert this into a matrix with three columns. and pass it into the `classify` function. For more information read the help doc (`?classify`).
+
+<br />
+
+#### **Modeling the avalanche forecast**
+
+There are three elevation zones in the UAC forecasts, with different aspects showing varying degrees of hazard. Read through the [forecast tutorial](https://utahavalanchecenter.org/forecast/tutorial) section on the UAC site to better understand how to interpret this data.
+
+The forecast table takes the cardinal zones of North (1), NE (2), East (3), SE (4), South (5), SW (6), West (7), and NW (8) at the three different elevations provided. Create a separate forecast table for each day. 
+
+Fortunately, you are provided with custom functions to make your life easier in this section!
+
+There are several ways to extract the values from raster datasets, like with the `values` function. However, analyzing multiple raster images together is a great opportunity to use your functions in a `for` loop. Raster layers can be stacked into a single object using `c()`. These values can be further analyzed in spatial raster format or converted to a datatable with `as.data.frame`.
+
+
+<br />
+<br />
