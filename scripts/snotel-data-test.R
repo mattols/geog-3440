@@ -16,9 +16,9 @@ head(site_meta_data)
 site_meta_data[site_meta_data$state=="UT",
                     c("site_name","start", "site_id")]
 
-snotel_download(site_id = 820,
-                path = "~/data/ut-wtp/other",
-                internal = F)
+# snotel_download(site_id = 820,
+#                 path = "~/data/ut-wtp/other",
+#                 internal = F)
 
 site_820 <- read.csv("~/data/ut-wtp/other/snotel_820.csv")
 head(site_820)
