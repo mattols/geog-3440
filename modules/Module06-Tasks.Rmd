@@ -1,5 +1,5 @@
 ---
-title: "Module 7 Assignment"
+title: "Module 6 Assignment"
 author: "GEOG-3440"
 output: html_document
 ---
@@ -12,7 +12,7 @@ Be sure to **read assigned chapters and articles** and carefully walk through al
 
 *Avoid using packages or solutions beyond the content covered in class or the guide.*
 
-**Submit** your responses in a single, organized html file written in *R Mardown.*
+**Submit** your responses in a single, organized html file written in *R Markdown.*
 
 <br />
 
@@ -49,6 +49,21 @@ joined_data[is.na(joined_data$Elevation..ft.), "site"] # [1] [1] "Black Flat U M
 ```
 
 To correct the mismatched names, you will **need to clean/adjust** several names (Station.Name) in the *UTSNTL_Meta2.csv* to match those found in the second dataset, prior to performing the join. Remove special characters and punctuation (e.g., `#`, `.`, `-`, etc.) with `gsub`, `grepl`, `trimws`, or other functions. Useful pattern matching might include `#[0-9]` (pattern for a pound sign followed by any number) and `[[:punct:]]` (pattern for all punctuation). Note that you can clean this in multiple steps (*e.g. remove all punctuation, then remove other mismatched values*).
+
+
+## NEW
+
+Read in and join data
+
+```{r}
+dfmeta <- read.csv("data/UTSNTL_META2.csv")
+dfsno <- read.csv("data/ut_snotel_peakSWE_20212023.csv")
+head(dfmeta)
+dfjo <- merge(dfmeta, dfsno, by.x = "Station.Name", by.y = "station")
+```
+
+
+## NEW
 
 2. Clean the station names to perform a successful join between the two datasets. Provide code to show your steps to clean and join the data and show that there are no `NA` values in your final joined dataset. 
 

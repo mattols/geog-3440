@@ -1,0 +1,393 @@
+"station","water_year","swe_max"
+"Agua Canyon","WY_2021",4.1
+"Agua Canyon","WY_2022",3.6
+"Agua Canyon","WY_2023",21.6
+"Atwater","WY_2023",76.4
+"Bear River RS","WY_2021",8.9
+"Bear River RS","WY_2022",7.3
+"Bear River RS","WY_2023",15.8
+"Beaver Dams","WY_2021",8.4
+"Beaver Dams","WY_2022",6.6
+"Beaver Dams","WY_2023",20.2
+"Beaver Divide","WY_2021",8.7
+"Beaver Divide","WY_2022",9.5
+"Beaver Divide","WY_2023",22
+"Ben Lomond Peak","WY_2021",26.5
+"Ben Lomond Peak","WY_2022",16.4
+"Ben Lomond Peak","WY_2023",82.8
+"Ben Lomond Trail","WY_2021",11.3
+"Ben Lomond Trail","WY_2022",6.3
+"Ben Lomond Trail","WY_2023",47
+"Bevans Cabin","WY_2021",3.2
+"Bevans Cabin","WY_2022",1
+"Bevans Cabin","WY_2023",15.8
+"Big Flat","WY_2021",13.6
+"Big Flat","WY_2022",19.9
+"Big Flat","WY_2023",36.6
+"Black Flat U M","WY_2021",10.7
+"Black Flat U M","WY_2022",6.3
+"Black Flat U M","WY_2023",17.5
+"Blacks Fork Jct","WY_2021",7.9
+"Blacks Fork Jct","WY_2022",7.6
+"Blacks Fork Jct","WY_2023",15.2
+"Bobs Hollow","WY_2021",14
+"Bobs Hollow","WY_2022",11.7
+"Bobs Hollow","WY_2023",26.6
+"Box Creek","WY_2021",6.8
+"Box Creek","WY_2022",5.5
+"Box Creek","WY_2023",13.3
+"Box Springs","WY_2021",6
+"Box Springs","WY_2022",4.3
+"Box Springs","WY_2023",14.5
+"Brian Head","WY_2021",14.3
+"Brian Head","WY_2022",15.5
+"Brian Head","WY_2023",34.1
+"Brighton","WY_2021",16.3
+"Brighton","WY_2022",14.5
+"Brighton","WY_2023",42.5
+"Brown Duck","WY_2021",14.2
+"Brown Duck","WY_2022",18.7
+"Brown Duck","WY_2023",27.5
+"Buck Flat","WY_2021",12
+"Buck Flat","WY_2022",12.3
+"Buck Flat","WY_2023",28.5
+"Buck Pasture","WY_2021",13.1
+"Buck Pasture","WY_2022",13.4
+"Buck Pasture","WY_2023",22
+"Buckboard Flat","WY_2021",13
+"Buckboard Flat","WY_2022",10.7
+"Buckboard Flat","WY_2023",28.1
+"Bug Lake","WY_2021",14.8
+"Bug Lake","WY_2022",17
+"Bug Lake","WY_2023",31.8
+"Burts Miller Ranch","WY_2021",6.7
+"Burts Miller Ranch","WY_2022",5.4
+"Burts Miller Ranch","WY_2023",11.8
+"Camp Jackson","WY_2021",10.6
+"Camp Jackson","WY_2022",7.4
+"Camp Jackson","WY_2023",32.5
+"Cascade Mountain","WY_2021",14.2
+"Cascade Mountain","WY_2022",9.3
+"Cascade Mountain","WY_2023",42.7
+"Castle Valley","WY_2021",9.7
+"Castle Valley","WY_2022",9.8
+"Castle Valley","WY_2023",27.2
+"Chalk Creek","WY_2021",16.1
+"Chalk Creek","WY_2022",20.2
+"Chalk Creek","WY_2023",35.8
+"Chepeta","WY_2021",10.6
+"Chepeta","WY_2022",11.3
+"Chepeta","WY_2023",22.5
+"Clayton Springs","WY_2021",8
+"Clayton Springs","WY_2022",8.6
+"Clayton Springs","WY_2023",21.9
+"Clear Creek","WY_2021",13.7
+"Clear Creek","WY_2022",13.3
+"Clear Creek","WY_2023",34.8
+"Corral","WY_2021",4.8
+"Corral","WY_2022",6.7
+"Corral","WY_2023",20.9
+"Currant Creek","WY_2021",6.6
+"Currant Creek","WY_2022",6.9
+"Currant Creek","WY_2023",24
+"Daniels Strawberry","WY_2021",10
+"Daniels Strawberry","WY_2022",9.9
+"Daniels Strawberry","WY_2023",30.2
+"Dills Camp","WY_2021",9.4
+"Dills Camp","WY_2022",7.9
+"Dills Camp","WY_2023",22.7
+"Donkey Reservoir","WY_2021",6.8
+"Donkey Reservoir","WY_2022",6.2
+"Donkey Reservoir","WY_2023",12.1
+"Dry Bread Pond","WY_2021",14.3
+"Dry Bread Pond","WY_2022",15.4
+"Dry Bread Pond","WY_2023",35.5
+"Dry Fork","WY_2021",13.2
+"Dry Fork","WY_2022",8.1
+"Dry Fork","WY_2023",26.8
+"EF Blacks Fork GS","WY_2021",12.6
+"EF Blacks Fork GS","WY_2022",7.8
+"EF Blacks Fork GS","WY_2023",15.6
+"East Willow Creek","WY_2021",8.9
+"East Willow Creek","WY_2022",8.6
+"East Willow Creek","WY_2023",22.5
+"Farmington","WY_2021",24.5
+"Farmington","WY_2022",24.5
+"Farmington","WY_2023",70.1
+"Farmington Lower","WY_2021",15
+"Farmington Lower","WY_2022",8.6
+"Farmington Lower","WY_2023",56.2
+"Farnsworth Lake","WY_2021",17.4
+"Farnsworth Lake","WY_2022",20.8
+"Farnsworth Lake","WY_2023",28.1
+"Fish Lake Utah","WY_2021",8.3
+"Fish Lake Utah","WY_2022",9.1
+"Fish Lake Utah","WY_2023",16.6
+"Five Points Lake","WY_2021",12.6
+"Five Points Lake","WY_2022",14.3
+"Five Points Lake","WY_2023",27.2
+"GBRC HQ","WY_2021",11.8
+"GBRC HQ","WY_2022",11.4
+"GBRC HQ","WY_2023",26.2
+"GBRC Meadows","WY_2021",17.7
+"GBRC Meadows","WY_2022",25.1
+"GBRC Meadows","WY_2023",37.8
+"Garden City Summit","WY_2021",13
+"Garden City Summit","WY_2022",16
+"Garden City Summit","WY_2023",34.3
+"Gardner Peak","WY_2021",7
+"Gardner Peak","WY_2022",4.2
+"Gardner Peak","WY_2023",23.6
+"George Creek","WY_2021",15.2
+"George Creek","WY_2022",17.9
+"George Creek","WY_2023",32.8
+"Gold Basin","WY_2022",19.7
+"Gold Basin","WY_2023",34.9
+"Gooseberry RS","WY_2021",4.9
+"Gooseberry RS","WY_2022",4.8
+"Gooseberry RS","WY_2023",11.3
+"Gooseberry RS Up","WY_2021",8.1
+"Gooseberry RS Up","WY_2022",9.2
+"Gooseberry RS Up","WY_2023",16.9
+"Gutz Peak","WY_2021",0.4
+"Gutz Peak","WY_2022",2.7
+"Gutz Peak","WY_2023",25.8
+"Hardscrabble","WY_2021",14.9
+"Hardscrabble","WY_2022",9.9
+"Hardscrabble","WY_2023",41.8
+"Harris Flat","WY_2022",2.2
+"Harris Flat","WY_2023",22.7
+"Hayden Fork","WY_2021",12.8
+"Hayden Fork","WY_2022",10.9
+"Hayden Fork","WY_2023",25.4
+"Hewinta","WY_2021",12.1
+"Hewinta","WY_2022",9.9
+"Hewinta","WY_2023",15.1
+"Hickerson Park","WY_2021",10.2
+"Hickerson Park","WY_2022",7.7
+"Hickerson Park","WY_2023",13.2
+"Hobble Creek","WY_2021",7.6
+"Hobble Creek","WY_2022",6.8
+"Hobble Creek","WY_2023",28.2
+"Hole in Rock","WY_2021",8.6
+"Hole in Rock","WY_2022",5.4
+"Hole in Rock","WY_2023",12
+"Horse Ridge","WY_2021",12.8
+"Horse Ridge","WY_2022",13.4
+"Horse Ridge","WY_2023",35.6
+"Huntington Horse","WY_2021",18.2
+"Huntington Horse","WY_2022",20.6
+"Huntington Horse","WY_2023",42.5
+"Jones Corral","WY_2021",7.8
+"Jones Corral","WY_2022",8.9
+"Jones Corral","WY_2023",21.5
+"Kilfoil Creek","WY_2021",8.7
+"Kilfoil Creek","WY_2022",8.8
+"Kilfoil Creek","WY_2023",23.5
+"Kimberly Mine","WY_2021",14.7
+"Kimberly Mine","WY_2022",14
+"Kimberly Mine","WY_2023",25.3
+"Kings Cabin","WY_2021",6.6
+"Kings Cabin","WY_2022",9
+"Kings Cabin","WY_2023",24.6
+"Klondike Narrows","WY_2021",15.1
+"Klondike Narrows","WY_2022",13.5
+"Klondike Narrows","WY_2023",38.7
+"Kolob","WY_2021",13.1
+"Kolob","WY_2022",17.5
+"Kolob","WY_2023",50.4
+"Lakefork","WY_2021",9.3
+"Lakefork","WY_2022",10
+"Lakefork","WY_2023",19.6
+"Lakefork Basin","WY_2021",19
+"Lakefork Basin","WY_2022",21
+"Lakefork Basin","WY_2023",32
+"Lasal Mountain","WY_2021",12.2
+"Lasal Mountain","WY_2022",10.5
+"Lasal Mountain","WY_2023",26.2
+"Lasal Mountain Lower","WY_2021",7.9
+"Lasal Mountain Lower","WY_2022",7.9
+"Lasal Mountain Lower","WY_2023",19.7
+"Lightning Ridge","WY_2021",13.2
+"Lightning Ridge","WY_2022",13.9
+"Lightning Ridge","WY_2023",34.6
+"Lily Lake","WY_2021",10.9
+"Lily Lake","WY_2022",12
+"Lily Lake","WY_2023",17.6
+"Little Bear","WY_2021",4.6
+"Little Bear","WY_2022",1.9
+"Little Bear","WY_2023",25.4
+"Little Grassy","WY_2021",0.3
+"Little Grassy","WY_2023",10.9
+"Lonesome Beaver","WY_2021",6.3
+"Lonesome Beaver","WY_2022",6.1
+"Lonesome Beaver","WY_2023",15.9
+"Long Flat","WY_2021",2.3
+"Long Flat","WY_2022",0.3
+"Long Flat","WY_2023",20.2
+"Long Valley Jct","WY_2023",21.7
+"Lookout Peak","WY_2021",24.6
+"Lookout Peak","WY_2022",20
+"Lookout Peak","WY_2023",54.4
+"Lost Creek Resv","WY_2021",0.3
+"Lost Creek Resv","WY_2022",1.6
+"Lost Creek Resv","WY_2023",14.2
+"Louis Meadow","WY_2021",15.2
+"Louis Meadow","WY_2022",9.8
+"Louis Meadow","WY_2023",43.3
+"Mammoth Cottonwood","WY_2021",13.5
+"Mammoth Cottonwood","WY_2022",15.6
+"Mammoth Cottonwood","WY_2023",37.9
+"Merchant Valley","WY_2021",10.6
+"Merchant Valley","WY_2022",12.2
+"Merchant Valley","WY_2023",28.3
+"Midway Valley","WY_2021",15
+"Midway Valley","WY_2022",17.2
+"Midway Valley","WY_2023",50
+"Mill D North","WY_2021",21
+"Mill D North","WY_2022",14.3
+"Mill D North","WY_2023",57.5
+"Mining Fork","WY_2021",17.5
+"Mining Fork","WY_2022",10.6
+"Mining Fork","WY_2023",42.5
+"Monte Cristo","WY_2021",18.8
+"Monte Cristo","WY_2022",22.9
+"Monte Cristo","WY_2023",47.6
+"Mosby Mtn","WY_2021",9
+"Mosby Mtn","WY_2022",12.4
+"Mosby Mtn","WY_2023",23.5
+"Mt Baldy","WY_2021",19.8
+"Mt Baldy","WY_2022",22.5
+"Mt Baldy","WY_2023",41.4
+"Mt Pennell","WY_2021",3.9
+"Mt Pennell","WY_2022",1.7
+"Mt Pennell","WY_2023",19.7
+"Oak Creek","WY_2021",8.2
+"Oak Creek","WY_2022",4.2
+"Oak Creek","WY_2023",24.9
+"Panguitch Lake RS","WY_2021",1
+"Panguitch Lake RS","WY_2022",0.2
+"Panguitch Lake RS","WY_2023",14.7
+"Parleys Summit","WY_2021",14.8
+"Parleys Summit","WY_2022",11.5
+"Parleys Summit","WY_2023",35.3
+"Parleys Upper","WY_2021",18
+"Parleys Upper","WY_2022",19.5
+"Parleys Upper","WY_2023",47.2
+"Parrish Creek","WY_2021",18.5
+"Parrish Creek","WY_2022",13.2
+"Parrish Creek","WY_2023",59.2
+"Payson R S","WY_2021",11.5
+"Payson R S","WY_2022",10
+"Payson R S","WY_2023",33.6
+"Pickle Keg","WY_2021",13.8
+"Pickle Keg","WY_2022",10.5
+"Pickle Keg","WY_2023",27.2
+"Pine Creek","WY_2021",18.4
+"Pine Creek","WY_2022",15
+"Pine Creek","WY_2023",31.9
+"Powder Mountain","WY_2022",20.6
+"Powder Mountain","WY_2023",52.7
+"Red Pine Ridge","WY_2021",11
+"Red Pine Ridge","WY_2022",13.6
+"Red Pine Ridge","WY_2023",23.2
+"Redden Mine Lwr","WY_2021",11.5
+"Redden Mine Lwr","WY_2022",11.6
+"Redden Mine Lwr","WY_2023",30.3
+"Rees Flat","WY_2021",9.1
+"Rees Flat","WY_2022",7.4
+"Rees Flat","WY_2023",23.4
+"Rock Creek","WY_2021",6.1
+"Rock Creek","WY_2022",4.2
+"Rock Creek","WY_2023",14.3
+"Rockwood GS","WY_2023",24.7
+"Rocky Basin Settleme","WY_2021",19.7
+"Rocky Basin Settleme","WY_2022",11.4
+"Rocky Basin Settleme","WY_2023",46.3
+"Santaquin Meadows","WY_2021",14.2
+"Santaquin Meadows","WY_2022",13.1
+"Santaquin Meadows","WY_2023",37.5
+"Seeley Creek","WY_2021",9.7
+"Seeley Creek","WY_2022",10
+"Seeley Creek","WY_2023",23.7
+"Smith","WY_2021",8.8
+"Smith","WY_2022",8.1
+"Smith","WY_2023",24.4
+"Snowbird","WY_2021",32.7
+"Snowbird","WY_2022",33.9
+"Snowbird","WY_2023",72.3
+"Spirit Lk","WY_2021",12.7
+"Spirit Lk","WY_2022",12.9
+"Spirit Lk","WY_2023",23.3
+"Steel Creek Park","WY_2021",16.1
+"Steel Creek Park","WY_2022",15.6
+"Steel Creek Park","WY_2023",22.7
+"Strawberry Divide","WY_2021",10
+"Strawberry Divide","WY_2022",10.9
+"Strawberry Divide","WY_2023",25.2
+"Sunflower Flat","WY_2021",8.3
+"Sunflower Flat","WY_2022",12.3
+"Sunflower Flat","WY_2023",25.8
+"Suu Ranch","WY_2021",7.1
+"Suu Ranch","WY_2022",6.9
+"Suu Ranch","WY_2023",26.8
+"Takka Wiiya","WY_2021",12.4
+"Takka Wiiya","WY_2022",11.5
+"Takka Wiiya","WY_2023",23.4
+"Temple Fork","WY_2021",11.7
+"Temple Fork","WY_2022",10.4
+"Temple Fork","WY_2023",29.5
+"Thaynes Canyon","WY_2021",16.6
+"Thaynes Canyon","WY_2022",19.4
+"Thaynes Canyon","WY_2023",40.5
+"Thistle Flat","WY_2021",11.1
+"Thistle Flat","WY_2022",12.8
+"Thistle Flat","WY_2023",25.7
+"Timberline","WY_2021",6.9
+"Timberline","WY_2022",7.8
+"Timberline","WY_2023",25.5
+"Timpanogos Divide","WY_2021",12.7
+"Timpanogos Divide","WY_2022",12.7
+"Timpanogos Divide","WY_2023",50.1
+"Tony Grove Lake","WY_2021",26.4
+"Tony Grove Lake","WY_2022",27.6
+"Tony Grove Lake","WY_2023",57.8
+"Tony Grove RS","WY_2021",4.7
+"Tony Grove RS","WY_2022",4.6
+"Tony Grove RS","WY_2023",22.7
+"Trial Lake","WY_2021",17.6
+"Trial Lake","WY_2022",22.6
+"Trial Lake","WY_2023",40.4
+"Trout Creek","WY_2021",8.3
+"Trout Creek","WY_2022",9.3
+"Trout Creek","WY_2023",20.6
+"Upper Joes Valley","WY_2021",7.4
+"Upper Joes Valley","WY_2022",8.4
+"Upper Joes Valley","WY_2023",17.9
+"Usu Doc Daniel","WY_2021",20.4
+"Usu Doc Daniel","WY_2022",26.2
+"Usu Doc Daniel","WY_2023",45.1
+"Vernon Creek","WY_2021",9.5
+"Vernon Creek","WY_2022",4.7
+"Vernon Creek","WY_2023",33.4
+"Webster Flat","WY_2021",9.9
+"Webster Flat","WY_2022",8.4
+"Webster Flat","WY_2023",35.5
+"White River","WY_2021",7.7
+"White River","WY_2022",8.4
+"White River","WY_2023",21.8
+"Widtsoe","WY_2021",9.5
+"Widtsoe","WY_2022",6.7
+"Widtsoe","WY_2023",21.2
+"Wilbur Bench","WY_2021",8.9
+"Wilbur Bench","WY_2022",9.7
+"Wilbur Bench","WY_2023",23.2
+"Wolf Creek Peak","WY_2021",17.7
+"Wolf Creek Peak","WY_2022",19.8
+"Wolf Creek Peak","WY_2023",37.3
+"Wrigley Creek","WY_2021",9.6
+"Wrigley Creek","WY_2022",8.1
+"Wrigley Creek","WY_2023",19.7
+"Yankee Reservoir","WY_2021",7.3
+"Yankee Reservoir","WY_2022",5.6
+"Yankee Reservoir","WY_2023",17.7

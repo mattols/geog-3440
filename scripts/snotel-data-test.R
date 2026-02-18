@@ -3,6 +3,11 @@
 #
 # # # # # # # #
 
+# https://cran.r-project.org/web/packages/snotelr/snotelr.pdf
+# https://github.com/bluegreen-labs/snotelr
+# https://github.com/adrienne-marshall/sample-project/blob/main/R/sample_script.R
+
+
 # library(tidyverse)
 # https://cran.r-project.org/web/packages/snotelr/vignettes/snotelr-vignette.html
 # install.packages("snotelr")

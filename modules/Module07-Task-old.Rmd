@@ -1,5 +1,5 @@
 ---
-title: "Module 6 Assignment"
+title: "Module 7 Assignment"
 author: "GEOG-3440"
 output: 
   html_document:
@@ -12,9 +12,9 @@ knitr::opts_chunk$set(echo = TRUE)
 
 Be sure to **read assigned chapters and articles** and carefully walk through all of the **Module Guide** before starting on this task.
 
-**You are allowed to use additional packages in your solutions!**
+**You will be using new packages this week!**
 
-**Submit** your responses in a single, organized html file written in *R Mardown.*
+**Different submission format:** Rather than creating solutions on your own, you will modify existing code in the **Module-07-Template** and turn in a single, organized html file written in *R Markdown.*
 
 <br />
 
@@ -70,32 +70,7 @@ dfw %>% mutate(Date=as.Date(Date,format="%m/%d/%y")) %>%
 **Code:** Click *show* to the right to see the basic code for this `ggplot2` figure, without all the details provided (*i.e. the "..." signifies you need to change or add something*):
 
 ```{r, eval=F}
-df_snotel %>% 
-  # convert the date to the correct format
-  mutate(...) %>%
-  # create a variable to indicates when <Station Temperature> is above or below freezing ("Yes"or "No")
-  mutate(temp_color = if_else(...)) %>%      
-  # start ggplot specifying only the date as x-axis, you will add multiple variables on the y-axis below
-  ggplot(aes(x = ...)) +   
-  # create a barplot of <Station SWE> (snow water equivalent) in blue
-  geom_bar(aes(y = ...), col='lightblue', stat='identity') + 
-  # add a line for the <Station Temperature>, scale this (3) to match the SWE scale and color line based on the freezing variable defined above
-  geom_line(aes(y = ... / 3, color = ..., group = 1), linewidth = 0.5) +
-  # manually set temperature colors based on the temp_color variable
-  scale_color_manual(values=c("firebrick","deepskyblue3"), name="Freezing") +
-  # label the y-axis and add a second axis on the right for the temperature, scale values as above (3)
-  scale_y_continuous(name = "SWE (inches)", sec.axis = sec_axis( transform = ~.* 3, name= "Temperature (degF)")) +
-  # set the theme style (no arguments needed)
-  theme_bw() + 
-  # format other theme elements to make the plot look nice
-  theme(
-    axis.title.y = element_text(color = "..."), # color for left y-axis (make consistent)
-    axis.text.y = element_text(color = "..."), 
-    axis.title.y.right = element_text(color = "..."), # color for right y-axis (make consistent)
-    axis.text.y.right = element_text(color = "...")
-  ) +
-  # add a title
-  labs(title = "...")
+
 ```
 
 *Take a minute to appreciate how dplyr and ggplot can chain this process into what is essentially a single line of code.*

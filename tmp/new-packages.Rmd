@@ -1,0 +1,430 @@
+---
+title: "Module 7"
+author: "< Insert your name here >"
+output: 
+  html_document
+---
+
+```{r setup, include=FALSE} 
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+<br />
+
+### **Setup**
+
+You will be interacting with code a bit differently with this assignment. We are introducing several new packages and functions this week. With so many new functions and workflows, it makes more sense to have you interact with the code in a more guided format. **Use this template to complete this assignment.**
+
+New concepts introduced
+
+- Chaining and new workflows for data wrangling with `dplyr` 
+- Better, more complex visualization with `ggplot`
+- Pivoting with `tidyr` and merging data with `dplyr`
+
+[*Delete these and any other unecessary instructions for your submission* - **Keep it clean**]
+
+
+<br />
+
+##### **Load packages and datesets**
+
+R Markdown documents must be self-contained, meaning all code should run successfully within the document itself. As such, you need to load all necessary packages and datasets for output to be generated (this includes correct filepaths based on the location of the document).
+
+```{r message=FALSE, warning=FALSE}
+# load packages
+# install.packages("dplyr") - must install packages once on your machine!
+library(dplyr) # must load packages in every session
+library(ggplot2)
+library(tidyr)
+```
+
+<br />
+
+Read in the **"UTSNTL_ALL_2020_2022_Daily_Wide.csv"** dataset. This file contains meteorological and snow data from snow telemetry (snotel) weather stations in the mountains of Utah. Data from three winter seasons in 2020-21, 2021-22, and 2022-23 were added to this dataset (water years 2021-23). Several different variables are included for each station:
+
+```{r}
+# replace the filepath based on your folder organization
+data_path <- "../data/UTSNTL_ALL_2020_2022_Daily_Wide.csv" # modify PATH!
+df_snotel <- read.csv(data_path)
+df_snotel[1:2, 1:3] # print first two rows and first two columns
+```
+You might realize that this data set is in a strange format:
+
+```{r}
+cat("The raw snotel data is in wide format \n with", nrow(df_snotel),
+    "days (rows) across 3 water years and", ncol(df_snotel),
+    "variables (columns) \n \nThe first 10 column names reveal the structure:\n",
+    paste0(colnames(df_snotel)[1:10], "\n") )
+```
+As you can see, the column names contain information about the station name (e.g., Agua Canyon, Atwater, etc.), station ID (e.g. 907), variable name (e.g., Snow water equivalent, Snow Depth, etc.), units (e.g., inches, degF, etc.), and how daily value was extracted (Start of Day). Essentially, there are 3 years of data, with 6 variables, making a total of `r (ncol(df_snotel)-1)/(6)` stations.
+
+*Wide* format, like this, is one way that you might find or download data. It can be difficult to understand your data in a mixed format like this. You will use new packages and functions to visualize and transform this data.
+
+**For this assignment you will modify and use the code provided below to answer questions and generate results**
+
+
+<br />
+
+### **Part 1. Chaining and visualizing**
+
+Let's start with `%>%` (chaining in `dplyr`) and visualization in `ggplot`. These workflows allow you to group functions together to subset data and the ggplot functions provide greater flexibility for better looking plots. It is a new workflow to get used to, but very useful!
+
+<br />
+
+##### **Question 1**
+
+1. Modify the script below to show the the average and max air temperature over three seasons Agua Canyon snotel station (Note `<...>` mean you need to add something). *Read annotations carefully*
+
+```{r}
+df_snotel %>% # this is "Chaining" it connects output to the next function
+  # modify date format
+  mutate(Date=as.Date(Date,format="%m/%d/%y")) %>% # chain
+  # date column is x-axis - use mapping aesthetic or "aes"
+  ggplot(aes(x=Date)) + # ggplot objects linked with "+"
+  # add y-axis line for Agua Canyon air temperature average - use "aes"
+  geom_line(aes(y = Agua.Canyon..907..Air.Temperature.Average..degF., 
+                color="Average"), linewidth=0.5) +
+  # Add max air temperature
+  geom_line(aes(y = Agua.Canyon..907..Air.Temperature.Maximum..degF., 
+                color="Maximum"), linewidth=0.5) +
+  # manually set colors - these map to the keys input in the line functions above
+  scale_color_manual(
+    name = "Temperature",
+    values = c("Average" = "orange",
+               "Maximum" = "firebrick")
+  ) +
+  # provide labels
+  labs(title = "Agua Canyon Snotel (Water years 2021-2023)",
+       y = "Air temperature (ºF)",
+       x = "") +
+  theme_bw() # add a nice looking theme
+
+```
+
+<br />
+
+##### **Question 2**
+
+2. Modify the following code to visualize *both* SWE and Average Temperature for Agua Canyon over the three years. This requires adding a second axis (right side) and scaling values so they can be observed side-by-side.
+
+```{r}
+# value to scale data (see where this is used below)
+scale_swe <- 3 # important in visualizing two different data ranges side-by-side 
+
+# start plot
+df_snotel %>%
+  mutate(Date=as.Date(Date,format="%m/%d/%y")) %>% 
+  # make Date the x variable
+  ggplot(aes(x=Date)) + 
+  # Add SWE first to be behind line
+  geom_bar(aes(y = Agua.Canyon..907..Snow.Water.Equivalent..in..Start.of.Day.Values), 
+           color='lightblue', stat='identity') +
+  # add average temperature
+  geom_line(aes(y = Agua.Canyon..907..Air.Temperature.Average..degF. /scale_swe), 
+            color="firebrick", linewidth = 0.5) +
+  # label the y-axis and add a second axis on the right for the temperature, scale values as above
+  scale_y_continuous(name = "SWE (inches)", sec.axis = sec_axis( transform = ~.* scale_swe, name= "Temperature (ºF)")) +
+  labs(title = "Agua Canyon Snotel (Water years 2021-2023)") +
+  theme_classic() # add a clean-looking theme
+```
+
+
+<br />
+
+### **Part 2. Pivoting and summarizing**
+
+This section will require you to transform the data through pivoting, filtering, and subsetting.
+
+**Modify the code below each question to produce the requested results.**
+
+<br />
+
+##### **Question 3**
+
+3. Select all snow depth columns and **pivot** the data to a *long* format to show each station in a column. Remove all `0` values to exclude the non-winter season (i.e. summer). Group by station then use the `summarize` function to show the mean snow depth for each station. Show the `head()
+
+```{r}
+df_snotel %>% mutate(Date=as.Date(Date,format="%m/%d/%y")) %>%
+  # select all columns that "contain" a pattern (how does snow depth appear?)
+  select(Date, contains("Snow.Depth")) %>% 
+  # pivoting function to go from wide to long format
+  pivot_longer(cols=!Date, # don't pivot date but do the other values
+               names_to = "station", values_to = "depth") %>%
+  # clean up station names (keep everything before first "..")
+  mutate(station = sub("\\.\\..*$", "", station)) %>% 
+  # replace "." with space
+  mutate(station = gsub("\\.", " ", station)) %>% 
+  # filter for non-zero values
+  filter(depth > 0) %>%
+  # group by station
+  group_by(station) %>% 
+  # summarize the data to show mean snow depth for all stations
+  summarize(station_mean = mean(depth)) %>% 
+  head()
+```
+
+
+<br />
+
+##### **Question 4**
+
+4. Use the first part of the code in the previous question to pivot and filter the data to depth values greater than 0. Instead of grouping and summarizing as you did previously, use mutate to create a new field that indicates the water year. Then, show only the top five snotel sites with the deepest snow depth for each winter season. Include the max snow depth value (inches) and the Date of max snow depth for each season. Show the top fire sites for each season and describe when the date of max snow depth occurs.
+
+```{r}
+# previous code to pivot snow depth and filter
+df_snotel %>% mutate(Date=as.Date(Date,format="%m/%d/%y")) %>%
+  select(Date, contains("Snow.Depth")) %>% 
+  pivot_longer(cols=!Date,
+               names_to = "station", values_to = "depth") %>%
+  filter(depth>0) %>%
+  # generate water year from dates
+  mutate(water_year = cut(Date, breaks =  c(as.Date(c("2020-10-01", "2021-10-01", "2022-10-01")), Inf), 
+                      labels = paste0("WY_", c(2021, 2022, 2023)))) %>%
+  mutate(station = gsub("\\.", " ", sub("\\.\\..*$", "", station))) %>% 
+  group_by(station, water_year) %>%
+  summarise(snow_max = max(depth, na.rm=T),
+            max_day = Date[which.max(depth)],
+            .groups = "drop") %>%
+  group_by(water_year) %>%
+  slice_max(order_by = snow_max, n = 5)
+```
+Add a statement
+
+
+<br />
+
+##### **Question 5**
+
+5. Use the results above to generate a bar plot in `ggplot` showing the counts of snotel sites in the top five for for snow depth over the three seasons. Which sites continually receive the deepest snow depth?
+
+```{r}
+df_snotel %>%  mutate(Date=as.Date(Date,format="%m/%d/%y")) %>%
+  select(Date, contains("Snow.Depth")) %>% 
+  pivot_longer(cols=!Date,
+               names_to = "station", values_to = "depth") %>%
+  filter(depth>0) %>%
+  # generate water year from dates
+  mutate(water_year = cut(Date, breaks =  c(as.Date(c("2020-10-01", "2021-10-01", "2022-10-01")), Inf), 
+                      labels = paste0("WY_", c(2021, 2022, 2023)))) %>%
+  mutate(station = gsub("\\.", " ", sub("\\.\\..*$", "", station))) %>% 
+  group_by(station, water_year) %>%
+  summarise(snow_max = max(depth, na.rm=T),
+            max_day = Date[which.max(depth)], 
+            .groups = "drop") %>%
+  group_by(water_year) %>%
+  slice_max(order_by = snow_max, n = 5) %>% 
+  select(station) %>% 
+  # bar plot showing station counts
+  ggplot(aes(x=station)) + 
+  geom_bar(stat = "count", fill = "lightblue") +
+  labs(
+      title="Stations with deepest snow in UT WY 21-23",
+      x = "", y = "Times in top 5 season deepest")  +
+    theme( # change x label angle to 45 degrees
+      axis.text.x = element_text(angle = 45, hjust = 1)
+    )
+
+```
+
+
+
+<br />
+
+##### **Question 6**
+
+6. Use parts of your scripts above to show the average snow water equivalence (SWE) by month for all stations. Create a bar plot showing average SWE by month using the code below and describe when max swe typically occurs.
+
+```{r}
+df_snotel %>%  mutate(Date=as.Date(Date,format="%m/%d/%y")) %>%
+  select(Date, contains("Snow.Water")) %>% 
+  pivot_longer(cols=!Date,
+               names_to = "station", values_to = "swe") %>%
+  filter(swe>0) %>%
+  # generate water year from dates
+  mutate(month = format(Date, "%m")) %>%
+  # mutate(station = gsub("\\.", " ", sub("\\.\\..*$", "", station))) %>% 
+  group_by(month) %>%
+  summarise(swe_mean = mean(swe, na.rm=T),
+            .groups = "drop") %>%
+  # bar plot showing station counts
+  ggplot(aes(x=month, y = swe_mean)) +
+  geom_bar(stat = "identity", fill = "lightblue") +
+  labs(
+      title="Monthly SWE, UT (WY21-23)",
+      x = "", y = "SWE average (in)")  +
+    theme_classic()
+```
+
+
+<br />
+
+##### **Question 7**
+
+7. Combine several steps used above with other dplyr and ggplot workflows to show monthly snow depth and SWE for each water year (organized by water year month). Leverage the aesthetic mapping in ggplot to do this in a single plot.
+
+```{r}
+df_snotel %>% 
+  mutate(Date=as.Date(Date,format="%m/%d/%y")) %>% 
+  pivot_longer(
+    cols = !Date,
+    names_to = c("station", "variable"),
+    names_pattern = "^(.*?)\\.\\.[0-9]+\\.\\.(.*?)\\.\\..*$",
+    values_to = "values") %>%
+  mutate(station = gsub("\\.", " ", station)) %>% 
+  mutate(variable = gsub("\\.", " ", variable)) %>% 
+  # generate water year from dates
+  mutate(water_year = cut(Date, breaks =  c(as.Date(c("2020-10-01", "2021-10-01", "2022-10-01")), Inf), 
+                      labels = paste("Water year", c(2021, 2022, 2023)))) %>%
+  # only keep snow depth and swe
+  filter( grepl("Snow", variable) ) %>%
+  filter(values > 0) %>%
+  # generate water year from dates
+  mutate(month = format(Date, "%m")) %>%
+  mutate(
+    month = month.abb[as.numeric(month)],
+    month = factor(month, levels = month.abb[c(10:12, 1:9)])
+  ) %>% 
+  group_by(water_year, month, variable) %>%
+  summarise(var_month = mean(values, na.rm=T),
+            .groups = "drop") %>%
+  # take monthly averages
+  # plot both side-by-side
+  ggplot(aes(x = month, y = var_month, fill=variable)) +
+  geom_bar(stat='identity') +
+  facet_wrap(.~water_year, scales = "free_x") +
+  labs(
+      title="Monthly snow depth and water equivalence, UT",
+      x = "", y = "Depth (in)")  +
+  theme_classic() +
+  theme(
+    legend.title = element_blank(),
+    legend.position = c(0.15, 0.75),
+    axis.text.x = element_text(angle = 90, hjust = 1)
+  )
+
+```
+
+
+<br />
+
+### **Part 3. Joining datasets**
+
+Snow water equivalent (SWE) is an important metric used to assess the amount of water in the snowpack. In particular, as you have seen, the month of April can be critical for water managers to assess conditions for the coming year. 
+
+Create a new summary table using the snotel data from above, to show the max SWE amount for the month of April during season 2.
+
+Read in the **"UTSNTL_ELEV.csv"** file and perform a join (e.g. `left_join`) with your summarized table of max april SWE. Be sure to make any necessay adjustments to the site names between datasets as they are slightly different.
+
+*modify the file path as needed*
+
+```{r}
+df_elev <- read.csv("../data/UTSNTL_ELEV.csv")
+head(df_elev)
+```
+
+Clean up some of these names by removing punctuation. This will allow us to join data more easily.
+
+```{r}
+# run the following code
+df_elev <- df_elev %>% 
+  # remove punctuation
+  mutate(names = gsub("[[:punct:]]", " ", names)) %>% 
+  # remove any double space
+  mutate(names = sub("  .*", "", names)) %>% 
+  # remove any remaining whitespace
+  mutate(names = trimws(names))
+```
+
+
+<br />
+
+##### **Question 8**
+
+8. Create a new dataset from the snotel data showing max April SWE from WY 2022, and join this with the elevation dataframe. Show the distributions of SWE and elevation as side-by-side histograms
+
+```{r}
+df_snotel %>% mutate(Date=as.Date(Date,format="%m/%d/%y")) %>%
+  select(Date, contains("Snow.Water")) %>% 
+  pivot_longer(cols=!Date,
+               names_to = "station", values_to = "swe") %>%
+  filter(swe > 0) %>%
+  mutate(water_year = cut(Date, breaks =  c(as.Date(c("2020-10-01", "2021-10-01", "2022-10-01")), Inf), 
+                      labels = paste0("WY_", c(2021, 2022, 2023)))) %>%
+  mutate(station = gsub("\\.", " ", sub("\\.\\..*$", "", station))) %>% 
+  # select only dates in april for WY 2022
+  mutate(month = (format(Date, "%m"))) %>% 
+  filter(month=="04") %>% 
+  filter(water_year == "WY_2022") %>% 
+  group_by(station) %>%
+  summarise(swe_max = max(swe, na.rm=T),
+            .groups = "drop") %>% 
+  left_join(df_elev, by=c("station" = "names")) %>% 
+  pivot_longer(cols=!station, names_to="variable", values_to="values") %>% 
+    ggplot(aes(x=values)) +
+    geom_histogram(aes(fill=variable)) +
+    facet_wrap(.~variable, scales="free")
+
+```
+
+
+<br />
+
+##### **Question 9**
+
+9. Use your joined dataset to create a scatter plot that shows the max SWE (snow water equivalent) during the month of April as a function of elevation (x-axis). Plot using ggplot (optional, add a trend line).
+
+```{r}
+# Use the dataset above to 
+df_snotel %>% mutate(Date=as.Date(Date,format="%m/%d/%y")) %>%
+  select(Date, contains("Snow.Water")) %>% 
+  pivot_longer(cols=!Date,
+               names_to = "station", values_to = "swe") %>%
+  filter(swe > 0) %>%
+  mutate(water_year = cut(Date, breaks =  c(as.Date(c("2020-10-01", "2021-10-01", "2022-10-01")), Inf), 
+                      labels = paste0("WY_", c(2021, 2022, 2023)))) %>%
+  mutate(station = gsub("\\.", " ", sub("\\.\\..*$", "", station))) %>% 
+  # select only dates in april for WY 2022
+  mutate(month = (format(Date, "%m"))) %>% 
+  filter(month=="04") %>% 
+  filter(water_year == "WY_2022") %>% 
+  group_by(station) %>%
+  summarise(swe_max = max(swe, na.rm=T),
+            max_day = Date[which.max(swe)],
+            .groups = "drop") %>% 
+  left_join(df_elev, by=c("station" = "names")) %>% 
+  ggplot(aes(x=elevation_ft, y = swe_max)) +
+  geom_point() +
+  geom_smooth(method='lm', formula = 'y ~ x', se=FALSE, color='firebrick', linetype=2) +
+  theme_bw()
+  
+```
+
+
+<br />
+
+##### **Question 10**
+
+10. It is well known that precipitation amounts can be enhanced at higher elevations due to orographic lift (air masses flowing over mountains). Utah's mountains benefit and often have an enhancement of 5+ times the amount of precipitation that the valleys receive. Statistically assess the strength of the linear relationship between April SWE as a function of elevation. *Consider the direction, strength, significance, and wellness of fit of this relationship, and discuss whether elevation is a good predictor of SWE.*
+
+
+```{r}
+# use functions previously covered to assess the relationship
+
+```
+
+Discuss whether this is a good predictor of SWE. Hypothesize as to why.
+
+
+
+<br />
+
+#### Submitting
+
+Modify this document to produce a single, organized **html file** written in **R Markdown** showing **questions, code solutions, and responses**. Be sure to support your responses with code and result outputs.
+
+*Please reach out if you have any questions or concerns!*
+
+<br />
+
+<br />
+

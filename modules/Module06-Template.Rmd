@@ -9,13 +9,25 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+**As mentioned in the Task**, you will be interacting a bit differently with this assignment. We are introducing several new packages this week. With so many new functions and workflows, it makes more sense to have you interact with the code in a more guided format. Use this template to complete this assignent.
 
-Insert your code and responses for each question below.
+**New concepts introduced**
 
-```{r}
+- Chaining and new workflows for data wrangling with `dplyr` 
+- Better visualization with `ggplot`
+- Pivoting data with `tidyr`
+
+[*Delete these instructions for your submission*]
+
+
+```{r, warning=FALSE}
 # load libraries and datasets
-
+library(dplyr)
+library(ggplot2)
+library(tidyr)
 ```
+
+**Modify the code provided below to help answer questions and generate graphics.**
 
 
 <br />
@@ -25,7 +37,32 @@ Insert your code and responses for each question below.
 1. (2 points) Plot and provide your script to recreate the graphic above. This shows the SWE for three seasons alongside average air temperature for the snotel station (Agua Canyon).
 
 ```{r}
-
+df_snotel %>% 
+  # convert the date to the correct format
+  mutate(...) %>%
+  # create a variable to indicates when <Station Temperature> is above or below freezing ("Yes"or "No")
+  mutate(temp_color = if_else(...)) %>%      
+  # start ggplot specifying only the date as x-axis, you will add multiple variables on the y-axis below
+  ggplot(aes(x = ...)) +   
+  # create a barplot of <Station SWE> (snow water equivalent) in blue
+  geom_bar(aes(y = ...), col='lightblue', stat='identity') + 
+  # add a line for the <Station Temperature>, scale this (3) to match the SWE scale and color line based on the freezing variable defined above
+  geom_line(aes(y = ... / 3, color = ..., group = 1), linewidth = 0.5) +
+  # manually set temperature colors based on the temp_color variable
+  scale_color_manual(values=c("firebrick","deepskyblue3"), name="Freezing") +
+  # label the y-axis and add a second axis on the right for the temperature, scale values as above (3)
+  scale_y_continuous(name = "SWE (inches)", sec.axis = sec_axis( transform = ~.* 3, name= "Temperature (degF)")) +
+  # set the theme style (no arguments needed)
+  theme_bw() + 
+  # format other theme elements to make the plot look nice
+  theme(
+    axis.title.y = element_text(color = "..."), # color for left y-axis (make consistent)
+    axis.text.y = element_text(color = "..."), 
+    axis.title.y.right = element_text(color = "..."), # color for right y-axis (make consistent)
+    axis.text.y.right = element_text(color = "...")
+  ) +
+  # add a title
+  labs(title = "...")
 ```
 
 
