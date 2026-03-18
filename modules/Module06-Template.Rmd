@@ -1,145 +1,104 @@
 ---
 title: "Module 6"
-author: "Your Name"
-output: 
-  html_document
+author: "[ Insert Your Name ]"
+output: html_document
 ---
 
 ```{r setup, include=FALSE} 
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-**As mentioned in the Task**, you will be interacting a bit differently with this assignment. We are introducing several new packages this week. With so many new functions and workflows, it makes more sense to have you interact with the code in a more guided format. Use this template to complete this assignent.
-
-**New concepts introduced**
-
-- Chaining and new workflows for data wrangling with `dplyr` 
-- Better visualization with `ggplot`
-- Pivoting data with `tidyr`
-
-[*Delete these instructions for your submission*]
-
-
-```{r, warning=FALSE}
-# load libraries and datasets
-library(dplyr)
-library(ggplot2)
-library(tidyr)
-```
-
-**Modify the code provided below to help answer questions and generate graphics.**
-
+Provide complete code and written responses for each question below.
+[Delete these lines for submission]
 
 <br />
 
-##### **Advanced Visualization**
-
-1. (2 points) Plot and provide your script to recreate the graphic above. This shows the SWE for three seasons alongside average air temperature for the snotel station (Agua Canyon).
-
-```{r}
-df_snotel %>% 
-  # convert the date to the correct format
-  mutate(...) %>%
-  # create a variable to indicates when <Station Temperature> is above or below freezing ("Yes"or "No")
-  mutate(temp_color = if_else(...)) %>%      
-  # start ggplot specifying only the date as x-axis, you will add multiple variables on the y-axis below
-  ggplot(aes(x = ...)) +   
-  # create a barplot of <Station SWE> (snow water equivalent) in blue
-  geom_bar(aes(y = ...), col='lightblue', stat='identity') + 
-  # add a line for the <Station Temperature>, scale this (3) to match the SWE scale and color line based on the freezing variable defined above
-  geom_line(aes(y = ... / 3, color = ..., group = 1), linewidth = 0.5) +
-  # manually set temperature colors based on the temp_color variable
-  scale_color_manual(values=c("firebrick","deepskyblue3"), name="Freezing") +
-  # label the y-axis and add a second axis on the right for the temperature, scale values as above (3)
-  scale_y_continuous(name = "SWE (inches)", sec.axis = sec_axis( transform = ~.* 3, name= "Temperature (degF)")) +
-  # set the theme style (no arguments needed)
-  theme_bw() + 
-  # format other theme elements to make the plot look nice
-  theme(
-    axis.title.y = element_text(color = "..."), # color for left y-axis (make consistent)
-    axis.text.y = element_text(color = "..."), 
-    axis.title.y.right = element_text(color = "..."), # color for right y-axis (make consistent)
-    axis.text.y.right = element_text(color = "...")
-  ) +
-  # add a title
-  labs(title = "...")
-```
-
-
-<br />
-
-##### **Advanced Pivoting**
-
-2. How many total stations are there in this dataset? How many variables are included for each station? Provide code for your response.
-
-```{r}
-
-```
-
-
-3. Show the top 5 snotel sites with the deepest snow depth for each winter season. Include the max snow depth value (inches) and the Date of max snow depth for each season. Try to perform this with one continuous piped dplyr statement.
-
-```{r}
-
-```
-
-
-4. Use the results above to generate a bar plot in `ggplot` showing the counts of snotel sites in the top 5 for for snow depth over the three seasons. Which sites continually receive the deepest snow depth?
-
-```{r}
-
-```
-
-Provide a statement
-
-5. Copy and modify your code above to create another summarized subset that shows the top 5 snotel sites with the greatest snow water equivalence for each winter season. Add a few lines of code to this and your snow depth dataset to compare the months that experience the deepest snow depth vs months with the greatest amount of SWE.
-
-```{r}
-
-```
-
-
-6. Combine your tables of monthly max summary variables together and create a final barplot or boxplot using `ggplot` showing the how the max monthly values of snow depth vary compared to SWE. 
-
-```{r}
-
-```
-
-
-<br />
-
-##### **Joining**
-
-7. (2 points) Join the summarized max April SWE dataframe with the elevation dataframe. Create a scatter plot that shows the max SWE (snow water equivalent) during the month of April as a function of elevation (x-axis).
-
-```{r}
-
-```
-
-
-8. It is well known that precipitation amount can be enhanced at higher elevations due to orographic lift (air masses flowing over mountains). Utah's mountains benefit and often have an enhancement of 5+ times the amount of precipitation that the valleys receive. Statistically assess the strength of the linear relationship between April SWE as a function of elevation. *Consider the direction, strength, significance, and wellness of fit of this relationship, and discuss whether elevation is a good predictor of SWE.*
-
-```{r}
-
-```
-
-Provide a statement
-
-<br />
-
-##### **Spatial Data**
-
-Make sure that you have properly installed the `terra` package:
-
-```{r, eval=F}
-# install.packages("terra") # be sure you have all dependencies installed first!
+```{r echo=FALSE, warnings=F, message=F}
+# read in packages
 library(terra)
 ```
 
+<br />
 
+##### **Creating Spatial Data**
+
+1. Using only the `terra` package and `vect()` function, transform this dataframe into a spatial vector data object and create a basic plot (`plot` function) showing the SNOTEL stations colored by elevation.
+
+```{r}
+
+```
+
+Add additional code blocks as needed and provide any requested information...
+[Delete this line for submission
+]
 
 
 <br />
 
+2. With your new joined dataset, create another basic spatial plot (with `terra` and `plot`) showing max SWE as `type = continuous`. Add the outline of the state of Utah using the `maps` package.
+
+```{r}
+
+```
+
+
+<br />
+
+3. (*2 pts*) Using the `terra` plot functions, create three plots side-by-side showing the max SWE at SNOTEL sites in Utah during the 2021-22 season. For methods, use 1) equal interval with 7 classes, 2) quantile, and 3) standard deviation. Specify the classification method the title of the legend in each plot and use sequential color schemes (one color of varying brightness) for equal interval and quantile, and a diverging color scheme (two colors) for the standard deviation classification method (see link above for more). Note the standard deviation scheme should include 1-3 standard deviations from the mean ($\mu \pm 3\sigma$). Provide 2-3 sentences describing the differences, benefits, and meaning of the classification methods used.
+
+```{r}
+
+```
+
+
+<br />
+
+
+#### **Manipulating Vector Data**
+
+4. Create a basic map plot in `terra` that shows the individual watersheds colored by their unique names. Rather than adding a legend, use the `text()` function with the spatial data to add the names of each watershed to the map (*it is okay for this map to look a little messy*).
+
+```{r}
+
+```
+
+
+<br />
+
+5. Create an extent object (rectangular box) using the `ext()` function in terra for Utah Valley using the following: Latitude range: 39.915063 to 40.471646; Longitude range: -111.952211 to -111.536395. Plot the geometry (no variable) of the UT HUC layer and add the rectangular bounding box to the map in red, showing this as an area of interest. Add a legend in the top right of the map indicating what the area represents.
+
+```{r}
+
+```
+
+
+<br />
+
+6. Use the same workflow you used in the previous question along with the `crop()` function to clip the UT HUC watersheds data to only show the part of the state above 39 degrees Latitude. Create a map plot
+
+```{r}
+
+```
+
+
+<br />
+
+7. Create a subset of the UT_HUC vector that only contains the Great Salt Lake watershed. Then use the island vector above to cut the island out of the GSL watershed. Plot the new GSL feature that has a hole for Antelope Island, make the feature a color that would be used to represent water on a map. Add a text label to this plot indicating the location of Antelope Island.
+
+```{r}
+
+```
+
+
+<br />
+
+8. (*2 pts*) Create a new variables for the HUC4 and HUC2 codes, based on the HUC8 code. Dissolve the spatial vector into HUC4 units, then again in HUC2 units. Finally, create a map plot showing the three different levels of hydrologic units (HUC 8, 4, and 2), Use color, linewidth, linetype, and other arguments to distinguish between the different watershed units in the map plot.
+
+```{r}
+
+```
+
+
+<br />
 <br />
 

@@ -1,5 +1,5 @@
 ---
-title: "Module 7 Guide"
+title: "Module 6 Guide"
 author: "GEOG-3440"
 output: 
   html_document:

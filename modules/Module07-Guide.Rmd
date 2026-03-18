@@ -22,13 +22,14 @@ This document describes the important concepts, workflows, functions, and other 
 
 ### Main Goals
 
-1. Introduction to R packages
-2. Pivot tables and advanced joins
-3. The basics of geospatial data
+1. Introduction to common packages in R
+2. Efficient workflows with piping and dplyr  
+3. Visualization with ggplot
+4. Pivot tables and advanced joins
 
 <br />
 
-## **1. Introduction to Packages**
+## **1. Introduction to common packages in R**
 
 One of the biggest benefits that open-source programming languages, like R, have is an extensive collection of custom packages developed by community members like you, and widely used throughout the globe! Although you likely already have a little exposure to different R packages, let's discuss this a bit more formally.
 
@@ -42,14 +43,15 @@ Installing a new package is easy, and you can do so in a couple of ways. The fir
 
 <br />
 
-#### **Piping and dplyr workflows**
+## **2. Efficient workflows with piping and dplyr**
 
 The `dplyr` package simplifies data manipulation by providing functions that are intuitive and easy to use. We'll go over some of the most commonly used functions: `select()`, `filter()`, `summarize()`, and piping (`%>%`).
 
 First, similar to any package, you will need to load the `dplyr` libraries. Loading a packages brings the necessary functions into for your current R session, you will need to do this every time you start a new session. If you don't have `dplyr` installed, you can install it by running `install.packages("dplyr")`.
 
-```{r}
+```{r warning=FALSE, message=FALSE}
 # Load the dplyr package
+# install.packages("dplyr") # only need to install once!
 library(dplyr)
 ```
 
@@ -112,7 +114,7 @@ Note, these functions also work outside of piping, but are typically most effect
 <br />
 
 
-#### **Visualization with ggplot**
+## **3. Visualization with ggplot**
 
 `ggplot2` is a powerful package for creating visualizations in R. It uses a grammar of graphics, which allows you to build plots layer by layer.
 
@@ -139,7 +141,7 @@ You can enhance your plots by adding titles, axis labels, and customizing the ap
 # plot with titles and customized appearance
 mtcars %>% # dplyr chaining
   ggplot(aes(x = hp, y = mpg)) + # ggplot chaining 
-  geom_point(color = "blue") + 
+  geom_point(color = "blue", shape = 3) + 
   labs(title = "MPG vs Horsepower",
        x = "Horsepower (hp)",
        y = "Miles per Gallon (mpg)") +
@@ -153,7 +155,8 @@ To visualize data by groups, you can color the points by another variable. Let's
 ggplot(mtcars, aes(x = hp, y = mpg, color = factor(cyl))) + 
   geom_point() +
   labs(title = "MPG vs Horsepower by Cylinders",
-       color = "Number of Cylinders")
+       color = "Number of Cylinders") +
+  theme_classic()
 ```
 
 A boxplot is another type of plot you can create with `ggplot2` to visualize the distribution of a variable. Let's create a boxplot of `mpg` by the number of cylinders.
@@ -164,7 +167,8 @@ ggplot(mtcars, aes(x = factor(cyl), y = mpg)) +
   geom_boxplot() + 
   labs(title = "MPG by Number of Cylinders",
        x = "Number of Cylinders",
-       y = "Miles per Gallon (mpg)")
+       y = "Miles per Gallon (mpg)") +
+  theme_bw()
 ```
 
 You can save your plot using the export function in R or with the `ggsave()` function.
@@ -188,7 +192,7 @@ As stated above, **you can choose to work primarily in base R** but I would **st
 <br />
 
 
-## **2. Pivot Tables and Advanced Joins**
+## **4. Pivot tables and advanced joins**
 
 You previously read in the R Spatial book about preparing data by reshaping and merging, however, there are a better ways to perform these tasks using other R packages.
 
@@ -268,7 +272,7 @@ print(data_wide_again)
 
  *Another popular library for data manipulation, which we will not cover is the* `reshape2` *package, which has the* `melt` *function.*
 
-#### **Merging and Joins**
+#### **Merging and joins**
 
 Joining datasets relies on key on similar key variables between data. You've already explored some ways in base R to match values between datasets:
 
@@ -334,24 +338,21 @@ Note that merge and join functions operate on matching (see `match` function) va
 - `left_join()`: Merges two datasets based on a common column, keeping all rows from the left dataset.
 - `full_join()`: Merges two datasets based on a common column, keeping all rows from both datasets.
 
-Data manipulation is a key part of data science. You will continue to use these libraries and methods, along with base R, throughout the semester.
-
 <br />
 
+Data manipulation is a key part of data science. Your workflows will improve as you discover new libraries and functions throughout the semester.
 
-## **3. The Basics of Geospatial Data**
+There are tens of thousands of R packages developed by the community and many new, useful packages are developed each year! The R community is vast and an excellent place to learn and grow your geospatial data science skills.
 
-Welcome to the world of geospatial data! You already know quite a bit about geospatial data from previous classes, you just haven't worked with this kind of data yet in R. As you know, geospatial data is *special* because it requires unique information about the geographic coordinate system and spatial proejction information. Location is also an important variable that can be incorporated into analysis. Unsuprisingly, we need to use specialized packages to work with geospatial data in R. The `terra` package is our first one-stop shop for all geospatial needs. We will focus on this library, and eventually add in additional data useful geospatial libraries.
-
-
-
+<br />
 
 
 
 
 <br />
 
-**Complete the Module Task**
+**Complete the Module Task** by updating the provided *Template*
+The task submission this week is different than previous weeks
 
 <br />
 <br />

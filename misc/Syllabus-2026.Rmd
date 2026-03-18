@@ -108,15 +108,16 @@ Most of the time, what we are referring to as "AI" (like ChatGPT) are really lan
 2. Basic data types and structures
 3. Filepaths, data exploration, and visualization
 4. Reproducible workflows and flow control
-5. Problem Solving
-6. Data cleaning and statistical models
-7. Packages and spatial data basics
-8. Spatial data with terra
-9. Spatial analysis I
+5. Technical challenge I & Case study I 
+6. Data preparation and statistical models
+7. Introduction to spatial data
+8. Spatial analysis I 
+9. Leveraging packages
 10. Spatial analysis II
-11. Terrain modeling
-12. Remote Sensing Basics and Spatial Interpolation \
-13. (13-16) **Final project work**
+11. Technical challenge II & Case study II
+12. Remote sensing workflows
+13. Image processing and spatiotemporal workflows \
+14. (14-16) **Final project work**
 
 *Schedule is subject to change. Attend class and stay tuned to updates and emails.* 
 
