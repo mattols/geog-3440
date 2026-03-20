@@ -27,20 +27,37 @@ Complete the following tasks related to the content of the week. Be sure that ea
 
 <br />
 
-#### **Zonal relationships**
+### **Zonal relationships**
 
 Read in the **"UT_HUC8.shp"**. Create a new version of the UT_HUC8 data for HUC6 levels with the `aggregate` function.
 
 Read in the **"UTSNTL_2021_2023_SWE_Joined.csv"** file. This table contains max SWE (*values*) during water years 2021-23 for SNOTEL sites across the state. A join has also been performed with the metadata to include elevation, latitude and longitude. Create a subset of the UTSNTL dataset for the *2022* season and convert this into a `vect` object in `terra` using the Latitude and Longitude coordinates provided.
 
+<br/>
+
 1. Use the `zonal` function to calculate average SWE (*values*) listed for the 2022 water year in each HUC6 in the state and plot this as interval (default) with 5 classes, using a color scale that varies in shade of blue (*e.g.* `blues9`). Run the `zonal` function again (or another tool) to calculate the total number of stations in each HUC6 and add this value with the `text` function in a complementary color (*e.g.* `red`). 
-    * *Tip: One option to calculate the count of stations (text) by HUC is to create a new field in your snotel data with the value of 1 (e.g.* `snotel_vect$count <- 1`*) and sum these values with the* `zonal` *tool.*
     * *Tip: Using the* `as.polygons=TRUE` *argument in the* `zonal` *function helps maintain a vector object output*
-   
+        * *Tip: One option to calculate the count of stations (text) by HUC is to create a new field in your snotel data with the value of 1 (e.g.* `snotel_vect$count <- 1`*) and sum these values with the* `zonal` *tool.*
+        * *See code example below*
+    
+```r
+# example code for estimating snotel station count
+# zonal stats for number of stations
+snotel_points$count <- 1
+snotel_huc6_sum = zonal(snotel_points, huc6_shp, fun="sum", as.polygons=TRUE, na.rm=T)
+
+# zonal means, etc.
+# ...
+```
+
 The Modifiable Areal Unit Problem (MAUP) in geographic analysis refers to the issue that statistical results can change depending on the scale or boundary chosen for aggregating spatial data. This problem occurs when different units of analysis, such as regions or districts, are used, leading to variations in patterns and relationships within the data. MAUP highlights the importance of carefully considering the spatial units and scale when interpreting geographic information.
+
+<br/>
 
 2. Use the `expanse` function to calculate the area of each HUC6 unit in 10,000s of square kilometers (i.e. use `unit="km"` and multiply the area by `10e3` after). Use this value, along with your zonal statistics output of station counts by HUC6, to create a map that shows the density of stations over the area of each HUC6. How does this change your interpretation of SNOTEL representation within each HUC6?
   
+<br />
+
 Next, you will obtain a digital elevation model for UT with the `geodata` package and using the following code:
 
 ```{r, eval=FALSE}
@@ -54,12 +71,44 @@ dem_usa
 
 Create a subset of the the dem above for the state of Utah using the `crop` function and the UT HUC6 data as the extent object (`y`), add the `mask=TRUE` argument to mask the feature to the shape of the extent of the HUC6 feature, which is the state boundary (*don't forget to keep track of the crs of your datasets*).
 
+<br/>
+
 3. Convert your UT dem from meters of elevation to feet with simple arithmetic (*1 meter = 3.281 feet*) and use the elevation range for all SNOTEL sites in the dataset above to create a new dem (*dem_snotel*) that only shows cell values that are within the same range as SNOTEL sites state-wide. This can be accomplished with indexing and boolean logic, or the `clamp` function. Plot your subset elevation raster with the HUC6 borders overlapping. 
 
-4. Use both the UT DEM and your masked `dem_snotel` rasters to calculate the percentage (rounded to the nearest whole number) of pixels within the range of SNOTEL elevations by HUC6. To do this, use the `!is.na` function on the raster to create a binary raster. Then, use the `zonal` function to sum the number of pixels by HUC6 in each raster. Plot the percentages for each HUC6 with the default 5 interval classification (use a sequential color palette like `heat.colors` or similar to emphasize higher values), then add `text` values over the top that show the percentage followed by the "%" for each HUC6.
-    * *Tip: add new columns to your HUC6 vector using the output from zonal statistics that show the count of pixels. Add another column using the* `paste` *function to combine numbers and characters for the text*.
+```r
+# determine range of values
+elev_range <-  range(snotel_points$elevation_ft)
 
-Let's assess the elevation values reported in our SNOTEL data with the raster dataset we downloaded. Let's consider the elevation reported at the SNOTEL station to be the actual *observed* value, and the dem elevation as our *predicted* value.
+# use max and min ranges in `clamp`
+# ...
+```
+
+<br/>
+
+4. Use both the UT DEM and your masked `dem_snotel` rasters to calculate the percentage (rounded to the nearest whole number) of pixels within the range of SNOTEL elevations by HUC6. To do this, use the `!is.na` function on the raster to create a binary raster. Then, use the `zonal` function to sum the number of pixels by HUC6 in each raster. Plot the percentages for each HUC6 with the default 5 interval classification (use a sequential color palette like `heat.colors` or similar to emphasize higher values), then add `text` values over the top that show the percentage followed by the "%" for each HUC6.
+    * *Tip: add new columns to your HUC6 vector using the output from zonal statistics that show the count of pixels. Add another column using the* `paste` *function to combine numbers and characters for the text*
+    * *See code below to get determine total number of pixels within each HUC*
+    
+```r
+# use the reprojected full DEM
+dem_mask <- !is.na(dem_usa_projected)
+
+# count total pixels in each
+total_pix <- zonal(dem_mask, huc6_shp, fun="sum", as.polygons=TRUE, na.rm=T)
+
+# add to existing huc data
+huc6_shp$pix_coverage <- total_pix$USA_elv_msk # simply add new column
+# huc6_shp_tot <- merge(huc6_shp, total_pix, by = "HUC6", all.x = TRUE) # alternative that can be safer
+
+# repeat the steps above using masked DEM from question 3
+# calculate percentage of pixels within snotel range
+# plot and add text
+# ...
+```
+
+<br />
+
+Let's assess the elevation values reported in our SNOTEL data with the raster dataset we downloaded (that is a coarser spatial resolution). Let's consider the elevation reported at the SNOTEL station to be the actual *observed* value, and the dem elevation as our *predicted* value.
 
 Root Mean Squared Error (RMSE) is a measure of the differences between predicted and observed values in a model. It represents the square root of the average squared differences between the predicted and actual values, providing an indication of how well the model fits the data. The formula for RMSE is:
 
@@ -71,7 +120,67 @@ where \(y_i\) is the observed value, \(\hat{y}_i\) is the predicted value, and \
 
 RMSE shows how well a model's predictions match the actual values, with lower values indicating a better fit. The key point in interpreting RMSE is that it is expressed in the same units as the data, so its magnitude is directly tied to the scale of the variable being predicted (*e.g. if predicting temperature in degrees Celsius, the RMSE will be in degrees Celsius*). A smaller RMSE means the predictions are closer to the true values, while a larger RMSE suggests greater errors. The acceptable value for RMSE depends on the context—what’s considered a "good" RMSE can vary depending on the specific problem and the scale of the data.
 
+
 5. Use the `extract` function to extract the raster UT dem elevation values (`x`) at each snotel site (`y`) in your vector point data (*note, the dimensions and order should match your snotel data, which can be added as a new column*). Use these values to create a scatterplot that shows predicted values (x-axis) with observed values. Add a 1:1 line using the `abline` function (*a perfect match would show the all points on the 1:1 line*). Add the RMSE (rounded to whole number) as text in the topleft corner of the plot.
+
+```{r}
+
+```
+
+
+<br />
+
+#### **Confounding zonal and global variables**
+
+You may or may not have realized that your **results in questions 3-4 are not technically accurate!** (*no need to change them*)
+
+Consider that we used *global* information about the snotel elevation range (full dataset) to create *zonal* statistics of the percent area within snotel elevations. If we wanted to perform this step more accurately, we would need to vary the elevation mask in question 3 by the specific station elevation ranges *within* each HUC 6 zone. This makes our task a bit more complicated but will potentially alter our results in a significant way.
+
+Use the example code help below to mask your DEM using zonal station elevations:
+
+```r
+# extract huc for each point
+pts_huc = terra::extract(huc6_shp, snotel_points) # specify terra:: if using dplyr
+
+# yet another way to combine two types of data that have the same order
+snotel_points_huc = cbind(snotel_points, pts_huc)
+
+# use dplyr to summarize data by elevations by HUC
+huc_ranges <- snotel_points_huc %>%
+  as.data.frame() %>% 
+  group_by(HUC6) %>%
+  summarise(
+    min_elev = min(elevation_ft, na.rm = TRUE),
+    max_elev = max(elevation_ft, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+# merge huc6_shp and huc_ranges using the HUC6 variable
+# ...
+
+# convert polygon to raster based on min elevation
+min_rast <- rasterize(huc6_shp_merged, dem_projected, field = "min_elev")
+
+# rasterize max_elev as well!
+# max_rast <- ...
+
+# use logic with the ifel function to mask out unwanted values
+masked_dem <- ifel(dem_projected < min_rast | dem_projected > max_rast, NA, dem_projected)
+```
+
+This should now be correctly masked based on station elevations within each HUC zone! Note that datasets can be easily converted between raster and vector data formats to help with specific problems, like this. Once complete, **compare your results here with output in question 3** and answer the question below. 
+
+6. Using the code above and code used in question 4, recalculate the percent of pixels within station elevation ranges by HUC6. Create a side-by-side plot showing your map in question 4 next to this new modified version using the masked_dem calculated with the code above. Use the same color and range of values (breaks) between plots to maintain consistency. How does this change your interpretation of results?
+    * *When plotting multiple base plots side-by-side, use the* `par()` *function. For plotting consistency and make the* `breaks =` *argument consistent between plots. See code below:*
+    
+```r
+# plot two maps side-by-side
+par(mfrow=c(1,2))
+# keep breaks argument same for each map plot
+breaks = seq(0, 100, 20)
+# add plots, one after another
+# ...
+```
 
 <br />
 
@@ -82,7 +191,7 @@ Now let's change gears and return to an analysis of the relationship between sno
 In a previous assignment, you created a scatter plot with SNOTEL data that shows the max SWE (snow water equivalent) during the 2022 winter season as a function of elevation (x-axis). Something this similar to:
 
 ```{r echo=FALSE, warning=F, message=F}
-dfj = read.csv("~/src/gds-R/data_tmp/snotel/UTSNTL_2021_2023_SWE_Joined.csv")
+df_snotel_swe = read.csv("~/src/gds-R/data_tmp/snotel/UTSNTL_2021_2023_SWE_Joined.csv")
 ```
 
 ```{r warning=F, message=F}
@@ -91,7 +200,7 @@ library(ggplot2);library(dplyr)
 library(ggpmisc) # package to show regression equation, R2
 
 # plot results
-dfj %>% filter(Water_Year==2022) %>% 
+df_snotel_swe %>% filter(Water_Year==2022) %>% 
   ggplot(aes(x = elevation_ft, y = values)) +
   geom_point(shape="o", color="grey25") + 
   labs(x = "Elevation (m)", y="SWE",
@@ -108,7 +217,7 @@ And statistically assessed the strength of this linear relationship, considering
 
 ```{r}
 # observe significance 
-dfj %>% 
+df_snotel_swe %>% 
   filter(Water_Year==2022) %>% 
   lm(values~elevation_ft, .) %>% 
   summary()
@@ -120,7 +229,7 @@ Consider that we have spatial information in this dataset which can also be incl
 
 ```{r}
 # multiple linear regression
-dfj %>% 
+df_snotel_swe %>% 
   filter(Water_Year==2022) %>% 
   lm(values~elevation_ft+Longitude+Latitude, .) %>% 
   summary()
@@ -132,16 +241,47 @@ Use either the `intersect` or `extract` function in `terra` to obtain the HUC6 c
 
 Before visualizing and showing the local relationships, filter out any HUC6 zones that contain less than 8 snotel stations. **This will only leave you with a total of six HUC6 regions.**
 
-6. (*2 pts*) Investigate the affect of elevation on max seasonal SWE (*inches*) by HUC6 code.  Provide a two-by-three (six plots) window scatterplot showing the linear relationship for each HUC6 code with the equation and \R^2\ value listed for each (similar to the plot above). Secondly, list the significance (*p-value*) and either the wellness of fit (\R^2\) or the RMSE for each. 
+7. (*3 pts*) Investigate the affect of elevation on max seasonal SWE (*inches*) by HUC6 code.  Provide a two-by-three (six plots) window scatterplot showing the linear relationship for each HUC6 code with the equation and \R^2\ value listed for each (similar to the plot above). Secondly, list the significance (*p-value*) and either the wellness of fit (\R^2\) or the RMSE for each. How does the local linear relationship compare to the global relationship computed above?
 
-**Tips:** *you may use base R but these steps are much faster and efficient using additional packages*:
+**Tips:** *these steps are much faster and efficient using additional packages (see bulleted list below)*:
 
-* first, extract HUC 6 labels
-* next, use`group_by`, `summarize`, and the `n()` function with `dplyr` to count total number of stations in each HUC 6 *i.e. determine which to keep
+* first, extract HUC 6 labels to stations
+* next, use`group_by`, `summarize`, and the `n()` function with `dplyr` to count total number of stations in each HUC 6 (i.e. determine which to keep *- see code below*)
 * then, use the `%in%` function, along with `filter` to remove unwanted stations with HUC 6 basins containing too few stations (using previous step output)
-* finally, use `ggplot` and the `facet_wrap` functions to create a multiple scatterplots side-by-side. Add the linear model with `geom_smooth` and equation and \R^2\  for each plot 
-* Fto show the output of each module in a table format (including the p-value, you can use the `broom` package with the function `group_modify(~ broom::tidy(lm(values ~ elevation_ft, data = .)))`
+* finally, use `ggplot` with a scatterplot and linear model, similar to the code above, and include the `facet_wrap(.~HUC6)` function to create a multiple side-by-side (faceted) plot windows by HUC6.
 
+```r
+# determine which HUCS to omit
+keep_hucs = as.data.frame(pts_huc) %>% 
+  select(HUC6) %>% 
+  dplyr::mutate(HUC6 = as.factor(HUC6)) %>% 
+  group_by(HUC6) %>% 
+  summarize(total_count = n()) %>% 
+  filter(total_count > 7) %>%        # only keep HUCs with 8 or more stations
+  select(HUC6)
+  
+# use this to `filter` HUCs before plotting
+# ...
+```
+
+* To show the output of each module in a table format (including the p-value, you can use the `broom` package with the function `group_modify()`. *See example below.*
+
+```r
+# install.packages("broom")
+library(broom)
+
+# group by HUC6
+snotel_points_huc %>% 
+  as.data.frame() %>%
+  # select ...
+  # filter ... 
+  # group ... 
+  # etc. ... %>%
+  group_modify(
+    ~ broom::tidy(lm(values ~ elevation_ft, data = .))
+    )
+
+```
 
 
 <br />

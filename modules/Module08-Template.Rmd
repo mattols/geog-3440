@@ -63,14 +63,21 @@ library(terra)
 ```
 
 
+<br />
+
+6. Using the code above and code used in question 4, recalculate the percent of pixels within station elevation ranges by HUC6. Create a side-by-side plot showing your map in question 4 next to this new modified version using the masked_dem calculated with the code above. Use the same color and range of values (breaks) between plots to maintain consistency. How does this change your interpretation of results?
+
+```{r}
+
+```
+
 
 <br />
 
 #### **Relationships between snow and elevation**
 
 
-
-6. (*2 pts*) Investigate the affect of elevation on max seasonal SWE (*inches*) by HUC6 code.  Provide a two-by-three (six plots) window scatterplot showing the linear relationship for each HUC6 code with the equation and \R^2\ value listed for each (similar to the plot above). Secondly, list the significance (*p-value*) and either the wellness of fit (\R^2\) or the RMSE for each. 
+7. (*3 pts*) Investigate the affect of elevation on max seasonal SWE (*inches*) by HUC6 code.  Provide a two-by-three (six plots) window scatterplot showing the linear relationship for each HUC6 code with the equation and \R^2\ value listed for each (similar to the plot above). Secondly, list the significance (*p-value*) and the wellness of fit (\R^2\). How does the local linear relationship compare to the global relationship computed above?
 
 
 ```{r}

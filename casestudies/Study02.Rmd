@@ -126,7 +126,7 @@ Stakeholders would like you to focus on assessing the terrain hazard in and arou
 - What is the percent of high risk avalanche terrain within each resort boundary?
     + Use the conditions from your results in Part 1 (i.e. top three most hazardous aspects) and also has a slope susceptible to avalanches. 
 - Describe which resort(s) might require the most avalanche mitigation work in and around the resort?
-- (*optional - only mandatory if your name is David*) Calculate the total area within 0.5 miles of each resort boundary that has a slope susceptible to avalanches.
+- Calculate the total area within 0.5 miles of each resort boundary that has a slope susceptible to avalanches.
 
 Use the central Wasatch DEM to **create a map** showing areas of hazardous terrain (`"red"`) in and around ski resort boundaries shown (using top three hazardous aspects and slope conditions). Show a **second map** or **other plot** to show the percentage of each resort has a high risk of experiencing avalanches. Use the pixel count to convert to an area estimate in km^2. Alternatively, combine information from these two steps into a single map.
 

@@ -1,0 +1,101 @@
+---
+title: "m8-extra-questions"
+output: html_document
+---
+
+
+
+
+
+### Extra ideas for module
+
+* elevation range within each HUC6 (rather than range for full state)
+* find highest peak by HUC 6 and calculate the average distance to the peak for each station
+* find distance between stations within each
+* read in PRISM data for a final analysis
+
+
+#### **highest peak (elevation) by HUC 6 and distance to station**
+
+```{r}
+# extract
+vals <- extract(dut_ft, h6, cells = TRUE)
+
+# Remove NA values
+vals <- vals[!is.na(vals[,2]), ]
+
+# Split by polygon ID and get max cell
+max_cells <- do.call(rbind, 
+                     lapply(split(vals, vals$ID), 
+                            function(df) {
+                              df[which.max(df[,2]), ]
+}))
+
+# Get xy coordinates of max cells
+xy <- xyFromCell(dut_ft, max_cells$cell)
+
+# Create SpatVector points
+max_points <- vect(xy, crs = crs(dut_ft))
+
+# Attach attributes (optional)
+max_points$elev <- max_cells[,2]
+max_points$poly_id <- max_cells$ID
+
+plot(dut_ft)
+plot(max_points, add=T, col='red')
+plot(project(h6, dut_ft), add=T, border='grey85', lty=3)
+plot(project(snotel_points, dut_ft), pch=3, add=T)
+```
+
+
+Calculate distance of all points
+
+```{r}
+distance(snotel_points, project(max_points, snotel_points))
+
+nn <- nearby(snotel_points, project(max_points, snotel_points), k = 1)
+head(nn)
+dist = nn[,2]
+sntl <- cbind(snotel_points, dist)
+head(sntl)
+
+# y variable (show average distance)
+sno_peak_dist <- zonal(sntl, h6, mean, as.polygons=T, na.rm=T)
+plot(sno_peak_dist, "y")
+```
+
+
+<br />
+<br />
+
+**EXTRA**
+
+*Not fully formed - ignore for now*
+
+Finally, use the Estimate (for *elevation_ft*) to describe how SWE changes relative to an increase of 10,000 feet within each of the six HUC6 regions.
+    * *The estimate (also known as the regression coefficient) represents the expected change in the outcome variable (dependent variable) for a one-unit change in the predictor variable (independent variable), while holding all other predictors constant. In other words, this value will descibes how a 1,000 unit change in x (elevation in ft) impacts a 1 unit change in y (SWE in inches)*
+    
+    
+```{r}
+# extract statistic
+swe_elev_est <- snotel_points_huc %>% as.data.frame() %>% 
+  select(station, values, elevation_ft, HUC6) %>% 
+  filter(HUC6 %in% keep_hucs$HUC6) %>% 
+  mutate(values = values/12) %>% 
+  group_by(HUC6) %>% 
+  group_modify(
+  ~ broom::tidy(lm(values ~ elevation_ft, data = .))
+  ) %>% 
+  filter(term=="elevation_ft") %>% 
+  mutate(est_1000 = round(estimate*10000, 2)) %>%
+  select(HUC6, est_1000)
+
+# merge with hic 6 data
+huc6_est <- merge(h6, swe_elev_est, by="HUC6")
+
+# plot
+plot(huc6_est, "est_1000", type='class', 
+     main = "SWE increase (ft) per 10,000 ft gain in elevation",
+     plg=list(title="estimate"))
+text(huc6_est, "HUC6", col="white", face="bold", cex=0.7)
+```

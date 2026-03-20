@@ -29,8 +29,7 @@ library(terra)
 ```
 
 Add additional code blocks as needed and provide any requested information...
-[Delete this line for submission
-]
+[Delete this line for submission]
 
 
 <br />
