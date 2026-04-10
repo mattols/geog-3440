@@ -14,6 +14,11 @@ Case studies provide you with an opportunity to use relevant workflows or real w
 library(terra)
 ```
 
+|    *Note that code blocks in this html file can be shown or hidden by clicking on the* `Show` *or* `Hide` *buttons throughout the document, or selecting the* `Code > Show/Hide all` *at the top right.*
+
+<br />
+
+
 ### **Avalanche Hazard**
 
 You were hired as a consultant by the Utah Avalanche Center (UAC) to analyze historical avalanche observations in the state, spatially assess avalanche risk, and create avalanche hazard maps from UAC forecast information over part of the Wasatch mountains. Avalanche-related deaths are not uncommon in Utah, with one or more occurring each year in parts of the state. The UAC, Forest Service, and UDOT Avalanche Team work tirelessly during the winter season to keep the public safe through mitigation efforts (*sometimes firing live artillery at the mountain side*) and accurate avalanche forecasting in the region.
@@ -37,17 +42,21 @@ To properly understand conditions that lead to an avalanche, a UAC representativ
 
 <br />
 
-**Your final report will consist of three parts**
+**Your final report will consist of three parts** (*outlined in the sections below*)
 
-1. Summary of historical avalanche observations
-2. Spatial assessment of avalanche risk across the state
-3. Avalanche hazard mapping in the Central Wasatch
+1. **Historical Observations:** Summary of historical avalanche observations
+2. **Spatial Risk Assessment:** Spatial assessment of avalanche risk across the state
+3. **Avalanche Hazard Modeling:** Avalanche hazard mapping in the Central Wasatch
     + Taking chances in and around ski resort
     + Terrain modeling with UAC forecast data
 
-Your results will be presented in a a single **final report** (*html*) complete with figures and maps to support your analysis. Each section of the report is outlined below.
+Your results will be presented in a a single **final report** (*html*) complete with figures and maps to support your analysis. 
+
+*Expectations for each section of the report is outlined below, including a short* **Final Report** *statement at the end of the document.*
 
 <br />
+
+___
 
 #### **Load in the Data**
 
@@ -67,11 +76,13 @@ avy_df <- read.csv("https://raw.githubusercontent.com/mattols/geospat_data/main/
 
 Load in a polygon feature of **Utah counties**:
 
-```{r}
+```{r, class.source = 'fold-show'}
 ut_cnty <- vect("https://github.com/mattols/geospat_data/raw/main/utah-counties.geojson")
 ```
 
 <br />
+
+___
 
 ### **Part 1. Historical Observations**
 
@@ -86,7 +97,7 @@ Your first task is to perform a basic analysis of reported avalanches throughout
 - What is the range of elevation for avalanches in the state?
 - What are the most common avalanche triggers?
 - Are certain activities (triggers) more deadly or more likely to cause an avalanche?
-- Are the total number of avalanches increasing each year? If so, is there a significant trend?
+- Are the total number of avalanches increasing each year? If so, is there a significant trend? (*keep in mind that the final year is not complete*)
 
 Be sure to include a **detailed paragraph** outlining your summary of observations. Provide, at minimum, **two plots** to summarize the information above and support your description. Present the facts shown in the data but add an interpretation or discussion regarding your results as well.
 
@@ -94,6 +105,7 @@ Be sure to include a **detailed paragraph** outlining your summary of observatio
 
 <br />
 
+___
 
 ### **Part 2. Spatial Risk Assessment**
 
@@ -105,11 +117,13 @@ Several factors may contribute to avalanche-related deaths. It is also possible 
 
 - Which counties show the most fatalities (*Killed* column)
 - Which counties have the highest probability of fatality if caught in an avalanche (assuming that fatalities are instances where individuals were caught)
-- (*optional*) Consider calculating the probability of other scenarios (*e.g. frequency of being fully buried when caught in an avalanche*).
+- (*optional*) Consider calculating the probability of other scenarios (*e.g. frequency of being fully buried when caught in an avalanche*) by county.
 
 Create a **single figure showing at least two map plots** side-by-side with the results above. Write **a few sentences** to summarize your takeaways and provide your interpretation of the results.
 
 <br />
+
+___
 
 ### **Part 3. Avalanche Hazard Modeling**
 
@@ -126,7 +140,7 @@ Stakeholders would like you to focus on assessing the terrain hazard in and arou
 - What is the percent of high risk avalanche terrain within each resort boundary?
     + Use the conditions from your results in Part 1 (i.e. top three most hazardous aspects) and also has a slope susceptible to avalanches. 
 - Describe which resort(s) might require the most avalanche mitigation work in and around the resort?
-- Calculate the total area within 0.5 miles of each resort boundary that has a slope susceptible to avalanches.
+- Calculate the total area within 0.5 miles of each resort boundary (but outside of the resort) that has a slope susceptible to avalanches. *This is a useful consideration for individuals that may go out of bounds and is helpful for ski resort management*
 
 Use the central Wasatch DEM to **create a map** showing areas of hazardous terrain (`"red"`) in and around ski resort boundaries shown (using top three hazardous aspects and slope conditions). Show a **second map** or **other plot** to show the percentage of each resort has a high risk of experiencing avalanches. Use the pixel count to convert to an area estimate in km^2. Alternatively, combine information from these two steps into a single map.
 
@@ -134,7 +148,7 @@ Use the central Wasatch DEM to **create a map** showing areas of hazardous terra
 
 #### **Part 3.2 Real-Time Hazard Modeling**
 
-Crop the extent of the DEM to the following: `xmin = -111.82, xmax = -111.53, ymin = 40.5, ymax = 40.7`. Stakeholders would like you to several hazard maps based on the UAC forecast data to test the viability of predicting avalanche hazard in the Cottonwoods.
+Crop the extent of the DEM to the following: `xmin = -111.82, xmax = -111.53, ymin = 40.5, ymax = 40.7`. Stakeholders would like you to create several hazard maps based on the UAC forecast data to test the viability of predicting avalanche hazard in the Cottonwoods.
 
 Fortunately, you received outside help from your old pal Dr. Olson to create a custom function that takes avalanche forecast data and a DEM to generate an avalanche hazard raster. To use the custom functions, you will need to load them into memory by calling `source("path_to_file/study2_functions.R")`. Look over each function in the file to understand how they work. You may edit these functions if you would like to make any changes. You can directly call the custom functions directly, and save the outputs:
 
@@ -145,14 +159,14 @@ hazard_raster <- UAC_forecast_hazard(dem, forecast_table, min_elv_ft)
 UAC_forecast_map(dem, hazard_raster, hill)
 ```
 
-The `forecast_table` is updated based on the rose diagram provided in an avalanche forecast with values 1="Low", 2="Moderate", 3="Considerable", 4="High", 5="Extreme" avalanche hazard. For each elevation, values in the first row beign with North and continue clockwise. For example:
+The `forecast_table` is updated based on the rose diagram provided in an avalanche forecast with values 1="Low", 2="Moderate", 3="Considerable", 4="High", 5="Extreme" avalanche hazard. For each elevation, values in the first row begin with North and continue clockwise. For example:
 
 ```{r}
 # example forecast
 forecast_table <- data.frame(
-  low = rep(1, 8), # specifying low hazard for low elevations
-  mid = rep(2, 8), # specifying moderate hazard for mid elevations
-  high = rep(3, 8)) # specifying considerable hazard for upper elevations
+  low = rep(1, 8), # specifying low hazard for all low elevations
+  mid = c(2, 2, rep(1, 5), 2), # moderate hazard for mid elevation north slopes only (low on others)
+  high = rep(3, 8)) # considerable hazard for all upper elevations
 
 forecast_table
 ```
@@ -161,16 +175,15 @@ Update the values in the forecast table based on the rose diagram in the UAC for
 
 **What stakeholders want to see:**
 
-- Avalanche hazard maps for:
+- Proof of concept avalanche hazard maps for:
     + [Feb 6, 2021](https://utahavalanchecenter.org/forecast/salt-lake/2/6/2021) 
     + [Feb 11, 2021](https://utahavalanchecenter.org/forecast/salt-lake/2/11/2021)
-- Observe the forecast and rose diagram for **Feb 11-18th**. Note that you can just change the dates in the url link (e.g. ...org/...2/12/2021) or look through the [UAC archives](https://utahavalanchecenter.org/archives/forecasts). Run your function over this 7-day period and extract the total area (in square kilometers) of avalanche terrain that is classified as considerable, high, and extreme. Create a plot showing how these values change over this week.
-- (optional) Combine layers to show which aspects and elevations had the greatest hazard during this week.
-- Subset the historical observation data over this same time period and compare the two to assess how well the hazard terrain modeling captures avalanche observations.
-- Describe next steps you could take to assess the performance of your hazard model in predicting avalanches.
+    + For each, include historical oavalanche observation point data that are within two days of the dates listed above to assess the how well your hazard maps predict observed avalanches for those days
 
-- Compare observation data from the same time period (within two days) to assess the how well your hazard maps predict observed avalanches for those days
-
+- Proof of concept for scalability: 
+    + Observe the forecasts and rose diagrams for each day over **Feb 11-18th**. Note that you can just change the dates in the url link (e.g. ...org/...2/12/2021) or look through the [UAC archives](https://utahavalanchecenter.org/archives/forecasts). 
+    + Use a `for` loop (or other iterative process) to run your `UAC_forecast_hazard` function over this 7-day period and, for each day, extract the total area (in square kilometers) of avalanche terrain that is classified as considerable, high, and extreme. Create a plot showing how these values change over this week. Use `ggplot` and `geom_bar` with `fill` to group these categories into a single plot.
+    + Subset the historical observation data over this same time period and assess whether observed avalanche patterns align with your terrain forecast hazard modeling over the course of this week
 
 **You should now have enough information to write your final report.**
 
@@ -181,6 +194,7 @@ Update the values in the forecast table based on the rose diagram in the UAC for
 > 1. Provide requested information from the historical observation data, including at least two plots and a detailed paragraph of your interpretation of the results.
 > 2. Provide information about avalanche fatality and risk by county, including at least two map plots side-by-side with a short description.
 > 3. Provide information about avalanche hazard modeling, including the two hazard maps, the figure or week-long changes in avalanche hazard, and a comparison of historical observations with the modeled hazard maps from UAC forecasts.
+> 4. Summarize your conclusions with a brief paragraph that includes specific quantitative results (values) that you gathered in the steps above. 
 
 
 <br />
@@ -189,6 +203,8 @@ Update the values in the forecast table based on the rose diagram in the UAC for
 #### **Final Submission**
 
 Upload a single, organized **report** for your stakeholders (**html**) written in **R Markdown**. Be sure to include requested items with **responses, figures, and maps**. 
+
+**Do not** include unnecessary code or details, make it a clean report!
 
 *Please reach out if you have any questions!*
 

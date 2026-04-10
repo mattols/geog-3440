@@ -449,6 +449,12 @@ are typically written in story problem form so humor me by jumping into
 character! Take time to carefully read and consider how to solve each
 problem.</p>
 <p><br /></p>
+<div class="line-block">   <em>Note that code blocks in this html file
+can be shown or hidden by clicking on the</em> <code>Show</code>
+<em>or</em> <code>Hide</code> <em>buttons throughout the document, or
+selecting the</em> <code>Code &gt; Show/Hide all</code> <em>at the top
+right.</em></div>
+<p><br /></p>
 <div id="avalanche-hazard" class="section level3">
 <h3><strong>Avalanche Hazard</strong></h3>
 <p>You were hired as a consultant by the Utah Avalanche Center (UAC) to
@@ -493,11 +499,15 @@ stability can change rapidly!</li>
 UAC forecast information to create an avalanche hazard map using DEM
 terrain analysis.</em></p>
 <p><br /></p>
-<p><strong>Your final report will consist of three parts</strong></p>
+<p><strong>Your final report will consist of three parts</strong>
+(<em>outlined in the sections below</em>)</p>
 <ol style="list-style-type: decimal">
-<li>Summary of historical avalanche observations</li>
-<li>Spatial assessment of avalanche risk across the state</li>
-<li>Avalanche hazard mapping in the Central Wasatch
+<li><strong>Historical Observations:</strong> Summary of historical
+avalanche observations</li>
+<li><strong>Spatial Risk Assessment:</strong> Spatial assessment of
+avalanche risk across the state</li>
+<li><strong>Avalanche Hazard Modeling:</strong> Avalanche hazard mapping
+in the Central Wasatch
 <ul>
 <li>Taking chances in and around ski resort</li>
 <li>Terrain modeling with UAC forecast data</li>
@@ -505,8 +515,12 @@ terrain analysis.</em></p>
 </ol>
 <p>Your results will be presented in a a single <strong>final
 report</strong> (<em>html</em>) complete with figures and maps to
-support your analysis. Each section of the report is outlined below.</p>
+support your analysis.</p>
+<p><em>Expectations for each section of the report is outlined below,
+including a short</em> <strong>Final Report</strong> <em>statement at
+the end of the document.</em></p>
 <p><br /></p>
+<hr />
 <div id="load-in-the-data" class="section level4">
 <h4><strong>Load in the Data</strong></h4>
 <p>Download this <a href="%22https://github.com/mattols/geospat_data/raw/main/ASTGTM2_N40W112_dem.tif%22">DEM</a>
@@ -522,8 +536,9 @@ resorts</strong> near Salt Lake County:</p>
 from 2012-2024:</p>
 <pre class="r fold-show"><code>avy_df &lt;- read.csv(&quot;https://raw.githubusercontent.com/mattols/geospat_data/main/avalanches_2012_2024.csv&quot;)</code></pre>
 <p>Load in a polygon feature of <strong>Utah counties</strong>:</p>
-<pre class="r"><code>ut_cnty &lt;- vect(&quot;https://github.com/mattols/geospat_data/raw/main/utah-counties.geojson&quot;)</code></pre>
+<pre class="r fold-show"><code>ut_cnty &lt;- vect(&quot;https://github.com/mattols/geospat_data/raw/main/utah-counties.geojson&quot;)</code></pre>
 <p><br /></p>
+<hr />
 </div>
 </div>
 <div id="part-1.-historical-observations" class="section level3">
@@ -544,7 +559,8 @@ record:</strong></p>
 <li>Are certain activities (triggers) more deadly or more likely to
 cause an avalanche?</li>
 <li>Are the total number of avalanches increasing each year? If so, is
-there a significant trend?</li>
+there a significant trend? (<em>keep in mind that the final year is not
+complete</em>)</li>
 </ul>
 <p>Be sure to include a <strong>detailed paragraph</strong> outlining
 your summary of observations. Provide, at minimum, <strong>two
@@ -553,6 +569,7 @@ description. Present the facts shown in the data but add an
 interpretation or discussion regarding your results as well.</p>
 <p><em>See the supplement for help and tips.</em></p>
 <p><br /></p>
+<hr />
 </div>
 <div id="part-2.-spatial-risk-assessment" class="section level3">
 <h3><strong>Part 2. Spatial Risk Assessment</strong></h3>
@@ -578,13 +595,14 @@ an avalanche (assuming that fatalities are instances where individuals
 were caught)</li>
 <li>(<em>optional</em>) Consider calculating the probability of other
 scenarios (<em>e.g. frequency of being fully buried when caught in an
-avalanche</em>).</li>
+avalanche</em>) by county.</li>
 </ul>
 <p>Create a <strong>single figure showing at least two map
 plots</strong> side-by-side with the results above. Write <strong>a few
 sentences</strong> to summarize your takeaways and provide your
 interpretation of the results.</p>
 <p><br /></p>
+<hr />
 </div>
 <div id="part-3.-avalanche-hazard-modeling" class="section level3">
 <h3><strong>Part 3. Avalanche Hazard Modeling</strong></h3>
@@ -613,7 +631,9 @@ hazardous aspects) and also has a slope susceptible to avalanches.</li>
 <li>Describe which resort(s) might require the most avalanche mitigation
 work in and around the resort?</li>
 <li>Calculate the total area within 0.5 miles of each resort boundary
-that has a slope susceptible to avalanches.</li>
+(but outside of the resort) that has a slope susceptible to avalanches.
+<em>This is a useful consideration for individuals that may go out of
+bounds and is helpful for ski resort management</em></li>
 </ul>
 <p>Use the central Wasatch DEM to <strong>create a map</strong> showing
 areas of hazardous terrain (<code>&quot;red&quot;</code>) in and around ski resort
@@ -629,9 +649,9 @@ steps into a single map.</p>
 <h4><strong>Part 3.2 Real-Time Hazard Modeling</strong></h4>
 <p>Crop the extent of the DEM to the following:
 <code>xmin = -111.82, xmax = -111.53, ymin = 40.5, ymax = 40.7</code>.
-Stakeholders would like you to several hazard maps based on the UAC
-forecast data to test the viability of predicting avalanche hazard in
-the Cottonwoods.</p>
+Stakeholders would like you to create several hazard maps based on the
+UAC forecast data to test the viability of predicting avalanche hazard
+in the Cottonwoods.</p>
 <p>Fortunately, you received outside help from your old pal Dr. Olson to
 create a custom function that takes avalanche forecast data and a DEM to
 generate an avalanche hazard raster. To use the custom functions, you
@@ -647,52 +667,55 @@ UAC_forecast_map(dem, hazard_raster, hill)</code></pre>
 <p>The <code>forecast_table</code> is updated based on the rose diagram
 provided in an avalanche forecast with values 1=“Low”, 2=“Moderate”,
 3=“Considerable”, 4=“High”, 5=“Extreme” avalanche hazard. For each
-elevation, values in the first row beign with North and continue
+elevation, values in the first row begin with North and continue
 clockwise. For example:</p>
 <pre class="r"><code># example forecast
 forecast_table &lt;- data.frame(
-  low = rep(1, 8), # specifying low hazard for low elevations
-  mid = rep(2, 8), # specifying moderate hazard for mid elevations
-  high = rep(3, 8)) # specifying considerable hazard for upper elevations
+  low = rep(1, 8), # specifying low hazard for all low elevations
+  mid = c(2, 2, rep(1, 5), 2), # moderate hazard for mid elevation north slopes only (low on others)
+  high = rep(3, 8)) # considerable hazard for all upper elevations
 
 forecast_table</code></pre>
 <pre><code>##   low mid high
 ## 1   1   2    3
 ## 2   1   2    3
-## 3   1   2    3
-## 4   1   2    3
-## 5   1   2    3
-## 6   1   2    3
-## 7   1   2    3
+## 3   1   1    3
+## 4   1   1    3
+## 5   1   1    3
+## 6   1   1    3
+## 7   1   1    3
 ## 8   1   2    3</code></pre>
 <p>Update the values in the forecast table based on the rose diagram in
 the UAC forecast.</p>
 <p><strong>What stakeholders want to see:</strong></p>
 <ul>
-<li><p>Avalanche hazard maps for:</p>
+<li>Proof of concept avalanche hazard maps for:
 <ul>
 <li><a href="https://utahavalanchecenter.org/forecast/salt-lake/2/6/2021">Feb
 6, 2021</a></li>
 <li><a href="https://utahavalanchecenter.org/forecast/salt-lake/2/11/2021">Feb
 11, 2021</a></li>
+<li>For each, include historical oavalanche observation point data that
+are within two days of the dates listed above to assess the how well
+your hazard maps predict observed avalanches for those days</li>
 </ul></li>
-<li><p>Observe the forecast and rose diagram for <strong>Feb
-11-18th</strong>. Note that you can just change the dates in the url
-link (e.g. …org/…2/12/2021) or look through the <a href="https://utahavalanchecenter.org/archives/forecasts">UAC
-archives</a>. Run your function over this 7-day period and extract the
-total area (in square kilometers) of avalanche terrain that is
-classified as considerable, high, and extreme. Create a plot showing how
-these values change over this week.</p></li>
-<li><p>(optional) Combine layers to show which aspects and elevations
-had the greatest hazard during this week.</p></li>
-<li><p>Subset the historical observation data over this same time period
-and compare the two to assess how well the hazard terrain modeling
-captures avalanche observations.</p></li>
-<li><p>Describe next steps you could take to assess the performance of
-your hazard model in predicting avalanches.</p></li>
-<li><p>Compare observation data from the same time period (within two
-days) to assess the how well your hazard maps predict observed
-avalanches for those days</p></li>
+<li>Proof of concept for scalability:
+<ul>
+<li>Observe the forecasts and rose diagrams for each day over
+<strong>Feb 11-18th</strong>. Note that you can just change the dates in
+the url link (e.g. …org/…2/12/2021) or look through the <a href="https://utahavalanchecenter.org/archives/forecasts">UAC
+archives</a>.</li>
+<li>Use a <code>for</code> loop (or other iterative process) to run your
+<code>UAC_forecast_hazard</code> function over this 7-day period and,
+for each day, extract the total area (in square kilometers) of avalanche
+terrain that is classified as considerable, high, and extreme. Create a
+plot showing how these values change over this week. Use
+<code>ggplot</code> and <code>geom_bar</code> with <code>fill</code> to
+group these categories into a single plot.</li>
+<li>Subset the historical observation data over this same time period
+and assess whether observed avalanche patterns align with your terrain
+forecast hazard modeling over the course of this week</li>
+</ul></li>
 </ul>
 <p><strong>You should now have enough information to write your final
 report.</strong></p>
@@ -712,6 +735,9 @@ description.</li>
 two hazard maps, the figure or week-long changes in avalanche hazard,
 and a comparison of historical observations with the modeled hazard maps
 from UAC forecasts.</li>
+<li>Summarize your conclusions with a brief paragraph that includes
+specific quantitative results (values) that you gathered in the steps
+above.</li>
 </ol>
 </blockquote>
 <p><br /> <br /></p>
@@ -722,6 +748,8 @@ from UAC forecasts.</li>
 stakeholders (<strong>html</strong>) written in <strong>R
 Markdown</strong>. Be sure to include requested items with
 <strong>responses, figures, and maps</strong>.</p>
+<p><strong>Do not</strong> include unnecessary code or details, make it
+a clean report!</p>
 <p><em>Please reach out if you have any questions!</em></p>
 <p><br /> <br /></p>
 </div>
